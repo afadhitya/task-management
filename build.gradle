@@ -44,3 +44,11 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// Configure bootRun to pass properties from gradle.properties as environment variables
+bootRun {
+	environment 'DB_URL', findProperty('DB_URL') ?: 'jdbc:postgresql://localhost:5432/taskmanagement'
+	environment 'DB_USERNAME', findProperty('DB_USERNAME') ?: 'postgres'
+	environment 'DB_PASSWORD', findProperty('DB_PASSWORD') ?: 'postgres'
+	environment 'JWT_SECRET', findProperty('JWT_SECRET') ?: 'change-this-to-a-secure-secret-key-in-production'
+}
