@@ -16,7 +16,7 @@ Each API should be marked as `done` once implemented and verified.
 
 | Status | Method | Endpoint | Description |
 |--------|--------|----------|-------------|
-| [ ] | POST | `/auth/register` | Register new user |
+| [x] | POST | `/auth/register` | Register new user |
 | [ ] | POST | `/auth/login` | User login |
 | [ ] | POST | `/auth/logout` | User logout |
 | [ ] | POST | `/auth/refresh-token` | Refresh access token |
