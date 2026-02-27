@@ -1,0 +1,26 @@
+package com.afadhitya.taskmanagement.application.usecase.task;
+
+import com.afadhitya.taskmanagement.application.dto.response.TaskResponse;
+import com.afadhitya.taskmanagement.application.mapper.TaskMapper;
+import com.afadhitya.taskmanagement.application.port.in.task.GetTaskByIdUseCase;
+import com.afadhitya.taskmanagement.application.port.out.task.TaskPersistencePort;
+import com.afadhitya.taskmanagement.domain.entity.Task;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class GetTaskByIdUseCaseImpl implements GetTaskByIdUseCase {
+
+    private final TaskPersistencePort taskPersistencePort;
+    private final TaskMapper taskMapper;
+
+    @Override
+    public TaskResponse getTaskById(Long id) {
+        Task task = taskPersistencePort.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Task not found with id: " + id));
+        return taskMapper.toResponse(task);
+    }
+}

@@ -2,10 +2,13 @@ package com.afadhitya.taskmanagement.adapter.in.web;
 
 import com.afadhitya.taskmanagement.application.dto.request.CreateTaskRequest;
 import com.afadhitya.taskmanagement.application.dto.request.TaskFilterRequest;
+import com.afadhitya.taskmanagement.application.dto.request.UpdateTaskRequest;
 import com.afadhitya.taskmanagement.application.dto.response.PagedResponse;
 import com.afadhitya.taskmanagement.application.dto.response.TaskResponse;
 import com.afadhitya.taskmanagement.application.port.in.task.CreateTaskUseCase;
+import com.afadhitya.taskmanagement.application.port.in.task.GetTaskByIdUseCase;
 import com.afadhitya.taskmanagement.application.port.in.task.GetTasksByProjectUseCase;
+import com.afadhitya.taskmanagement.application.port.in.task.UpdateTaskUseCase;
 import com.afadhitya.taskmanagement.domain.enums.TaskPriority;
 import com.afadhitya.taskmanagement.domain.enums.TaskStatus;
 import com.afadhitya.taskmanagement.infrastructure.config.OpenApiConfig;
@@ -29,6 +32,8 @@ public class TaskController {
 
     private final CreateTaskUseCase createTaskUseCase;
     private final GetTasksByProjectUseCase getTasksByProjectUseCase;
+    private final GetTaskByIdUseCase getTaskByIdUseCase;
+    private final UpdateTaskUseCase updateTaskUseCase;
 
     @PreAuthorize("@projectSecurity.canContributeToProject(#projectId)")
     @PostMapping("/projects/{projectId}/tasks")
@@ -70,6 +75,22 @@ public class TaskController {
         
         PagedResponse<TaskResponse> response = getTasksByProjectUseCase.getTasksByProject(
                 projectId, filter, page, size, sortBy, sortDirection);
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("@projectSecurity.canViewProject(#id)")
+    @GetMapping("/tasks/{id}")
+    public ResponseEntity<TaskResponse> getTaskById(@PathVariable Long id) {
+        TaskResponse task = getTaskByIdUseCase.getTaskById(id);
+        return ResponseEntity.ok(task);
+    }
+
+    @PreAuthorize("@projectSecurity.canContributeToProject(#id)")
+    @PatchMapping("/tasks/{id}")
+    public ResponseEntity<TaskResponse> updateTask(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateTaskRequest request) {
+        TaskResponse response = updateTaskUseCase.updateTask(id, request);
         return ResponseEntity.ok(response);
     }
 }
