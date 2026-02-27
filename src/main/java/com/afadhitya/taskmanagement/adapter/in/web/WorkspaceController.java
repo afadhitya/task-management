@@ -24,6 +24,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -52,12 +53,14 @@ public class WorkspaceController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PreAuthorize("@workspaceSecurity.isWorkspaceMember(#id)")
     @GetMapping("/{id}")
     public ResponseEntity<WorkspaceResponse> getWorkspaceById(@PathVariable Long id) {
         WorkspaceResponse workspace = getWorkspaceByIdUseCase.getWorkspaceById(id);
         return ResponseEntity.ok(workspace);
     }
 
+    @PreAuthorize("@workspaceSecurity.hasWorkspaceRole(#id, 'OWNER', 'ADMIN')")
     @PatchMapping("/{id}")
     public ResponseEntity<WorkspaceResponse> updateWorkspace(
             @PathVariable Long id,
@@ -67,6 +70,7 @@ public class WorkspaceController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("@workspaceSecurity.isWorkspaceOwner(#id)")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteWorkspace(@PathVariable Long id) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
@@ -74,6 +78,7 @@ public class WorkspaceController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("@workspaceSecurity.isWorkspaceMember(#id)")
     @GetMapping("/{id}/members")
     public ResponseEntity<List<WorkspaceMemberResponse>> getWorkspaceMembers(@PathVariable Long id) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
@@ -81,6 +86,7 @@ public class WorkspaceController {
         return ResponseEntity.ok(members);
     }
 
+    @PreAuthorize("@workspaceSecurity.hasWorkspaceRole(#id, 'OWNER', 'ADMIN')")
     @PostMapping("/{id}/members/invite")
     public ResponseEntity<WorkspaceMemberResponse> inviteMember(
             @PathVariable Long id,
@@ -90,6 +96,7 @@ public class WorkspaceController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PreAuthorize("@workspaceSecurity.hasWorkspaceRole(#id, 'OWNER', 'ADMIN')")
     @PatchMapping("/{id}/members/{userId}")
     public ResponseEntity<WorkspaceMemberResponse> updateMemberRole(
             @PathVariable Long id,
@@ -100,6 +107,7 @@ public class WorkspaceController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("@workspaceSecurity.isWorkspaceOwner(#id)")
     @PostMapping("/{id}/transfer-ownership")
     public ResponseEntity<WorkspaceMemberResponse> transferOwnership(
             @PathVariable Long id,
@@ -109,6 +117,7 @@ public class WorkspaceController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("@workspaceSecurity.hasWorkspaceRole(#id, 'OWNER', 'ADMIN')")
     @DeleteMapping("/{id}/members/{userId}")
     public ResponseEntity<Void> removeMember(
             @PathVariable Long id,
@@ -118,6 +127,7 @@ public class WorkspaceController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("@workspaceSecurity.isWorkspaceMember(#id)")
     @PostMapping("/{id}/leave")
     public ResponseEntity<Void> leaveWorkspace(@PathVariable Long id) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
