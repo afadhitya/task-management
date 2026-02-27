@@ -17,4 +17,6 @@ public interface WorkspaceMemberPersistencePort {
     boolean existsByWorkspaceIdAndUserIdAndRole(Long workspaceId, Long userId, WorkspaceRole role);
 
     boolean existsByWorkspaceIdAndUserId(Long workspaceId, Long userId);
+
+    void delete(WorkspaceMember workspaceMember);
 }

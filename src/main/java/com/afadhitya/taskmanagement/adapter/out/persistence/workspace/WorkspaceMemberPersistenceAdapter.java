@@ -40,4 +40,9 @@ public class WorkspaceMemberPersistenceAdapter implements WorkspaceMemberPersist
     public boolean existsByWorkspaceIdAndUserId(Long workspaceId, Long userId) {
         return workspaceMemberRepository.existsByWorkspaceIdAndUserId(workspaceId, userId);
     }
+
+    @Override
+    public void delete(WorkspaceMember workspaceMember) {
+        workspaceMemberRepository.delete(workspaceMember);
+    }
 }
