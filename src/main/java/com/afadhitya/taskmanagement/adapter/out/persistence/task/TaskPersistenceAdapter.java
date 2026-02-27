@@ -1,9 +1,12 @@
 package com.afadhitya.taskmanagement.adapter.out.persistence.task;
 
 import com.afadhitya.taskmanagement.adapter.out.persistence.TaskRepository;
+import com.afadhitya.taskmanagement.application.dto.request.TaskFilterRequest;
 import com.afadhitya.taskmanagement.application.port.out.task.TaskPersistencePort;
 import com.afadhitya.taskmanagement.domain.entity.Task;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -28,6 +31,21 @@ public class TaskPersistenceAdapter implements TaskPersistencePort {
     @Override
     public List<Task> findByProjectId(Long projectId) {
         return taskRepository.findByProjectId(projectId);
+    }
+
+    @Override
+    public Page<Task> findByProjectIdWithFilters(Long projectId, TaskFilterRequest filter, Pageable pageable) {
+        return taskRepository.findByProjectIdWithFilters(
+                projectId,
+                filter.status(),
+                filter.priority(),
+                filter.parentTaskId(),
+                filter.dueDateFrom(),
+                filter.dueDateTo(),
+                filter.search(),
+                filter.assigneeIds(),
+                pageable
+        );
     }
 
     @Override
