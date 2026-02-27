@@ -3,7 +3,11 @@ package com.afadhitya.taskmanagement.adapter.in.web;
 import com.afadhitya.taskmanagement.application.dto.CreateUserRequest;
 import com.afadhitya.taskmanagement.application.dto.UpdateUserRequest;
 import com.afadhitya.taskmanagement.application.dto.UserResponse;
-import com.afadhitya.taskmanagement.application.service.UserService;
+import com.afadhitya.taskmanagement.application.port.in.user.CreateUserUseCase;
+import com.afadhitya.taskmanagement.application.port.in.user.DeleteUserByIdUseCase;
+import com.afadhitya.taskmanagement.application.port.in.user.GetAllUsersUseCase;
+import com.afadhitya.taskmanagement.application.port.in.user.GetUserByIdUseCase;
+import com.afadhitya.taskmanagement.application.port.in.user.UpdateUserUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,23 +21,27 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    private final CreateUserUseCase createUserUseCase;
+    private final GetAllUsersUseCase getAllUsersUseCase;
+    private final GetUserByIdUseCase getUserByIdUseCase;
+    private final UpdateUserUseCase updateUserUseCase;
+    private final DeleteUserByIdUseCase deleteUserByIdUseCase;
 
     @PostMapping
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
-        UserResponse response = userService.createUser(request);
+        UserResponse response = createUserUseCase.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {
-        List<UserResponse> users = userService.getAllUsers();
+        List<UserResponse> users = getAllUsersUseCase.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
-        UserResponse user = userService.getUserById(id);
+        UserResponse user = getUserByIdUseCase.getUserById(id);
         return ResponseEntity.ok(user);
     }
 
@@ -41,13 +49,13 @@ public class UserController {
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequest request) {
-        UserResponse response = userService.updateUser(id, request);
+        UserResponse response = updateUserUseCase.updateUser(id, request);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+        deleteUserByIdUseCase.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 }
