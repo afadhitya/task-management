@@ -1,12 +1,16 @@
 package com.afadhitya.taskmanagement.adapter.in.web;
 
+import com.afadhitya.taskmanagement.application.dto.request.AddProjectMemberRequest;
 import com.afadhitya.taskmanagement.application.dto.request.CreateProjectRequest;
 import com.afadhitya.taskmanagement.application.dto.request.UpdateProjectRequest;
+import com.afadhitya.taskmanagement.application.dto.response.ProjectMemberResponse;
 import com.afadhitya.taskmanagement.application.dto.response.ProjectResponse;
+import com.afadhitya.taskmanagement.application.port.in.project.AddProjectMemberUseCase;
 import com.afadhitya.taskmanagement.application.port.in.project.CreateProjectUseCase;
 import com.afadhitya.taskmanagement.application.port.in.project.DeleteProjectUseCase;
 import com.afadhitya.taskmanagement.application.port.in.project.GetProjectByIdUseCase;
 import com.afadhitya.taskmanagement.application.port.in.project.GetProjectsByWorkspaceUseCase;
+import com.afadhitya.taskmanagement.application.port.in.project.RemoveProjectMemberUseCase;
 import com.afadhitya.taskmanagement.application.port.in.project.UpdateProjectUseCase;
 import com.afadhitya.taskmanagement.infrastructure.config.OpenApiConfig;
 import com.afadhitya.taskmanagement.infrastructure.security.SecurityUtils;
@@ -29,6 +33,8 @@ public class ProjectController {
     private final GetProjectByIdUseCase getProjectByIdUseCase;
     private final UpdateProjectUseCase updateProjectUseCase;
     private final DeleteProjectUseCase deleteProjectUseCase;
+    private final AddProjectMemberUseCase addProjectMemberUseCase;
+    private final RemoveProjectMemberUseCase removeProjectMemberUseCase;
 
     @PostMapping("/workspaces/{workspaceId}/projects")
     public ResponseEntity<ProjectResponse> createProject(
@@ -69,6 +75,22 @@ public class ProjectController {
     @DeleteMapping("/projects/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         deleteProjectUseCase.deleteProject(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/projects/{id}/members")
+    public ResponseEntity<ProjectMemberResponse> addMember(
+            @PathVariable Long id,
+            @Valid @RequestBody AddProjectMemberRequest request) {
+        ProjectMemberResponse response = addProjectMemberUseCase.addMember(id, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @DeleteMapping("/projects/{id}/members/{userId}")
+    public ResponseEntity<Void> removeMember(
+            @PathVariable Long id,
+            @PathVariable Long userId) {
+        removeProjectMemberUseCase.removeMember(id, userId);
         return ResponseEntity.noContent().build();
     }
 }
