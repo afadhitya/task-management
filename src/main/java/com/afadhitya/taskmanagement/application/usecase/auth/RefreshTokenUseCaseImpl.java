@@ -53,6 +53,7 @@ public class RefreshTokenUseCaseImpl implements RefreshTokenUseCase {
 
         return AuthResponse.builder()
                 .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
                 .tokenType("Bearer")
                 .expiresIn(jwtService.getAccessTokenExpirationSeconds())
                 .user(AuthResponse.UserInfo.builder()

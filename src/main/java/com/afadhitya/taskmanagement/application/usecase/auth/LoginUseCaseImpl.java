@@ -48,6 +48,7 @@ public class LoginUseCaseImpl implements LoginUseCase {
 
         return AuthResponse.builder()
                 .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .tokenType("Bearer")
                 .expiresIn(jwtService.getAccessTokenExpirationSeconds())
                 .user(AuthResponse.UserInfo.builder()
