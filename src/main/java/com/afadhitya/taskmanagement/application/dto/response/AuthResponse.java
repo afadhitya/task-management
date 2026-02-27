@@ -1,13 +1,17 @@
 package com.afadhitya.taskmanagement.application.dto.response;
 
+import lombok.Builder;
+
 import java.time.LocalDateTime;
 
+@Builder
 public record AuthResponse(
         String accessToken,
         String tokenType,
         Long expiresIn,
         UserInfo user
 ) {
+    @Builder
     public record UserInfo(
             Long id,
             String email,

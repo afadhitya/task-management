@@ -42,17 +42,17 @@ public class LoginUseCaseImpl implements LoginUseCase {
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail());
         String refreshToken = jwtService.generateRefreshToken(user.getId());
 
-        return new AuthResponse(
-                accessToken,
-                "Bearer",
-                jwtService.getAccessTokenExpirationSeconds(),
-                new AuthResponse.UserInfo(
-                        user.getId(),
-                        user.getEmail(),
-                        user.getFullName(),
-                        user.getAvatarUrl(),
-                        user.getCreatedAt()
-                )
-        );
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .tokenType("Bearer")
+                .expiresIn(jwtService.getAccessTokenExpirationSeconds())
+                .user(AuthResponse.UserInfo.builder()
+                        .id(user.getId())
+                        .email(user.getEmail())
+                        .fullName(user.getFullName())
+                        .avatarUrl(user.getAvatarUrl())
+                        .createdAt(user.getCreatedAt())
+                        .build())
+                .build();
     }
 }

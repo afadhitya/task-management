@@ -33,17 +33,17 @@ public class RegisterUseCaseImpl implements RegisterUseCase {
 
         User savedUser = userAuthPersistencePort.save(user);
 
-        return new AuthResponse(
-                null,
-                "Bearer",
-                null,
-                new AuthResponse.UserInfo(
-                        savedUser.getId(),
-                        savedUser.getEmail(),
-                        savedUser.getFullName(),
-                        savedUser.getAvatarUrl(),
-                        savedUser.getCreatedAt()
-                )
-        );
+        return AuthResponse.builder()
+                .accessToken(null)
+                .tokenType("Bearer")
+                .expiresIn(null)
+                .user(AuthResponse.UserInfo.builder()
+                        .id(savedUser.getId())
+                        .email(savedUser.getEmail())
+                        .fullName(savedUser.getFullName())
+                        .avatarUrl(savedUser.getAvatarUrl())
+                        .createdAt(savedUser.getCreatedAt())
+                        .build())
+                .build();
     }
 }
