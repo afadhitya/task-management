@@ -38,6 +38,7 @@ Each API should be marked as `done` once implemented and verified.
 | [x] | GET | `/workspaces/:id/members` | List workspace members |
 | [x] | POST | `/workspaces/:id/members/invite` | Invite member to workspace |
 | [x] | PATCH | `/workspaces/:id/members/:userId` | Update member role |
+| [x] | POST | `/workspaces/:id/transfer-ownership` | Transfer workspace ownership |
 | [ ] | DELETE | `/workspaces/:id/members/:userId` | Remove member from workspace |
 
 ---

@@ -2,6 +2,7 @@ package com.afadhitya.taskmanagement.adapter.in.web;
 
 import com.afadhitya.taskmanagement.application.dto.request.CreateWorkspaceRequest;
 import com.afadhitya.taskmanagement.application.dto.request.InviteMemberRequest;
+import com.afadhitya.taskmanagement.application.dto.request.TransferOwnershipRequest;
 import com.afadhitya.taskmanagement.application.dto.request.UpdateMemberRoleRequest;
 import com.afadhitya.taskmanagement.application.dto.request.UpdateWorkspaceRequest;
 import com.afadhitya.taskmanagement.application.dto.response.WorkspaceMemberResponse;
@@ -11,6 +12,7 @@ import com.afadhitya.taskmanagement.application.port.in.workspace.DeleteWorkspac
 import com.afadhitya.taskmanagement.application.port.in.workspace.GetWorkspaceByIdUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.GetWorkspaceMembersUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.InviteMemberUseCase;
+import com.afadhitya.taskmanagement.application.port.in.workspace.TransferOwnershipUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.UpdateMemberRoleUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.UpdateWorkspaceUseCase;
 import com.afadhitya.taskmanagement.infrastructure.config.OpenApiConfig;
@@ -37,6 +39,7 @@ public class WorkspaceController {
     private final GetWorkspaceMembersUseCase getWorkspaceMembersUseCase;
     private final InviteMemberUseCase inviteMemberUseCase;
     private final UpdateMemberRoleUseCase updateMemberRoleUseCase;
+    private final TransferOwnershipUseCase transferOwnershipUseCase;
 
     @PostMapping
     public ResponseEntity<WorkspaceResponse> createWorkspace(@Valid @RequestBody CreateWorkspaceRequest request) {
@@ -90,6 +93,15 @@ public class WorkspaceController {
             @Valid @RequestBody UpdateMemberRoleRequest request) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         WorkspaceMemberResponse response = updateMemberRoleUseCase.updateMemberRole(id, userId, request, currentUserId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{id}/transfer-ownership")
+    public ResponseEntity<WorkspaceMemberResponse> transferOwnership(
+            @PathVariable Long id,
+            @Valid @RequestBody TransferOwnershipRequest request) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        WorkspaceMemberResponse response = transferOwnershipUseCase.transferOwnership(id, request, currentUserId);
         return ResponseEntity.ok(response);
     }
 }
