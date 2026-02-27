@@ -42,6 +42,10 @@ public class LoginUseCaseImpl implements LoginUseCase {
         String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail());
         String refreshToken = jwtService.generateRefreshToken(user.getId());
 
+        // Store the refresh token for logout invalidation
+        user.setRefreshToken(refreshToken);
+        userAuthPersistencePort.save(user);
+
         return AuthResponse.builder()
                 .accessToken(accessToken)
                 .tokenType("Bearer")

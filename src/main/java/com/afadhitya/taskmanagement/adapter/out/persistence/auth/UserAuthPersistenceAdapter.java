@@ -25,6 +25,11 @@ public class UserAuthPersistenceAdapter implements UserAuthPersistencePort {
     }
 
     @Override
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    @Override
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
