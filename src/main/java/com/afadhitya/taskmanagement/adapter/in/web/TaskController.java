@@ -1,10 +1,12 @@
 package com.afadhitya.taskmanagement.adapter.in.web;
 
+import com.afadhitya.taskmanagement.application.dto.request.CreateSubtaskRequest;
 import com.afadhitya.taskmanagement.application.dto.request.CreateTaskRequest;
 import com.afadhitya.taskmanagement.application.dto.request.TaskFilterRequest;
 import com.afadhitya.taskmanagement.application.dto.request.UpdateTaskRequest;
 import com.afadhitya.taskmanagement.application.dto.response.PagedResponse;
 import com.afadhitya.taskmanagement.application.dto.response.TaskResponse;
+import com.afadhitya.taskmanagement.application.port.in.task.CreateSubtaskUseCase;
 import com.afadhitya.taskmanagement.application.port.in.task.CreateTaskUseCase;
 import com.afadhitya.taskmanagement.application.port.in.task.DeleteTaskUseCase;
 import com.afadhitya.taskmanagement.application.port.in.task.GetTaskByIdUseCase;
@@ -36,6 +38,7 @@ public class TaskController {
     private final GetTaskByIdUseCase getTaskByIdUseCase;
     private final UpdateTaskUseCase updateTaskUseCase;
     private final DeleteTaskUseCase deleteTaskUseCase;
+    private final CreateSubtaskUseCase createSubtaskUseCase;
 
     @PreAuthorize("@projectSecurity.canContributeToProject(#projectId)")
     @PostMapping("/projects/{projectId}/tasks")
@@ -101,5 +104,15 @@ public class TaskController {
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         deleteTaskUseCase.deleteTask(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("@projectSecurity.canContributeToProject(#id)")
+    @PostMapping("/tasks/{id}/subtasks")
+    public ResponseEntity<TaskResponse> createSubtask(
+            @PathVariable Long id,
+            @Valid @RequestBody CreateSubtaskRequest request) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        TaskResponse response = createSubtaskUseCase.createSubtask(id, request, currentUserId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }
