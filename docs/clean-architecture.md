@@ -30,7 +30,7 @@ src/
     │   └── com/afadhitya/taskmanagement/
     │       │
     │       ├── domain/                          # 🟡 DOMAIN LAYER (innermost)
-    │       │   ├── entity/                      # Core business entities
+    │       │   ├── entity/                      # Core business entities (JPA annotated)
     │       │   │   ├── User.java
     │       │   │   ├── Workspace.java
     │       │   │   ├── WorkspaceMember.java
@@ -43,17 +43,25 @@ src/
     │       │   │   ├── Attachment.java
     │       │   │   ├── Notification.java
     │       │   │   └── AuditLog.java
-    │       │   └── enums/                       # Domain enums
-    │       │       ├── PlanTier.java
-    │       │       ├── WorkspaceRole.java
-    │       │       ├── ProjectPermission.java
-    │       │       ├── TaskStatus.java
-    │       │       └── TaskPriority.java
+    │       │   ├── enums/                       # Domain enums
+    │       │   │   ├── PlanTier.java
+    │       │   │   ├── WorkspaceRole.java
+    │       │   │   ├── ProjectPermission.java
+    │       │   │   ├── TaskStatus.java
+    │       │   │   └── TaskPriority.java
+    │       │   └── exception/                   # Domain exceptions
+    │       │       └── InvalidTokenException.java
     │       │
     │       ├── application/                     # 🟠 APPLICATION LAYER
     │       │   ├── usecase/                     # Use case implementations
     │       │   │   ├── auth/
-    │       │   │   │   └── RegisterUseCaseImpl.java
+    │       │   │   │   ├── RegisterUseCaseImpl.java
+    │       │   │   │   ├── LoginUseCaseImpl.java
+    │       │   │   │   ├── LogoutUseCaseImpl.java
+    │       │   │   │   ├── RefreshTokenUseCaseImpl.java
+    │       │   │   │   ├── ForgotPasswordUseCaseImpl.java
+    │       │   │   │   ├── ResetPasswordUseCaseImpl.java
+    │       │   │   │   └── GetCurrentUserUseCaseImpl.java
     │       │   │   ├── user/
     │       │   │   │   ├── CreateUserUseCaseImpl.java
     │       │   │   │   ├── GetUserByIdUseCaseImpl.java
@@ -68,7 +76,13 @@ src/
     │       │   ├── port/                        # Interfaces (boundaries)
     │       │   │   ├── in/                      # Driving ports (input)
     │       │   │   │   ├── auth/
-    │       │   │   │   │   └── RegisterUseCase.java
+    │       │   │   │   │   ├── RegisterUseCase.java
+    │       │   │   │   │   ├── LoginUseCase.java
+    │       │   │   │   │   ├── LogoutUseCase.java
+    │       │   │   │   │   ├── RefreshTokenUseCase.java
+    │       │   │   │   │   ├── ForgotPasswordUseCase.java
+    │       │   │   │   │   ├── ResetPasswordUseCase.java
+    │       │   │   │   │   └── GetCurrentUserUseCase.java
     │       │   │   │   ├── user/
     │       │   │   │   │   ├── CreateUserUseCase.java
     │       │   │   │   │   ├── GetUserByIdUseCase.java
@@ -82,7 +96,8 @@ src/
     │       │   │   │       └── DeleteWorkspaceByIdUseCase.java
     │       │   │   └── out/                     # Driven ports (output)
     │       │   │       ├── auth/
-    │       │   │       │   └── UserAuthPersistencePort.java
+    │       │   │       │   ├── UserAuthPersistencePort.java
+    │       │   │       │   └── EmailServicePort.java
     │       │   │       ├── user/
     │       │   │       │   └── UserPersistencePort.java
     │       │   │       └── workspace/
@@ -90,6 +105,11 @@ src/
     │       │   ├── dto/                         # Application-level DTOs
     │       │   │   ├── request/
     │       │   │   │   ├── RegisterRequest.java
+    │       │   │   │   ├── LoginRequest.java
+    │       │   │   │   ├── LogoutRequest.java
+    │       │   │   │   ├── RefreshTokenRequest.java
+    │       │   │   │   ├── ForgotPasswordRequest.java
+    │       │   │   │   ├── ResetPasswordRequest.java
     │       │   │   │   ├── CreateUserRequest.java
     │       │   │   │   ├── UpdateUserRequest.java
     │       │   │   │   ├── CreateWorkspaceRequest.java
@@ -120,14 +140,25 @@ src/
     │       │               └── WorkspacePersistenceAdapter.java
     │       │
     │       └── infrastructure/                  # 🔴 INFRASTRUCTURE LAYER (outermost)
-    │           └── config/
-    │               └── SecurityConfig.java      # Password encoder config
+    │           ├── config/
+    │           │   ├── SecurityConfig.java      # Spring Security + JWT filter
+    │           │   └── OpenApiConfig.java       # Swagger/OpenAPI config
+    │           ├── security/
+    │           │   ├── JwtAuthenticationFilter.java
+    │           │   ├── JwtService.java
+    │           │   ├── JwtProperties.java
+    │           │   ├── UserDetailsImpl.java
+    │           │   └── UserDetailsServiceImpl.java
+    │           └── service/
+    │               └── EmailServiceStub.java    # Stub for email service
     │
     └── resources/
         ├── application.properties               # Main config
         └── db/
             └── migration/
-                └── V1__Initial_schema.sql       # Flyway migration
+                ├── V1__Initial_schema.sql       # Flyway migration
+                ├── V2__Add_refresh_token_to_users.sql
+                └── V3__add_password_reset_token_to_users.sql
 ```
 
 ---
@@ -135,16 +166,15 @@ src/
 ## Layer Responsibilities
 
 ### 🟡 Domain Layer
-The heart of the application. Contains pure business logic with **zero dependencies** on frameworks or libraries.
+The heart of the application. Contains business logic with **minimal dependencies**.
 
 | Component | Purpose |
 |---|---|
-| `entity/` | Core business objects with identity (e.g., `User`, `Order`) |
-| `valueobject/` | Immutable descriptors without identity (e.g., `Email`, `Money`) |
-| `exception/` | Business rule violations |
-| `event/` | Things that happened in the domain |
+| `entity/` | Core business objects with JPA annotations (pragmatic approach) |
+| `enums/` | Domain enumerations (statuses, roles, permissions) |
+| `exception/` | Business rule violation exceptions |
 
-> **Rule:** No Spring annotations, no JPA, no external imports here.
+> **Note:** Domain entities use JPA annotations directly (pragmatic approach for MVP). No separate JPA entities.
 
 ---
 
@@ -157,20 +187,19 @@ Orchestrates the flow of data and coordinates domain objects to fulfil use cases
 | `port/in/` | Input port interfaces (what the use case exposes) |
 | `port/out/` | Output port interfaces (what the use case needs from outside) |
 | `dto/` | Data structures crossing the application boundary |
-| `mapper/` | Converts between domain objects and DTOs |
+| `mapper/` | MapStruct converters between domain objects and DTOs |
 
-> **Rule:** Depends only on the Domain layer. No Spring Web, no JPA.
+> **Rule:** Depends only on the Domain layer. No Spring Web, no JPA in use case logic.
 
 ---
 
 ### 🔵 Interface Adapter Layer
-Converts data from the format most convenient for use cases into the format most convenient for external agencies, and vice versa.
+Converts data between formats convenient for use cases and external agencies.
 
 | Component | Purpose |
 |---|---|
 | `adapter/in/web/` | REST controllers — call input ports |
 | `adapter/out/persistence/` | Implements output ports using JPA/DB |
-| `adapter/out/messaging/` | Implements output ports using message brokers |
 
 > **Rule:** Depends on Application layer ports. Adapters implement or use ports.
 
@@ -182,7 +211,8 @@ Wires everything together. Contains all framework-specific configuration.
 | Component | Purpose |
 |---|---|
 | `config/` | Spring beans, security, Swagger, DB config |
-| `external/` | HTTP clients, third-party SDKs |
+| `security/` | JWT filters, token service, user details |
+| `service/` | Infrastructure service implementations (email stub) |
 
 ---
 
@@ -200,19 +230,19 @@ Inner layers **never** import from outer layers. Outer layers depend on inner la
 ## Example: Create User Flow
 
 ```
-HTTP POST /users
+HTTP POST /api/users
     │
     ▼
 UserController (adapter/in/web)
-    │  calls CreateUserInputPort
+    │  calls CreateUserUseCase
     ▼
-CreateUserUseCase (application/usecase)
-    │  uses domain entity + calls UserRepositoryPort
+CreateUserUseCaseImpl (application/usecase)
+    │  uses domain entity + calls UserPersistencePort
     ▼
 UserPersistenceAdapter (adapter/out/persistence)
-    │  implements UserRepositoryPort
+    │  implements UserPersistencePort
     ▼
-UserJpaRepository (Spring Data JPA)
+UserRepository (Spring Data JPA)
     │
     ▼
 Database
@@ -224,7 +254,7 @@ Database
 
 1. **Dependency Inversion** — Use cases define interfaces (ports); infrastructure implements them.
 2. **Single Responsibility** — One use case per class.
-3. **Separate JPA Entities from Domain Entities** — `UserEntity` (JPA) ≠ `User` (domain).
+3. **JPA on Domain Entities** — Pragmatic approach for MVP (no separate JPA entities).
 4. **DTOs at boundaries** — Don't leak domain objects into controllers or persistence.
 5. **Testability** — Domain and application layers should be testable without Spring context.
 
@@ -233,15 +263,22 @@ Database
 ## Actual Dependencies (build.gradle)
 
 ```gradle
-// Core Spring Boot
-spring-boot-starter (4.0.3)
+// Core Spring Boot (4.0.3)
+spring-boot-starter
 spring-boot-starter-web
 spring-boot-starter-data-jpa
 spring-boot-starter-validation
+spring-boot-starter-security
 
 // Database
 flyway-core + flyway-database-postgresql
 postgresql (runtime)
+
+// JWT
+jjwt-api + jjwt-impl + jjwt-jackson
+
+// API Documentation
+springdoc-openapi-starter-webmvc-ui (2.8.6)
 
 // Mapping
 mapstruct 1.6.3
@@ -250,37 +287,35 @@ mapstruct-processor 1.6.3 (annotation processor)
 // Utilities
 lombok (compileOnly + annotationProcessor)
 
-// Security
-spring-security-crypto
-
 // Testing
 spring-boot-starter-test
 ```
 
-## Current Implementation Notes
+---
+
+## Current Implementation Status
 
 ### ✅ Implemented
-- **Domain Layer**: All entities and enums defined
-- **Application Layer**: Use cases for Auth (Register), User (CRUD), Workspace (CRUD)
-- **Adapter Layer**: Controllers and persistence adapters
-- **Infrastructure**: SecurityConfig with BCrypt password encoder
-- **Database**: Flyway migration (V1__Initial_schema.sql)
-
-### 🔧 Architecture Decisions
-1. **No separate JPA Entities** - Using JPA annotations directly on domain entities (pragmatic approach for MVP)
-2. **MapStruct for mapping** - Between domain entities and DTOs
-3. **Lombok** - For reducing boilerplate code (`@Builder`, `@Value`, `@RequiredArgsConstructor`)
-4. **Immutable Objects** - Prefer `final` fields, use `@Value` or `@Builder` to avoid setters
-5. **Builder Pattern** - Always use `@Builder` for constructing DTOs and entities
-6. **No explicit output ports for repositories** - Spring Data JPA repositories used directly in adapters
+- **Domain Layer**: All entities and enums defined with JPA annotations
+- **Application Layer**: 
+  - Auth use cases: Register, Login, Logout, Refresh Token, Forgot/Reset Password, Get Current User
+  - User use cases: CRUD operations (extra, not in PRD)
+  - Workspace use cases: CRUD operations
+- **Adapter Layer**: Controllers and persistence adapters for Auth, User, Workspace
+- **Infrastructure**: 
+  - SecurityConfig with BCrypt password encoder
+  - JWT authentication filter and service
+  - OpenAPI/Swagger configuration
+  - Method-level security enabled (`@EnableMethodSecurity`)
+- **Database**: Flyway migrations (V1, V2, V3)
 
 ### 📋 Pending Implementations
 - Global exception handler
-- JWT authentication filter
-- Method-level security (@PreAuthorize)
 - Remaining use cases (Projects, Tasks, Comments, Labels, Attachments, Notifications)
-- OpenAPI/Swagger documentation
+- Workspace member management
+- Search functionality
+- Audit logs
 
 ---
 
-*Last updated: 2026 | Based on Robert C. Martin's Clean Architecture + Tom Hombergs' "Get Your Hands Dirty on Clean Architecture"*
+*Last updated: 2026-02-27 | Based on Robert C. Martin's Clean Architecture + Tom Hombergs' "Get Your Hands Dirty on Clean Architecture"*

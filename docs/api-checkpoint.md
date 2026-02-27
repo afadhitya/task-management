@@ -16,14 +16,14 @@ Each API should be marked as `done` once implemented and verified.
 
 | Status | Method | Endpoint | Description |
 |--------|--------|----------|-------------|
-| [x] | POST | `/auth/register` | Register new user |
-| [x] | POST | `/auth/login` | User login |
-| [x] | POST | `/auth/logout` | User logout |
-| [x] | POST | `/auth/refresh-token` | Refresh access token |
-| [x] | POST | `/auth/forgot-password` | Request password reset |
-| [x] | POST | `/auth/reset-password` | Reset password with token |
-| [x] | GET | `/auth/me` | Get current user info |
-| [ ] | POST | `/auth/oauth/:provider` | OAuth login (Google, GitHub) |
+| [x] | POST | `/api/auth/register` | Register new user |
+| [x] | POST | `/api/auth/login` | User login |
+| [x] | POST | `/api/auth/logout` | User logout |
+| [x] | POST | `/api/auth/refresh-token` | Refresh access token |
+| [x] | POST | `/api/auth/forgot-password` | Request password reset |
+| [x] | POST | `/api/auth/reset-password` | Reset password with token |
+| [x] | GET | `/api/auth/me` | Get current user info |
+| [ ] | POST | `/api/auth/oauth/:provider` | OAuth login (Google, GitHub) - Post MVP |
 
 ---
 
@@ -136,7 +136,7 @@ Each API should be marked as `done` once implemented and verified.
 
 | Status | Method | Endpoint | Description |
 |--------|--------|----------|-------------|
-| [ ] | GET | `/health` | Health check endpoint |
+| [x] | GET | `/health` | Health check endpoint (public) |
 
 ---
 
@@ -145,7 +145,7 @@ Each API should be marked as `done` once implemented and verified.
 ### Endpoint Paths
 Current implementation uses inconsistent path prefixes:
 - `/api/auth/*` - Auth endpoints (with /api prefix)
-- `/api/users/*` - User endpoints (with /api prefix)  
+- `/api/users/*` - User endpoints (with /api prefix) - **NOT part of PRD**
 - `/workspaces/*` - Workspace endpoints (WITHOUT /api prefix)
 
 **Note:** When implementing new endpoints, follow the PRD specification. Consider standardizing all endpoints to use `/api` prefix in a future refactoring task.
@@ -157,13 +157,19 @@ There's a `/api/users` CRUD controller that provides basic user management but i
 
 The UserController may be refactored or removed in favor of auth-based user management.
 
+### Authentication Flow
+- JWT-based authentication with access tokens (15 min) and refresh tokens (30 days)
+- Refresh tokens stored in database with rotation on use
+- Password reset tokens with expiration (24 hours)
+- Spring Security with method-level security enabled (`@EnableMethodSecurity`)
+
 ---
 
 ## Summary
 
 | Category | Total | Done | Pending |
 |----------|-------|------|---------|
-| Authentication | 8 | 4 | 4 |
+| Authentication | 7 | 7 | 0 |
 | Workspaces | 8 | 4 | 4 |
 | Projects | 7 | 0 | 7 |
 | Tasks | 8 | 0 | 8 |
@@ -173,8 +179,8 @@ The UserController may be refactored or removed in favor of auth-based user mana
 | Notifications | 4 | 0 | 4 |
 | Search | 1 | 0 | 1 |
 | Audit Logs | 1 | 0 | 1 |
-| Health Check | 1 | 0 | 1 |
-| **Total** | **51** | **6** | **45** |
+| Health Check | 1 | 1 | 0 |
+| **Total** | **50** | **12** | **38** |
 
 ---
 

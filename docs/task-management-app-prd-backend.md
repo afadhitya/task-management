@@ -1,8 +1,8 @@
 # Product Requirements Document
 ## Task Management App — Backend (API) Platform
 
-**Version:** 1.1  
-**Date:** February 26, 2026  
+**Version:** 1.2  
+**Date:** February 27, 2026  
 **Status:** Draft
 
 ---
@@ -65,7 +65,7 @@ A robust, RESTful backend service for task management — designed to be secure,
 ```
 
 ### 3.3 Technology Stack
-- **Language & Framework:** Java 17 Spring Boot 3.x
+- **Language & Framework:** Java 17 Spring Boot 4.0.3
 - **API Layer:** Spring Web MVC (REST controllers)
 - **Database:** PostgreSQL 15+ (primary relational store)
 - **ORM:** Spring Data JPA + Hibernate
@@ -87,7 +87,8 @@ A robust, RESTful backend service for task management — designed to be secure,
 **User**
 ```
 id, email, password_hash, full_name, avatar_url,
-created_at, updated_at, last_login_at, is_active
+created_at, updated_at, last_login_at, is_active,
+refresh_token, password_reset_token, password_reset_token_expires_at
 ```
 
 **Workspace**
@@ -133,7 +134,7 @@ id, workspace_id, name, color
 
 **TaskLabel** *(join table)*
 ```
-task_id, label_id
+id, task_id, label_id
 ```
 
 **Comment**
@@ -167,14 +168,14 @@ entity_type, entity_id, diff (JSON), created_at
 
 ### 5.1 Authentication
 ```
-POST   /auth/register
-POST   /auth/login
-POST   /auth/logout
-POST   /auth/refresh-token
-POST   /auth/forgot-password
-POST   /auth/reset-password
-GET    /auth/me
-POST   /auth/oauth/:provider          (Google, GitHub)
+POST   /api/auth/register
+POST   /api/auth/login
+POST   /api/auth/logout
+POST   /api/auth/refresh-token
+POST   /api/auth/forgot-password
+POST   /api/auth/reset-password
+GET    /api/auth/me
+POST   /auth/oauth/:provider          (Google, GitHub) - Post MVP
 ```
 
 ### 5.2 Workspaces
@@ -261,7 +262,8 @@ GET    /workspaces/:id/audit-logs        (paginated, filterable)
 
 ### 6.1 Authentication Flow
 - JWT-based with short-lived access tokens (15 min) and long-lived refresh tokens (30 days)
-- Refresh tokens stored in Redis with rotation on use
+- Refresh tokens stored in database with rotation on use
+- Password reset tokens with 24-hour expiration
 - OAuth 2.0 support: Google (MVP), GitHub (post-MVP)
 - Enterprise: SAML 2.0 / SSO (post-MVP)
 
@@ -349,20 +351,39 @@ Request → CORS Filter → Rate Limit Filter → JWT Auth Filter → RBAC (Meth
 
 ## 11. Proposed Development Phases
 
-| Phase | Scope | Duration |
-|---|---|---|
-| **Phase 1 — Core** | Auth, Users, Workspaces, Projects, Tasks (CRUD) | 4 weeks |
-| **Phase 2 — Collaboration** | Comments, Assignees, Notifications, Attachments | 3 weeks |
-| **Phase 3 — Organization** | Labels, Filters, Search, Bulk actions | 2 weeks |
-| **Phase 4 — Enterprise** | RBAC hardening, Audit logs, SSO, Rate limiting | 3 weeks |
-| **Phase 5 — Async & Scale** | Job queues, Recurring tasks, WebSockets, Observability | Ongoing |
+| Phase | Scope | Duration | Status |
+|---|---|---|---|
+| **Phase 1 — Core** | Auth, Users, Workspaces, Projects, Tasks (CRUD) | 4 weeks | In Progress |
+| **Phase 2 — Collaboration** | Comments, Assignees, Notifications, Attachments | 3 weeks | Pending |
+| **Phase 3 — Organization** | Labels, Filters, Search, Bulk actions | 2 weeks | Pending |
+| **Phase 4 — Enterprise** | RBAC hardening, Audit logs, SSO, Rate limiting | 3 weeks | Pending |
+| **Phase 5 — Async & Scale** | Job queues, Recurring tasks, WebSockets, Observability | Ongoing | Pending |
 
 ---
 
-## 12. Open Questions
+## 12. Current Implementation Notes
+
+### ✅ Completed (Phase 1 - Partial)
+- **Authentication**: All 7 core endpoints implemented (register, login, logout, refresh-token, forgot-password, reset-password, me)
+- **Workspaces**: Basic CRUD operations (create, get, update, delete)
+- **Infrastructure**: JWT authentication, Spring Security, OpenAPI/Swagger, Flyway migrations
+
+### 🔧 Known Issues
+- **Inconsistent API paths**: Auth uses `/api/auth/*`, Workspaces use `/workspaces/*` (without /api prefix)
+- **Missing UserController in PRD**: The `/api/users` CRUD endpoints exist but are not part of PRD specification
+
+### 📋 Next Priority
+1. Workspace member management endpoints
+2. Project CRUD operations
+3. Task CRUD operations
+4. Global exception handler
+
+---
+
+## 13. Open Questions
 
 1. ~~Will the project use **Maven or Gradle** as the build tool?~~ **Resolved:** Using Gradle with Groovy DSL
-2. ~~Should the API be versioned from day one via URL path (e.g. `/api/v1/`)?~~ **Resolved:** Partially implemented - Auth uses `/api/auth`, Users use `/api/users`, Workspaces use `/workspaces` (inconsistent, needs standardization)
+2. ~~Should the API be versioned from day one via URL path (e.g. `/api/v1/`)?~~ **Resolved:** Partially implemented - Auth uses `/api/auth`, Workspaces use `/workspaces` (inconsistent, needs standardization)
 3. What is the expected scale at launch — how many workspaces / concurrent users?
 4. ~~Is there a preference for **self-hosted PostgreSQL** vs. a managed service (AWS RDS, Supabase)?~~ **Resolved:** Using Docker Compose for local development with PostgreSQL 15
 5. Should Redis be used for both caching and async pub/sub, or will a dedicated message broker (RabbitMQ) be introduced from the start?
@@ -372,4 +393,4 @@ Request → CORS Filter → Rate Limit Filter → JWT Auth Filter → RBAC (Meth
 ---
 
 *Document Owner: Product / Engineering Team*  
-*Next Review: TBD*
+*Last Updated: February 27, 2026*
