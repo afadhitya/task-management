@@ -6,7 +6,6 @@ import com.afadhitya.taskmanagement.application.port.in.workspace.UpdateMemberRo
 import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspaceMemberPersistencePort;
 import com.afadhitya.taskmanagement.domain.entity.WorkspaceMember;
 import com.afadhitya.taskmanagement.domain.enums.WorkspaceRole;
-import com.afadhitya.taskmanagement.domain.exception.WorkspaceAccessDeniedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,37 +19,21 @@ public class UpdateMemberRoleUseCaseImpl implements UpdateMemberRoleUseCase {
 
     @Override
     public WorkspaceMemberResponse updateMemberRole(Long workspaceId, Long userId, UpdateMemberRoleRequest request, Long currentUserId) {
-        // Check if current user has ADMIN or OWNER role
-        WorkspaceMember currentUserMembership = workspaceMemberPersistencePort
-                .findByWorkspaceIdAndUserId(workspaceId, currentUserId)
-                .orElseThrow(() -> new WorkspaceAccessDeniedException(
-                        "You are not a member of this workspace"));
-
-        if (currentUserMembership.getRole() != WorkspaceRole.ADMIN &&
-            currentUserMembership.getRole() != WorkspaceRole.OWNER) {
-            throw new WorkspaceAccessDeniedException(
-                    "Only admins and owners can update member roles");
-        }
-
-        // Prevent changing role to OWNER
         if (request.role() == WorkspaceRole.OWNER) {
             throw new IllegalArgumentException(
                     "Cannot change member role to OWNER. Transfer ownership instead.");
         }
 
-        // Find the target member
         WorkspaceMember targetMember = workspaceMemberPersistencePort
                 .findByWorkspaceIdAndUserId(workspaceId, userId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Member not found in this workspace"));
 
-        // Prevent modifying the OWNER's role
         if (targetMember.getRole() == WorkspaceRole.OWNER) {
             throw new IllegalArgumentException(
                     "Cannot modify the workspace owner's role");
         }
 
-        // Update the role
         targetMember.setRole(request.role());
         WorkspaceMember updatedMember = workspaceMemberPersistencePort.save(targetMember);
 

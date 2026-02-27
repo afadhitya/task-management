@@ -20,23 +20,19 @@ public class LeaveWorkspaceUseCaseImpl implements LeaveWorkspaceUseCase {
 
     @Override
     public void leaveWorkspace(Long workspaceId, Long currentUserId) {
-        // Verify workspace exists
         workspacePersistencePort.findById(workspaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Workspace not found with id: " + workspaceId));
 
-        // Get current user's membership
         WorkspaceMember currentUserMembership = workspaceMemberPersistencePort
                 .findByWorkspaceIdAndUserId(workspaceId, currentUserId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "You are not a member of this workspace"));
 
-        // Owner cannot leave the workspace
         if (currentUserMembership.getRole() == WorkspaceRole.OWNER) {
             throw new IllegalArgumentException(
                     "Workspace owner cannot leave. Transfer ownership to someone else first.");
         }
 
-        // Remove the member from workspace
         workspaceMemberPersistencePort.delete(currentUserMembership);
     }
 }

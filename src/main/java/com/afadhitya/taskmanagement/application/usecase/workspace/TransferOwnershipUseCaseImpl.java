@@ -8,8 +8,6 @@ import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspacePers
 import com.afadhitya.taskmanagement.domain.entity.Workspace;
 import com.afadhitya.taskmanagement.domain.entity.WorkspaceMember;
 import com.afadhitya.taskmanagement.domain.enums.WorkspaceRole;
-import com.afadhitya.taskmanagement.domain.exception.NotWorkspaceOwnerException;
-import com.afadhitya.taskmanagement.domain.exception.WorkspaceAccessDeniedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,46 +22,33 @@ public class TransferOwnershipUseCaseImpl implements TransferOwnershipUseCase {
 
     @Override
     public WorkspaceMemberResponse transferOwnership(Long workspaceId, TransferOwnershipRequest request, Long currentUserId) {
-        // Verify workspace exists
         Workspace workspace = workspacePersistencePort.findById(workspaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Workspace not found with id: " + workspaceId));
 
-        // Verify current user is the OWNER
         WorkspaceMember currentOwnerMembership = workspaceMemberPersistencePort
                 .findByWorkspaceIdAndUserId(workspaceId, currentUserId)
-                .orElseThrow(() -> new WorkspaceAccessDeniedException(
-                        "You are not a member of this workspace"));
+                .orElseThrow(() -> new IllegalArgumentException("You are not a member of this workspace"));
 
-        if (currentOwnerMembership.getRole() != WorkspaceRole.OWNER) {
-            throw new NotWorkspaceOwnerException(workspaceId, currentUserId);
-        }
-
-        // Verify new owner is already a member of the workspace
         WorkspaceMember newOwnerMembership = workspaceMemberPersistencePort
                 .findByWorkspaceIdAndUserId(workspaceId, request.newOwnerId())
                 .orElseThrow(() -> new IllegalArgumentException(
                         "The new owner must already be a member of this workspace"));
 
-        // Prevent transferring to self
         if (request.newOwnerId().equals(currentUserId)) {
             throw new IllegalArgumentException("You are already the owner of this workspace");
         }
 
-        // Prevent transferring ownership to a GUEST
         if (newOwnerMembership.getRole() == WorkspaceRole.GUEST) {
             throw new IllegalArgumentException(
                     "Cannot transfer ownership to a user with GUEST role");
         }
 
-        // Update current owner to ADMIN
         currentOwnerMembership.setRole(WorkspaceRole.ADMIN);
         workspaceMemberPersistencePort.save(currentOwnerMembership);
 
-        // Update new owner to OWNER
         newOwnerMembership.setRole(WorkspaceRole.OWNER);
         WorkspaceMember updatedNewOwner = workspaceMemberPersistencePort.save(newOwnerMembership);
 
-        // Update workspace owner reference
         workspace.setOwner(newOwnerMembership.getUser());
         workspacePersistencePort.save(workspace);
 

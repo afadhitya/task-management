@@ -4,8 +4,6 @@ import com.afadhitya.taskmanagement.application.dto.response.WorkspaceMemberResp
 import com.afadhitya.taskmanagement.application.port.in.workspace.GetWorkspaceMembersUseCase;
 import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspaceMemberPersistencePort;
 import com.afadhitya.taskmanagement.domain.entity.WorkspaceMember;
-import com.afadhitya.taskmanagement.domain.enums.WorkspaceRole;
-import com.afadhitya.taskmanagement.domain.exception.WorkspaceAccessDeniedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +17,6 @@ public class GetWorkspaceMembersUseCaseImpl implements GetWorkspaceMembersUseCas
 
     @Override
     public List<WorkspaceMemberResponse> getWorkspaceMembers(Long workspaceId, Long currentUserId) {
-        // Check if user is a member of the workspace AND not GUEST role
-        boolean hasGuestAccess = workspaceMemberPersistencePort.existsByWorkspaceIdAndUserIdAndRole(
-                workspaceId, currentUserId, WorkspaceRole.GUEST);
-
-        if (hasGuestAccess) {
-            throw new WorkspaceAccessDeniedException("Workspace guest unable to see member of a workspace");
-        }
-
         List<WorkspaceMember> members = workspaceMemberPersistencePort.findByWorkspaceId(workspaceId);
 
         return members.stream()
