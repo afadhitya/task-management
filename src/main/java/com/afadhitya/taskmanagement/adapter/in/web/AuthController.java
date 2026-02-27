@@ -1,7 +1,9 @@
 package com.afadhitya.taskmanagement.adapter.in.web;
 
+import com.afadhitya.taskmanagement.application.dto.request.LoginRequest;
 import com.afadhitya.taskmanagement.application.dto.request.RegisterRequest;
 import com.afadhitya.taskmanagement.application.dto.response.AuthResponse;
+import com.afadhitya.taskmanagement.application.port.in.auth.LoginUseCase;
 import com.afadhitya.taskmanagement.application.port.in.auth.RegisterUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +20,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final RegisterUseCase registerUseCase;
+    private final LoginUseCase loginUseCase;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         AuthResponse response = registerUseCase.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        AuthResponse response = loginUseCase.login(request);
+        return ResponseEntity.ok(response);
     }
 }

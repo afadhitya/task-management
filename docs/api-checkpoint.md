@@ -17,7 +17,7 @@ Each API should be marked as `done` once implemented and verified.
 | Status | Method | Endpoint | Description |
 |--------|--------|----------|-------------|
 | [x] | POST | `/auth/register` | Register new user |
-| [ ] | POST | `/auth/login` | User login |
+| [x] | POST | `/auth/login` | User login |
 | [ ] | POST | `/auth/logout` | User logout |
 | [ ] | POST | `/auth/refresh-token` | Refresh access token |
 | [ ] | POST | `/auth/forgot-password` | Request password reset |
@@ -163,7 +163,7 @@ The UserController may be refactored or removed in favor of auth-based user mana
 
 | Category | Total | Done | Pending |
 |----------|-------|------|---------|
-| Authentication | 8 | 1 | 7 |
+| Authentication | 8 | 2 | 6 |
 | Workspaces | 8 | 4 | 4 |
 | Projects | 7 | 0 | 7 |
 | Tasks | 8 | 0 | 8 |
@@ -174,7 +174,7 @@ The UserController may be refactored or removed in favor of auth-based user mana
 | Search | 1 | 0 | 1 |
 | Audit Logs | 1 | 0 | 1 |
 | Health Check | 1 | 0 | 1 |
-| **Total** | **51** | **5** | **46** |
+| **Total** | **51** | **6** | **45** |
 
 ---
 
