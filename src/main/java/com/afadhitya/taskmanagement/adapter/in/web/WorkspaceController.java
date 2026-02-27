@@ -8,6 +8,7 @@ import com.afadhitya.taskmanagement.application.port.in.workspace.DeleteWorkspac
 import com.afadhitya.taskmanagement.application.port.in.workspace.GetWorkspaceByIdUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.UpdateWorkspaceUseCase;
 import com.afadhitya.taskmanagement.infrastructure.config.OpenApiConfig;
+import com.afadhitya.taskmanagement.infrastructure.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,8 @@ public class WorkspaceController {
 
     @PostMapping
     public ResponseEntity<WorkspaceResponse> createWorkspace(@Valid @RequestBody CreateWorkspaceRequest request) {
-        WorkspaceResponse response = createWorkspaceUseCase.createWorkspace(request);
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        WorkspaceResponse response = createWorkspaceUseCase.createWorkspace(request, currentUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -42,13 +44,15 @@ public class WorkspaceController {
     public ResponseEntity<WorkspaceResponse> updateWorkspace(
             @PathVariable Long id,
             @Valid @RequestBody UpdateWorkspaceRequest request) {
-        WorkspaceResponse response = updateWorkspaceUseCase.updateWorkspace(id, request);
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        WorkspaceResponse response = updateWorkspaceUseCase.updateWorkspace(id, request, currentUserId);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteWorkspace(@PathVariable Long id) {
-        deleteWorkspaceByIdUseCase.deleteWorkspace(id);
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        deleteWorkspaceByIdUseCase.deleteWorkspace(id, currentUserId);
         return ResponseEntity.noContent().build();
     }
 }

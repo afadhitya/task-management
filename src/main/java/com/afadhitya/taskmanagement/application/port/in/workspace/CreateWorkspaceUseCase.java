@@ -4,5 +4,5 @@ import com.afadhitya.taskmanagement.application.dto.request.CreateWorkspaceReque
 import com.afadhitya.taskmanagement.application.dto.response.WorkspaceResponse;
 
 public interface CreateWorkspaceUseCase {
-    WorkspaceResponse createWorkspace(CreateWorkspaceRequest request);
+    WorkspaceResponse createWorkspace(CreateWorkspaceRequest request, Long ownerId);
 }

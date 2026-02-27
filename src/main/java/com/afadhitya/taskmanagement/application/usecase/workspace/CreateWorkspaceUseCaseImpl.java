@@ -22,13 +22,13 @@ public class CreateWorkspaceUseCaseImpl implements CreateWorkspaceUseCase {
     private final WorkspaceMapper workspaceMapper;
 
     @Override
-    public WorkspaceResponse createWorkspace(CreateWorkspaceRequest request) {
+    public WorkspaceResponse createWorkspace(CreateWorkspaceRequest request, Long ownerId) {
         if (workspacePersistencePort.existsBySlug(request.slug())) {
             throw new IllegalArgumentException("Slug already exists: " + request.slug());
         }
 
-        User owner = userPersistencePort.findById(request.ownerId())
-                .orElseThrow(() -> new IllegalArgumentException("Owner not found with id: " + request.ownerId()));
+        User owner = userPersistencePort.findById(ownerId)
+                .orElseThrow(() -> new IllegalArgumentException("Owner not found with id: " + ownerId));
 
         Workspace workspace = workspaceMapper.toEntity(request);
         workspace.setOwner(owner);

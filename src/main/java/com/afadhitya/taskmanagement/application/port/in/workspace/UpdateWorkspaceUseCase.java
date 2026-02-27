@@ -4,5 +4,5 @@ import com.afadhitya.taskmanagement.application.dto.request.UpdateWorkspaceReque
 import com.afadhitya.taskmanagement.application.dto.response.WorkspaceResponse;
 
 public interface UpdateWorkspaceUseCase {
-    WorkspaceResponse updateWorkspace(Long id, UpdateWorkspaceRequest request);
+    WorkspaceResponse updateWorkspace(Long id, UpdateWorkspaceRequest request, Long currentUserId);
 }

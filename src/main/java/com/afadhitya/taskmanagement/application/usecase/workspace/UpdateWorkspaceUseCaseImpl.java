@@ -6,6 +6,7 @@ import com.afadhitya.taskmanagement.application.mapper.WorkspaceMapper;
 import com.afadhitya.taskmanagement.application.port.in.workspace.UpdateWorkspaceUseCase;
 import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspacePersistencePort;
 import com.afadhitya.taskmanagement.domain.entity.Workspace;
+import com.afadhitya.taskmanagement.domain.exception.NotWorkspaceOwnerException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,9 +20,14 @@ public class UpdateWorkspaceUseCaseImpl implements UpdateWorkspaceUseCase {
     private final WorkspaceMapper workspaceMapper;
 
     @Override
-    public WorkspaceResponse updateWorkspace(Long id, UpdateWorkspaceRequest request) {
+    public WorkspaceResponse updateWorkspace(Long id, UpdateWorkspaceRequest request, Long currentUserId) {
         Workspace workspace = workspacePersistencePort.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Workspace not found with id: " + id));
+
+        // Only the workspace owner can update the workspace
+        if (!workspace.getOwner().getId().equals(currentUserId)) {
+            throw new NotWorkspaceOwnerException(id, currentUserId);
+        }
 
         workspaceMapper.updateEntityFromRequest(request, workspace);
 
