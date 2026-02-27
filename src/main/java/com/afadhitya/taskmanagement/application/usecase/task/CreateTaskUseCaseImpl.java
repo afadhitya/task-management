@@ -4,6 +4,7 @@ import com.afadhitya.taskmanagement.application.dto.request.CreateTaskRequest;
 import com.afadhitya.taskmanagement.application.dto.response.TaskResponse;
 import com.afadhitya.taskmanagement.application.mapper.TaskMapper;
 import com.afadhitya.taskmanagement.application.port.in.task.CreateTaskUseCase;
+import com.afadhitya.taskmanagement.application.port.out.project.ProjectMemberPersistencePort;
 import com.afadhitya.taskmanagement.application.port.out.project.ProjectPersistencePort;
 import com.afadhitya.taskmanagement.application.port.out.task.TaskPersistencePort;
 import com.afadhitya.taskmanagement.application.port.out.user.UserPersistencePort;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ public class CreateTaskUseCaseImpl implements CreateTaskUseCase {
 
     private final TaskPersistencePort taskPersistencePort;
     private final ProjectPersistencePort projectPersistencePort;
+    private final ProjectMemberPersistencePort projectMemberPersistencePort;
     private final UserPersistencePort userPersistencePort;
     private final TaskMapper taskMapper;
 
@@ -36,6 +40,12 @@ public class CreateTaskUseCaseImpl implements CreateTaskUseCase {
         User createdBy = userPersistencePort.findById(createdByUserId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + createdByUserId));
 
+        // Validate that all assignees are project members
+        Set<Long> assigneeIds = request.assigneeIds() != null ? request.assigneeIds() : new HashSet<>();
+        if (!assigneeIds.isEmpty()) {
+            validateAssigneesAreProjectMembers(project.getId(), assigneeIds);
+        }
+
         Task.TaskBuilder taskBuilder = Task.builder()
                 .title(request.title())
                 .description(request.description())
@@ -44,7 +54,7 @@ public class CreateTaskUseCaseImpl implements CreateTaskUseCase {
                 .dueDate(request.dueDate())
                 .project(project)
                 .createdBy(createdBy)
-                .assigneeIds(request.assigneeIds() != null ? request.assigneeIds() : new HashSet<>());
+                .assigneeIds(assigneeIds);
 
         if (request.parentTaskId() != null) {
             Task parentTask = taskPersistencePort.findById(request.parentTaskId())
@@ -56,5 +66,16 @@ public class CreateTaskUseCaseImpl implements CreateTaskUseCase {
         Task savedTask = taskPersistencePort.save(task);
 
         return taskMapper.toResponse(savedTask);
+    }
+
+    private void validateAssigneesAreProjectMembers(Long projectId, Set<Long> assigneeIds) {
+        Set<Long> nonMembers = assigneeIds.stream()
+                .filter(userId -> !projectMemberPersistencePort.existsByProjectIdAndUserId(projectId, userId))
+                .collect(Collectors.toSet());
+
+        if (!nonMembers.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "The following users are not members of this project: " + nonMembers);
+        }
     }
 }
