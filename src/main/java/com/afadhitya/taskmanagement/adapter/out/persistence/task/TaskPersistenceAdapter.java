@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -51,6 +52,11 @@ public class TaskPersistenceAdapter implements TaskPersistencePort {
     @Override
     public List<Task> findByParentTaskId(Long parentTaskId) {
         return taskRepository.findByParentTaskId(parentTaskId);
+    }
+
+    @Override
+    public List<Task> findAllById(Set<Long> ids) {
+        return taskRepository.findAllById(ids);
     }
 
     @Override

@@ -70,7 +70,7 @@ Each API should be marked as `done` once implemented and verified.
 | [x] | PATCH | `/tasks/:id` | Update task |
 | [x] | DELETE | `/tasks/:id` | Delete task |
 | [x] | POST | `/tasks/:id/subtasks` | Create subtask |
-| [x] | PATCH | `/tasks/bulk` | Bulk update tasks |
+| [x] | PATCH | `/projects/:projectId/tasks/bulk` | Bulk update tasks |
 | [ ] | GET | `/users/me/tasks` | Get tasks assigned to current user |
 
 ---

@@ -120,10 +120,13 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PatchMapping("/tasks/bulk")
-    public ResponseEntity<BulkJobResponse> bulkUpdateTasks(@Valid @RequestBody BulkUpdateTasksRequest request) {
+    @PreAuthorize("@projectSecurity.canContributeToProject(#projectId)")
+    @PatchMapping("/projects/{projectId}/tasks/bulk")
+    public ResponseEntity<BulkJobResponse> bulkUpdateTasks(
+            @PathVariable Long projectId,
+            @Valid @RequestBody BulkUpdateTasksRequest request) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
-        BulkJobResponse response = submitBulkJobUseCase.submitBulkUpdateTasks(request, currentUserId);
+        BulkJobResponse response = submitBulkJobUseCase.submitBulkUpdateTasks(projectId, request, currentUserId);
         return ResponseEntity.ok(response);
     }
 }

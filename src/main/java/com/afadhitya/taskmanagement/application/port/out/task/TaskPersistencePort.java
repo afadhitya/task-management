@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface TaskPersistencePort {
 
@@ -19,6 +20,8 @@ public interface TaskPersistencePort {
     Page<Task> findByProjectIdWithFilters(Long projectId, TaskFilterRequest filter, Pageable pageable);
 
     List<Task> findByParentTaskId(Long parentTaskId);
+
+    List<Task> findAllById(Set<Long> ids);
 
     boolean existsById(Long id);
 

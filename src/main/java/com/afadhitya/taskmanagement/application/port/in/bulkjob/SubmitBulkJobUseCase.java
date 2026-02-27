@@ -5,5 +5,5 @@ import com.afadhitya.taskmanagement.application.dto.response.BulkJobResponse;
 
 public interface SubmitBulkJobUseCase {
 
-    BulkJobResponse submitBulkUpdateTasks(BulkUpdateTasksRequest request, Long createdByUserId);
+    BulkJobResponse submitBulkUpdateTasks(Long projectId, BulkUpdateTasksRequest request, Long createdByUserId);
 }
