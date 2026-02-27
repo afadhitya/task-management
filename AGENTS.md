@@ -67,6 +67,7 @@ This file contains guardrails and custom instructions for the AI assistant when 
 - **Formatting**: Standard Java conventions, Lombok for boilerplate
 - **Documentation**: No unnecessary comments
 - **Comment**: Only add comments for important logic that helps others understand
+- **No comments/Javadoc needed** unless explicitly requested by user
 
 ### Preferences
 - Use constructor injection with `@RequiredArgsConstructor` (Lombok)
@@ -89,6 +90,8 @@ This file contains guardrails and custom instructions for the AI assistant when 
 ---
 
 ## Build & Test Instructions
+
+- **No need to run build after implementation** - user will do it themselves unless explicitly requested
 
 ### Build Commands
 ```bash
