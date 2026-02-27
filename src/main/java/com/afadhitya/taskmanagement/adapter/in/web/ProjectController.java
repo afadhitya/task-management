@@ -1,9 +1,12 @@
 package com.afadhitya.taskmanagement.adapter.in.web;
 
 import com.afadhitya.taskmanagement.application.dto.request.CreateProjectRequest;
+import com.afadhitya.taskmanagement.application.dto.request.UpdateProjectRequest;
 import com.afadhitya.taskmanagement.application.dto.response.ProjectResponse;
 import com.afadhitya.taskmanagement.application.port.in.project.CreateProjectUseCase;
+import com.afadhitya.taskmanagement.application.port.in.project.GetProjectByIdUseCase;
 import com.afadhitya.taskmanagement.application.port.in.project.GetProjectsByWorkspaceUseCase;
+import com.afadhitya.taskmanagement.application.port.in.project.UpdateProjectUseCase;
 import com.afadhitya.taskmanagement.infrastructure.config.OpenApiConfig;
 import com.afadhitya.taskmanagement.infrastructure.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -16,15 +19,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/workspaces/{workspaceId}/projects")
 @RequiredArgsConstructor
 @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEME_NAME)
 public class ProjectController {
 
     private final CreateProjectUseCase createProjectUseCase;
     private final GetProjectsByWorkspaceUseCase getProjectsByWorkspaceUseCase;
+    private final GetProjectByIdUseCase getProjectByIdUseCase;
+    private final UpdateProjectUseCase updateProjectUseCase;
 
-    @PostMapping
+    @PostMapping("/workspaces/{workspaceId}/projects")
     public ResponseEntity<ProjectResponse> createProject(
             @PathVariable Long workspaceId,
             @Valid @RequestBody CreateProjectRequest request) {
@@ -40,9 +44,23 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping
+    @GetMapping("/workspaces/{workspaceId}/projects")
     public ResponseEntity<List<ProjectResponse>> getProjectsByWorkspace(@PathVariable Long workspaceId) {
         List<ProjectResponse> projects = getProjectsByWorkspaceUseCase.getProjectsByWorkspace(workspaceId);
         return ResponseEntity.ok(projects);
+    }
+
+    @GetMapping("/projects/{id}")
+    public ResponseEntity<ProjectResponse> getProjectById(@PathVariable Long id) {
+        ProjectResponse project = getProjectByIdUseCase.getProjectById(id);
+        return ResponseEntity.ok(project);
+    }
+
+    @PatchMapping("/projects/{id}")
+    public ResponseEntity<ProjectResponse> updateProject(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateProjectRequest request) {
+        ProjectResponse response = updateProjectUseCase.updateProject(id, request);
+        return ResponseEntity.ok(response);
     }
 }

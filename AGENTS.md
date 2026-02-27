@@ -81,6 +81,11 @@ This file contains guardrails and custom instructions for the AI assistant when 
 - **Domain entities have JPA annotations** (pragmatic approach - not pure Clean Architecture)
 - **No separate JPA entities** - Domain entities are used directly for persistence
 - **MapStruct** is used for DTO/Entity mapping
+- **Use MapStruct for updates** - When implementing update/patch operations, use MapStruct's `@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)` with `@MappingTarget` to avoid manual null-checking for each field. Example:
+  ```java
+  @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+  void updateEntityFromRequest(UpdateRequest request, @MappingTarget Entity entity);
+  ```
 - **Controllers paths are inconsistent** - some use `/api/*`, some don't (standardize when touching related code) 
 
 ### Task Checkpoint
