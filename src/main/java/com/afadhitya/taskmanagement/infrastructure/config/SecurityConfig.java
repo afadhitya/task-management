@@ -1,6 +1,7 @@
 package com.afadhitya.taskmanagement.infrastructure.config;
 
 import com.afadhitya.taskmanagement.infrastructure.security.JwtAuthenticationFilter;
+import com.afadhitya.taskmanagement.infrastructure.security.RbacAccessDeniedHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +29,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
+    private final RbacAccessDeniedHandler accessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -50,6 +52,9 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**", "/api-docs/**").permitAll()
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(exception ->
+                        exception.accessDeniedHandler(accessDeniedHandler)
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
