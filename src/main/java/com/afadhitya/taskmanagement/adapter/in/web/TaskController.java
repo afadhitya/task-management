@@ -6,6 +6,7 @@ import com.afadhitya.taskmanagement.application.dto.request.UpdateTaskRequest;
 import com.afadhitya.taskmanagement.application.dto.response.PagedResponse;
 import com.afadhitya.taskmanagement.application.dto.response.TaskResponse;
 import com.afadhitya.taskmanagement.application.port.in.task.CreateTaskUseCase;
+import com.afadhitya.taskmanagement.application.port.in.task.DeleteTaskUseCase;
 import com.afadhitya.taskmanagement.application.port.in.task.GetTaskByIdUseCase;
 import com.afadhitya.taskmanagement.application.port.in.task.GetTasksByProjectUseCase;
 import com.afadhitya.taskmanagement.application.port.in.task.UpdateTaskUseCase;
@@ -34,6 +35,7 @@ public class TaskController {
     private final GetTasksByProjectUseCase getTasksByProjectUseCase;
     private final GetTaskByIdUseCase getTaskByIdUseCase;
     private final UpdateTaskUseCase updateTaskUseCase;
+    private final DeleteTaskUseCase deleteTaskUseCase;
 
     @PreAuthorize("@projectSecurity.canContributeToProject(#projectId)")
     @PostMapping("/projects/{projectId}/tasks")
@@ -92,5 +94,12 @@ public class TaskController {
             @Valid @RequestBody UpdateTaskRequest request) {
         TaskResponse response = updateTaskUseCase.updateTask(id, request);
         return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("@projectSecurity.canManageProject(#id)")
+    @DeleteMapping("/tasks/{id}")
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+        deleteTaskUseCase.deleteTask(id);
+        return ResponseEntity.noContent().build();
     }
 }
