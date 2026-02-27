@@ -19,6 +19,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,6 +37,7 @@ public class ProjectController {
     private final AddProjectMemberUseCase addProjectMemberUseCase;
     private final RemoveProjectMemberUseCase removeProjectMemberUseCase;
 
+    @PreAuthorize("@workspaceSecurity.isWorkspaceMember(#workspaceId)")
     @PostMapping("/workspaces/{workspaceId}/projects")
     public ResponseEntity<ProjectResponse> createProject(
             @PathVariable Long workspaceId,
@@ -52,18 +54,21 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PreAuthorize("@workspaceSecurity.isWorkspaceMember(#workspaceId)")
     @GetMapping("/workspaces/{workspaceId}/projects")
     public ResponseEntity<List<ProjectResponse>> getProjectsByWorkspace(@PathVariable Long workspaceId) {
         List<ProjectResponse> projects = getProjectsByWorkspaceUseCase.getProjectsByWorkspace(workspaceId);
         return ResponseEntity.ok(projects);
     }
 
+    @PreAuthorize("@projectSecurity.canViewProject(#id)")
     @GetMapping("/projects/{id}")
     public ResponseEntity<ProjectResponse> getProjectById(@PathVariable Long id) {
         ProjectResponse project = getProjectByIdUseCase.getProjectById(id);
         return ResponseEntity.ok(project);
     }
 
+    @PreAuthorize("@projectSecurity.canManageProject(#id)")
     @PatchMapping("/projects/{id}")
     public ResponseEntity<ProjectResponse> updateProject(
             @PathVariable Long id,
@@ -72,12 +77,14 @@ public class ProjectController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("@projectSecurity.canManageProject(#id)")
     @DeleteMapping("/projects/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         deleteProjectUseCase.deleteProject(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("@projectSecurity.canManageProject(#id)")
     @PostMapping("/projects/{id}/members")
     public ResponseEntity<ProjectMemberResponse> addMember(
             @PathVariable Long id,
@@ -86,6 +93,7 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PreAuthorize("@projectSecurity.canManageProject(#id)")
     @DeleteMapping("/projects/{id}/members/{userId}")
     public ResponseEntity<Void> removeMember(
             @PathVariable Long id,
