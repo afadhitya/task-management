@@ -33,13 +33,8 @@ public class UpdateProjectMemberRoleUseCaseImpl implements UpdateProjectMemberRo
         ProjectMember targetMember = projectMemberPersistencePort.findByProjectIdAndUserId(projectId, targetUserId)
                 .orElseThrow(() -> new IllegalArgumentException("User is not a member of this project"));
 
-        // Check if current user has permission to change roles
         boolean isWorkspaceOwnerOrAdmin = isWorkspaceOwnerOrAdmin(project.getWorkspace().getId(), currentUserId);
         boolean isProjectManager = isProjectManager(projectId, currentUserId);
-
-        if (!isWorkspaceOwnerOrAdmin && !isProjectManager) {
-            throw new IllegalStateException("You don't have permission to change member roles");
-        }
 
         // If current user is PROJECT MANAGER (not workspace owner/admin), additional restrictions apply
         if (!isWorkspaceOwnerOrAdmin && isProjectManager) {
