@@ -6,6 +6,7 @@ import com.afadhitya.taskmanagement.domain.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Component
@@ -32,5 +33,25 @@ public class UserAuthPersistenceAdapter implements UserAuthPersistencePort {
     @Override
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    @Override
+    public Optional<User> findByPasswordResetToken(String token) {
+        return userRepository.findByPasswordResetToken(token);
+    }
+
+    @Override
+    public void updatePasswordResetToken(Long userId, String token, LocalDateTime expiresAt) {
+        userRepository.updatePasswordResetToken(userId, token, expiresAt);
+    }
+
+    @Override
+    public void clearPasswordResetToken(Long userId) {
+        userRepository.clearPasswordResetToken(userId);
+    }
+
+    @Override
+    public void updatePassword(Long userId, String newPasswordHash) {
+        userRepository.updatePassword(userId, newPasswordHash);
     }
 }

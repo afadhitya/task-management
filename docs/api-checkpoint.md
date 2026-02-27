@@ -20,9 +20,9 @@ Each API should be marked as `done` once implemented and verified.
 | [x] | POST | `/auth/login` | User login |
 | [x] | POST | `/auth/logout` | User logout |
 | [x] | POST | `/auth/refresh-token` | Refresh access token |
-| [ ] | POST | `/auth/forgot-password` | Request password reset |
-| [ ] | POST | `/auth/reset-password` | Reset password with token |
-| [ ] | GET | `/auth/me` | Get current user info |
+| [x] | POST | `/auth/forgot-password` | Request password reset |
+| [x] | POST | `/auth/reset-password` | Reset password with token |
+| [x] | GET | `/auth/me` | Get current user info |
 | [ ] | POST | `/auth/oauth/:provider` | OAuth login (Google, GitHub) |
 
 ---
@@ -163,7 +163,7 @@ The UserController may be refactored or removed in favor of auth-based user mana
 
 | Category | Total | Done | Pending |
 |----------|-------|------|---------|
-| Authentication | 8 | 2 | 6 |
+| Authentication | 8 | 4 | 4 |
 | Workspaces | 8 | 4 | 4 |
 | Projects | 7 | 0 | 7 |
 | Tasks | 8 | 0 | 8 |
