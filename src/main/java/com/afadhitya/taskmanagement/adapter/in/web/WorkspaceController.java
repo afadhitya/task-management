@@ -2,6 +2,7 @@ package com.afadhitya.taskmanagement.adapter.in.web;
 
 import com.afadhitya.taskmanagement.application.dto.request.CreateWorkspaceRequest;
 import com.afadhitya.taskmanagement.application.dto.request.InviteMemberRequest;
+import com.afadhitya.taskmanagement.application.dto.request.UpdateMemberRoleRequest;
 import com.afadhitya.taskmanagement.application.dto.request.UpdateWorkspaceRequest;
 import com.afadhitya.taskmanagement.application.dto.response.WorkspaceMemberResponse;
 import com.afadhitya.taskmanagement.application.dto.response.WorkspaceResponse;
@@ -10,6 +11,7 @@ import com.afadhitya.taskmanagement.application.port.in.workspace.DeleteWorkspac
 import com.afadhitya.taskmanagement.application.port.in.workspace.GetWorkspaceByIdUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.GetWorkspaceMembersUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.InviteMemberUseCase;
+import com.afadhitya.taskmanagement.application.port.in.workspace.UpdateMemberRoleUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.UpdateWorkspaceUseCase;
 import com.afadhitya.taskmanagement.infrastructure.config.OpenApiConfig;
 import com.afadhitya.taskmanagement.infrastructure.security.SecurityUtils;
@@ -34,6 +36,7 @@ public class WorkspaceController {
     private final DeleteWorkspaceByIdUseCase deleteWorkspaceByIdUseCase;
     private final GetWorkspaceMembersUseCase getWorkspaceMembersUseCase;
     private final InviteMemberUseCase inviteMemberUseCase;
+    private final UpdateMemberRoleUseCase updateMemberRoleUseCase;
 
     @PostMapping
     public ResponseEntity<WorkspaceResponse> createWorkspace(@Valid @RequestBody CreateWorkspaceRequest request) {
@@ -78,5 +81,15 @@ public class WorkspaceController {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         WorkspaceMemberResponse response = inviteMemberUseCase.inviteMember(id, request, currentUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PatchMapping("/{id}/members/{userId}")
+    public ResponseEntity<WorkspaceMemberResponse> updateMemberRole(
+            @PathVariable Long id,
+            @PathVariable Long userId,
+            @Valid @RequestBody UpdateMemberRoleRequest request) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        WorkspaceMemberResponse response = updateMemberRoleUseCase.updateMemberRole(id, userId, request, currentUserId);
+        return ResponseEntity.ok(response);
     }
 }
