@@ -140,6 +140,51 @@ CREATE TABLE project_members (
 );
 ```
 
+## Project Member Role Management
+
+### Who Can Change Member Roles
+
+| Actor | Can Change Roles | Restrictions |
+|-------|------------------|--------------|
+| **Workspace OWNER** | ✅ Any member's role | No restrictions |
+| **Workspace ADMIN** | ✅ Any member's role | No restrictions |
+| **Project MANAGER** | ✅ CONTRIBUTOR or VIEW members only | ❌ Cannot change another MANAGER's role |
+| **CONTRIBUTOR** | ❌ No permission | - |
+| **VIEW** | ❌ No permission | - |
+
+### Last Manager Safeguard
+
+**Rule**: A project must always have at least one member with MANAGER permission.
+
+**Enforcement**:
+- Attempting to demote the last MANAGER to CONTRIBUTOR or VIEW will fail
+- Error: `"Cannot demote the last manager. At least one manager must remain in the project."`
+- This prevents projects from becoming "orphaned" with no one able to manage them
+
+### Role Change Permission Matrix
+
+| Current User Role | Target Member Role | Can Change? | Example |
+|-------------------|-------------------|-------------|---------|
+| Workspace OWNER/ADMIN | MANAGER | ✅ Yes | Demote a manager to contributor |
+| Workspace OWNER/ADMIN | CONTRIBUTOR | ✅ Yes | Promote to manager |
+| Workspace OWNER/ADMIN | VIEW | ✅ Yes | Promote to contributor |
+| Project MANAGER | MANAGER | ❌ No | Must contact workspace admin |
+| Project MANAGER | CONTRIBUTOR | ✅ Yes | Promote to manager |
+| Project MANAGER | VIEW | ✅ Yes | Promote to contributor |
+
+### Use Cases
+
+#### 1. Project Manager Promotes a Contributor
+A project MANAGER can promote a CONTRIBUTOR to MANAGER to share project management responsibilities.
+
+#### 2. Workspace Admin Demotes a Manager
+Only a workspace OWNER/ADMIN can demote a MANAGER (e.g., when someone leaves the team).
+
+#### 3. Preventing Last Manager Demotion
+System prevents demoting the last MANAGER, ensuring someone always has control of the project.
+
+---
+
 ## Migration Notes
 
 When updating from the old permission model (VIEW/EDIT/ADMIN):

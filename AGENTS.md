@@ -95,6 +95,11 @@ This file contains guardrails and custom instructions for the AI assistant when 
   // In Controller
   CreateTaskRequest requestWithProjectId = request.withProjectId(projectId);
   ```
+- **Project Member Role Update Permission Rules** - When implementing project member role updates, follow these permission rules:
+  - **Workspace OWNER/ADMIN**: Can change any member's role (including MANAGER)
+  - **Project MANAGER**: Can change CONTRIBUTOR or VIEW members only, CANNOT change another MANAGER's role
+  - **CONTRIBUTOR/VIEW**: No permission to change roles
+  - **Last Manager Safeguard**: Always prevent demoting the last manager - at least one MANAGER must remain in every project
 - **Controllers paths are inconsistent** - some use `/api/*`, some don't (standardize when touching related code) 
 
 ### Task Checkpoint
