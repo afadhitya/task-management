@@ -86,6 +86,15 @@ This file contains guardrails and custom instructions for the AI assistant when 
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   void updateEntityFromRequest(UpdateRequest request, @MappingTarget Entity entity);
   ```
+- **Use `@With` for path variable overrides** - When a request DTO needs to be updated with a path variable (e.g., `projectId` from `/projects/{projectId}/tasks`), use Lombok's `@With` on the field instead of rebuilding the entire object. Example:
+  ```java
+  // In DTO
+  @With
+  Long projectId;
+  
+  // In Controller
+  CreateTaskRequest requestWithProjectId = request.withProjectId(projectId);
+  ```
 - **Controllers paths are inconsistent** - some use `/api/*`, some don't (standardize when touching related code) 
 
 ### Task Checkpoint

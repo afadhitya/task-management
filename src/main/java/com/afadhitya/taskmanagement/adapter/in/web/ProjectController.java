@@ -44,12 +44,7 @@ public class ProjectController {
             @Valid @RequestBody CreateProjectRequest request) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         // Override workspaceId from path to ensure consistency
-        CreateProjectRequest requestWithWorkspaceId = CreateProjectRequest.builder()
-                .name(request.name())
-                .description(request.description())
-                .color(request.color())
-                .workspaceId(workspaceId)
-                .build();
+        CreateProjectRequest requestWithWorkspaceId = request.withWorkspaceId(workspaceId);
         ProjectResponse response = createProjectUseCase.createProject(requestWithWorkspaceId, currentUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
