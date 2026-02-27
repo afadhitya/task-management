@@ -4,6 +4,27 @@ This file contains guardrails and custom instructions for the AI assistant when 
 
 ---
 
+## System Prompt / Quick Start
+
+**Before starting any task, ALWAYS read these documents in order:**
+
+1. **`/docs/task-management-app-prd-backend.md`** - Product Requirements Document (PRD)
+   - Understand the features, requirements, and API specifications
+
+2. **`/docs/clean-architecture.md`** - Architecture Overview
+   - Understand the project structure, layers, and coding patterns
+
+3. **`/docs/api-checkpoint.md`** - API Implementation Status
+   - Check which APIs are pending, in progress, or done
+   - Update status when completing APIs
+
+4. **`/AGENTS.md`** - This file
+   - Review guardrails and conventions
+
+**⚡ IMPORTANT:** Do NOT scan the entire codebase initially. Start with the documentation above, then only explore specific code files as needed for the task at hand.
+
+---
+
 ## Guardrails
 
 ### Security & Safety
