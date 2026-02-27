@@ -14,14 +14,4 @@ public interface UserPersistencePort {
     User save(User user);
 
     Optional<User> findById(Long id);
-
-    List<User> findAll();
-
-    Optional<User> findByEmail(String email);
-
-    boolean existsById(Long id);
-
-    boolean existsByEmail(String email);
-
-    void deleteById(Long id);
 }

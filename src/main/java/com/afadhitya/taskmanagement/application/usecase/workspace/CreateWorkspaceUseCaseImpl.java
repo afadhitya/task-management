@@ -5,9 +5,12 @@ import com.afadhitya.taskmanagement.application.dto.response.WorkspaceResponse;
 import com.afadhitya.taskmanagement.application.mapper.WorkspaceMapper;
 import com.afadhitya.taskmanagement.application.port.in.workspace.CreateWorkspaceUseCase;
 import com.afadhitya.taskmanagement.application.port.out.user.UserPersistencePort;
+import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspaceMemberPersistencePort;
 import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspacePersistencePort;
 import com.afadhitya.taskmanagement.domain.entity.User;
 import com.afadhitya.taskmanagement.domain.entity.Workspace;
+import com.afadhitya.taskmanagement.domain.entity.WorkspaceMember;
+import com.afadhitya.taskmanagement.domain.enums.WorkspaceRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +22,7 @@ public class CreateWorkspaceUseCaseImpl implements CreateWorkspaceUseCase {
 
     private final WorkspacePersistencePort workspacePersistencePort;
     private final UserPersistencePort userPersistencePort;
+    private final WorkspaceMemberPersistencePort workspaceMemberPersistencePort;
     private final WorkspaceMapper workspaceMapper;
 
     @Override
@@ -34,6 +38,16 @@ public class CreateWorkspaceUseCaseImpl implements CreateWorkspaceUseCase {
         workspace.setOwner(owner);
 
         Workspace savedWorkspace = workspacePersistencePort.save(workspace);
+
+        // Add creator as workspace member with OWNER role
+        WorkspaceMember ownerMember = WorkspaceMember.builder()
+                .workspace(savedWorkspace)
+                .user(owner)
+                .role(WorkspaceRole.OWNER)
+                .invitedBy(owner)
+                .build();
+        workspaceMemberPersistencePort.save(ownerMember);
+
         return workspaceMapper.toResponse(savedWorkspace);
     }
 }
