@@ -7,6 +7,7 @@ import com.afadhitya.taskmanagement.application.port.in.user.CreateUserUseCase;
 import com.afadhitya.taskmanagement.application.port.out.user.UserPersistencePort;
 import com.afadhitya.taskmanagement.domain.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ public class CreateUserUseCaseImpl implements CreateUserUseCase {
 
     private final UserPersistencePort userPersistencePort;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponse createUser(CreateUserRequest request) {
@@ -25,7 +27,7 @@ public class CreateUserUseCaseImpl implements CreateUserUseCase {
         }
 
         User user = userMapper.toEntity(request);
-        user.setPasswordHash(request.password()); // In production, hash the password
+        user.setPasswordHash(passwordEncoder.encode(request.password()));
 
         User savedUser = userPersistencePort.save(user);
         return userMapper.toResponse(savedUser);

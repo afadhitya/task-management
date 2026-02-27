@@ -7,6 +7,7 @@ import com.afadhitya.taskmanagement.application.port.in.user.UpdateUserUseCase;
 import com.afadhitya.taskmanagement.application.port.out.user.UserPersistencePort;
 import com.afadhitya.taskmanagement.domain.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ public class UpdateUserUseCaseImpl implements UpdateUserUseCase {
 
     private final UserPersistencePort userPersistencePort;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponse updateUser(Long id, UpdateUserRequest request) {
@@ -32,7 +34,7 @@ public class UpdateUserUseCaseImpl implements UpdateUserUseCase {
         userMapper.updateEntityFromRequest(request, user);
 
         if (request.password() != null) {
-            user.setPasswordHash(request.password()); // In production, hash the password
+            user.setPasswordHash(passwordEncoder.encode(request.password()));
         }
 
         User updatedUser = userPersistencePort.save(user);
