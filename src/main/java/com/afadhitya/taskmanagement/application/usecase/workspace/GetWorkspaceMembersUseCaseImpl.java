@@ -19,12 +19,12 @@ public class GetWorkspaceMembersUseCaseImpl implements GetWorkspaceMembersUseCas
 
     @Override
     public List<WorkspaceMemberResponse> getWorkspaceMembers(Long workspaceId, Long currentUserId) {
-        // Check if user is a member of the workspace AND has ADMIN role
-        boolean hasAdminAccess = workspaceMemberPersistencePort.existsByWorkspaceIdAndUserIdAndRole(
-                workspaceId, currentUserId, WorkspaceRole.ADMIN);
+        // Check if user is a member of the workspace AND not GUEST role
+        boolean hasGuestAccess = workspaceMemberPersistencePort.existsByWorkspaceIdAndUserIdAndRole(
+                workspaceId, currentUserId, WorkspaceRole.GUEST);
 
-        if (!hasAdminAccess) {
-            throw new WorkspaceAccessDeniedException("Only workspace admins can view members");
+        if (hasGuestAccess) {
+            throw new WorkspaceAccessDeniedException("Workspace guest unable to see member of a workspace");
         }
 
         List<WorkspaceMember> members = workspaceMemberPersistencePort.findByWorkspaceId(workspaceId);

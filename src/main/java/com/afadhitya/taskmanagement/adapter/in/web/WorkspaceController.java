@@ -1,6 +1,7 @@
 package com.afadhitya.taskmanagement.adapter.in.web;
 
 import com.afadhitya.taskmanagement.application.dto.request.CreateWorkspaceRequest;
+import com.afadhitya.taskmanagement.application.dto.request.InviteMemberRequest;
 import com.afadhitya.taskmanagement.application.dto.request.UpdateWorkspaceRequest;
 import com.afadhitya.taskmanagement.application.dto.response.WorkspaceMemberResponse;
 import com.afadhitya.taskmanagement.application.dto.response.WorkspaceResponse;
@@ -8,6 +9,7 @@ import com.afadhitya.taskmanagement.application.port.in.workspace.CreateWorkspac
 import com.afadhitya.taskmanagement.application.port.in.workspace.DeleteWorkspaceByIdUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.GetWorkspaceByIdUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.GetWorkspaceMembersUseCase;
+import com.afadhitya.taskmanagement.application.port.in.workspace.InviteMemberUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.UpdateWorkspaceUseCase;
 import com.afadhitya.taskmanagement.infrastructure.config.OpenApiConfig;
 import com.afadhitya.taskmanagement.infrastructure.security.SecurityUtils;
@@ -31,6 +33,7 @@ public class WorkspaceController {
     private final UpdateWorkspaceUseCase updateWorkspaceUseCase;
     private final DeleteWorkspaceByIdUseCase deleteWorkspaceByIdUseCase;
     private final GetWorkspaceMembersUseCase getWorkspaceMembersUseCase;
+    private final InviteMemberUseCase inviteMemberUseCase;
 
     @PostMapping
     public ResponseEntity<WorkspaceResponse> createWorkspace(@Valid @RequestBody CreateWorkspaceRequest request) {
@@ -66,5 +69,14 @@ public class WorkspaceController {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         List<WorkspaceMemberResponse> members = getWorkspaceMembersUseCase.getWorkspaceMembers(id, currentUserId);
         return ResponseEntity.ok(members);
+    }
+
+    @PostMapping("/{id}/members/invite")
+    public ResponseEntity<WorkspaceMemberResponse> inviteMember(
+            @PathVariable Long id,
+            @Valid @RequestBody InviteMemberRequest request) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        WorkspaceMemberResponse response = inviteMemberUseCase.inviteMember(id, request, currentUserId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }
