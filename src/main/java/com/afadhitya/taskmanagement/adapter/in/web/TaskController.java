@@ -87,14 +87,14 @@ public class TaskController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("@projectSecurity.canViewProject(#id)")
+    @PreAuthorize("@taskSecurity.canViewTask(#id)")
     @GetMapping("/tasks/{id}")
     public ResponseEntity<TaskResponse> getTaskById(@PathVariable Long id) {
         TaskResponse task = getTaskByIdUseCase.getTaskById(id);
         return ResponseEntity.ok(task);
     }
 
-    @PreAuthorize("@projectSecurity.canContributeToProject(#id)")
+    @PreAuthorize("@taskSecurity.canContributeToTask(#id)")
     @PatchMapping("/tasks/{id}")
     public ResponseEntity<TaskResponse> updateTask(
             @PathVariable Long id,
@@ -103,14 +103,14 @@ public class TaskController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("@projectSecurity.canManageProject(#id)")
+    @PreAuthorize("@taskSecurity.canManageTask(#id)")
     @DeleteMapping("/tasks/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         deleteTaskUseCase.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("@projectSecurity.canContributeToProject(#id)")
+    @PreAuthorize("@taskSecurity.canContributeToTask(#id)")
     @PostMapping("/tasks/{id}/subtasks")
     public ResponseEntity<TaskResponse> createSubtask(
             @PathVariable Long id,
