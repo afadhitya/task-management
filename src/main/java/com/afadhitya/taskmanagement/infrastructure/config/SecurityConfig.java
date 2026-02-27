@@ -46,10 +46,8 @@ public class SecurityConfig {
                         // Public endpoints - Health check
                         .requestMatchers("/health").permitAll()
                         // Public endpoints - Swagger/OpenAPI
-                        .requestMatchers("/swagger-ui.html").permitAll()
-                        .requestMatchers("/swagger-ui/**").permitAll()
-                        .requestMatchers("/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/api-docs/**").permitAll()
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )

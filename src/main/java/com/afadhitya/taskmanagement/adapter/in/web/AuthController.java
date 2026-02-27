@@ -15,15 +15,18 @@ import com.afadhitya.taskmanagement.application.port.in.auth.LogoutUseCase;
 import com.afadhitya.taskmanagement.application.port.in.auth.RefreshTokenUseCase;
 import com.afadhitya.taskmanagement.application.port.in.auth.RegisterUseCase;
 import com.afadhitya.taskmanagement.application.port.in.auth.ResetPasswordUseCase;
+import com.afadhitya.taskmanagement.infrastructure.config.OpenApiConfig;
+import com.afadhitya.taskmanagement.infrastructure.security.UserDetailsImpl;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -52,8 +55,9 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@Valid @RequestBody LogoutRequest request) {
-        logoutUseCase.logout(request.userId());
+    @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEME_NAME)
+    public ResponseEntity<Void> logout(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        logoutUseCase.logout(userDetails.getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -77,8 +81,9 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> getCurrentUser(@RequestParam Long userId) {
-        UserResponse response = getCurrentUserUseCase.getCurrentUser(userId);
+    @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEME_NAME)
+    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        UserResponse response = getCurrentUserUseCase.getCurrentUser(userDetails.getId());
         return ResponseEntity.ok(response);
     }
 }

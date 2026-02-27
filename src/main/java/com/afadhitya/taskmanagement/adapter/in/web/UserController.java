@@ -8,6 +8,8 @@ import com.afadhitya.taskmanagement.application.port.in.user.DeleteUserByIdUseCa
 import com.afadhitya.taskmanagement.application.port.in.user.GetAllUsersUseCase;
 import com.afadhitya.taskmanagement.application.port.in.user.GetUserByIdUseCase;
 import com.afadhitya.taskmanagement.application.port.in.user.UpdateUserUseCase;
+import com.afadhitya.taskmanagement.infrastructure.config.OpenApiConfig;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEME_NAME)
 public class UserController {
 
     private final CreateUserUseCase createUserUseCase;

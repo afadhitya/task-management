@@ -7,6 +7,8 @@ import com.afadhitya.taskmanagement.application.port.in.workspace.CreateWorkspac
 import com.afadhitya.taskmanagement.application.port.in.workspace.DeleteWorkspaceByIdUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.GetWorkspaceByIdUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.UpdateWorkspaceUseCase;
+import com.afadhitya.taskmanagement.infrastructure.config.OpenApiConfig;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/workspaces")
 @RequiredArgsConstructor
+@SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEME_NAME)
 public class WorkspaceController {
 
     private final CreateWorkspaceUseCase createWorkspaceUseCase;

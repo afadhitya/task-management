@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    private static final String SECURITY_SCHEME_NAME = "BearerAuth";
+    public static final String SECURITY_SCHEME_NAME = "BearerAuth";
 
     @Bean
     public OpenAPI customOpenAPI() {
@@ -39,6 +39,6 @@ public class OpenApiConfig {
                 .type(SecurityScheme.Type.HTTP)
                 .scheme("bearer")
                 .bearerFormat("JWT")
-                .description("Enter JWT token in the format: Bearer <token>");
+                .description("Enter JWT token. Example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...");
     }
 }
