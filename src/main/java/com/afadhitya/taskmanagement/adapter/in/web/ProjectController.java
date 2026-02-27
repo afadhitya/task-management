@@ -4,6 +4,7 @@ import com.afadhitya.taskmanagement.application.dto.request.CreateProjectRequest
 import com.afadhitya.taskmanagement.application.dto.request.UpdateProjectRequest;
 import com.afadhitya.taskmanagement.application.dto.response.ProjectResponse;
 import com.afadhitya.taskmanagement.application.port.in.project.CreateProjectUseCase;
+import com.afadhitya.taskmanagement.application.port.in.project.DeleteProjectUseCase;
 import com.afadhitya.taskmanagement.application.port.in.project.GetProjectByIdUseCase;
 import com.afadhitya.taskmanagement.application.port.in.project.GetProjectsByWorkspaceUseCase;
 import com.afadhitya.taskmanagement.application.port.in.project.UpdateProjectUseCase;
@@ -27,6 +28,7 @@ public class ProjectController {
     private final GetProjectsByWorkspaceUseCase getProjectsByWorkspaceUseCase;
     private final GetProjectByIdUseCase getProjectByIdUseCase;
     private final UpdateProjectUseCase updateProjectUseCase;
+    private final DeleteProjectUseCase deleteProjectUseCase;
 
     @PostMapping("/workspaces/{workspaceId}/projects")
     public ResponseEntity<ProjectResponse> createProject(
@@ -62,5 +64,11 @@ public class ProjectController {
             @Valid @RequestBody UpdateProjectRequest request) {
         ProjectResponse response = updateProjectUseCase.updateProject(id, request);
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/projects/{id}")
+    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
+        deleteProjectUseCase.deleteProject(id);
+        return ResponseEntity.noContent().build();
     }
 }

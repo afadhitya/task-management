@@ -52,7 +52,7 @@ Each API should be marked as `done` once implemented and verified.
 | [x] | GET | `/workspaces/:workspaceId/projects` | List projects in workspace |
 | [x] | GET | `/projects/:id` | Get project by ID |
 | [x] | PATCH | `/projects/:id` | Update project |
-| [ ] | DELETE | `/projects/:id` | Delete project |
+| [x] | DELETE | `/projects/:id` | Delete project |
 | [ ] | POST | `/projects/:id/members` | Add member to project |
 | [ ] | DELETE | `/projects/:id/members/:userId` | Remove member from project |
 
@@ -173,7 +173,7 @@ The UserController may be refactored or removed in favor of auth-based user mana
 |----------|-------|------|---------|
 | Authentication | 7 | 7 | 0 |
 | Workspaces | 8 | 4 | 4 |
-| Projects | 7 | 4 | 3 |
+| Projects | 7 | 5 | 2 |
 | Tasks | 8 | 0 | 8 |
 | Comments | 4 | 0 | 4 |
 | Labels | 6 | 0 | 6 |
@@ -182,7 +182,7 @@ The UserController may be refactored or removed in favor of auth-based user mana
 | Search | 1 | 0 | 1 |
 | Audit Logs | 1 | 0 | 1 |
 | Health Check | 1 | 1 | 0 |
-| **Total** | **50** | **16** | **34** |
+| **Total** | **50** | **17** | **33** |
 
 ---
 
