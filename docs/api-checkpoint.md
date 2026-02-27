@@ -48,7 +48,7 @@ Each API should be marked as `done` once implemented and verified.
 
 | Status | Method | Endpoint | Description |
 |--------|--------|----------|-------------|
-| [ ] | POST | `/workspaces/:workspaceId/projects` | Create project |
+| [x] | POST | `/workspaces/:workspaceId/projects` | Create project |
 | [ ] | GET | `/workspaces/:workspaceId/projects` | List projects in workspace |
 | [ ] | GET | `/projects/:id` | Get project by ID |
 | [ ] | PATCH | `/projects/:id` | Update project |
@@ -173,7 +173,7 @@ The UserController may be refactored or removed in favor of auth-based user mana
 |----------|-------|------|---------|
 | Authentication | 7 | 7 | 0 |
 | Workspaces | 8 | 4 | 4 |
-| Projects | 7 | 0 | 7 |
+| Projects | 7 | 1 | 6 |
 | Tasks | 8 | 0 | 8 |
 | Comments | 4 | 0 | 4 |
 | Labels | 6 | 0 | 6 |
@@ -182,7 +182,7 @@ The UserController may be refactored or removed in favor of auth-based user mana
 | Search | 1 | 0 | 1 |
 | Audit Logs | 1 | 0 | 1 |
 | Health Check | 1 | 1 | 0 |
-| **Total** | **50** | **12** | **38** |
+| **Total** | **50** | **13** | **37** |
 
 ---
 
