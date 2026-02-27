@@ -4,12 +4,15 @@ import com.afadhitya.taskmanagement.application.dto.request.CreateProjectRequest
 import com.afadhitya.taskmanagement.application.dto.response.ProjectResponse;
 import com.afadhitya.taskmanagement.application.mapper.ProjectMapper;
 import com.afadhitya.taskmanagement.application.port.in.project.CreateProjectUseCase;
+import com.afadhitya.taskmanagement.application.port.out.project.ProjectMemberPersistencePort;
 import com.afadhitya.taskmanagement.application.port.out.project.ProjectPersistencePort;
-import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspacePersistencePort;
 import com.afadhitya.taskmanagement.application.port.out.user.UserPersistencePort;
+import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspacePersistencePort;
 import com.afadhitya.taskmanagement.domain.entity.Project;
+import com.afadhitya.taskmanagement.domain.entity.ProjectMember;
 import com.afadhitya.taskmanagement.domain.entity.User;
 import com.afadhitya.taskmanagement.domain.entity.Workspace;
+import com.afadhitya.taskmanagement.domain.enums.ProjectPermission;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CreateProjectUseCaseImpl implements CreateProjectUseCase {
 
     private final ProjectPersistencePort projectPersistencePort;
+    private final ProjectMemberPersistencePort projectMemberPersistencePort;
     private final WorkspacePersistencePort workspacePersistencePort;
     private final UserPersistencePort userPersistencePort;
     private final ProjectMapper projectMapper;
@@ -41,6 +45,14 @@ public class CreateProjectUseCaseImpl implements CreateProjectUseCase {
                 .build();
 
         Project savedProject = projectPersistencePort.save(project);
+
+        // Add creator as project member with MANAGER permission
+        ProjectMember creatorMember = ProjectMember.builder()
+                .project(savedProject)
+                .user(createdBy)
+                .permission(ProjectPermission.MANAGER)
+                .build();
+        projectMemberPersistencePort.save(creatorMember);
 
         return projectMapper.toResponse(savedProject);
     }
