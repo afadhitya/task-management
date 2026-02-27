@@ -3,6 +3,7 @@ package com.afadhitya.taskmanagement.adapter.in.web;
 import com.afadhitya.taskmanagement.application.dto.request.CreateProjectRequest;
 import com.afadhitya.taskmanagement.application.dto.response.ProjectResponse;
 import com.afadhitya.taskmanagement.application.port.in.project.CreateProjectUseCase;
+import com.afadhitya.taskmanagement.application.port.in.project.GetProjectsByWorkspaceUseCase;
 import com.afadhitya.taskmanagement.infrastructure.config.OpenApiConfig;
 import com.afadhitya.taskmanagement.infrastructure.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -12,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/workspaces/{workspaceId}/projects")
 @RequiredArgsConstructor
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class ProjectController {
 
     private final CreateProjectUseCase createProjectUseCase;
+    private final GetProjectsByWorkspaceUseCase getProjectsByWorkspaceUseCase;
 
     @PostMapping
     public ResponseEntity<ProjectResponse> createProject(
@@ -34,5 +38,11 @@ public class ProjectController {
                 .build();
         ProjectResponse response = createProjectUseCase.createProject(requestWithWorkspaceId, currentUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ProjectResponse>> getProjectsByWorkspace(@PathVariable Long workspaceId) {
+        List<ProjectResponse> projects = getProjectsByWorkspaceUseCase.getProjectsByWorkspace(workspaceId);
+        return ResponseEntity.ok(projects);
     }
 }
