@@ -49,6 +49,12 @@ public class TransferOwnershipUseCaseImpl implements TransferOwnershipUseCase {
             throw new IllegalArgumentException("You are already the owner of this workspace");
         }
 
+        // Prevent transferring ownership to a GUEST
+        if (newOwnerMembership.getRole() == WorkspaceRole.GUEST) {
+            throw new IllegalArgumentException(
+                    "Cannot transfer ownership to a user with GUEST role");
+        }
+
         // Update current owner to ADMIN
         currentOwnerMembership.setRole(WorkspaceRole.ADMIN);
         workspaceMemberPersistencePort.save(currentOwnerMembership);
