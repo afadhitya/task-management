@@ -1,6 +1,7 @@
 package com.afadhitya.taskmanagement.application.port.out.project;
 
 import com.afadhitya.taskmanagement.domain.entity.ProjectMember;
+import com.afadhitya.taskmanagement.domain.enums.ProjectPermission;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,4 +17,6 @@ public interface ProjectMemberPersistencePort {
     boolean existsByProjectIdAndUserId(Long projectId, Long userId);
 
     void deleteByProjectIdAndUserId(Long projectId, Long userId);
+
+    long countByProjectIdAndPermission(Long projectId, ProjectPermission permission);
 }

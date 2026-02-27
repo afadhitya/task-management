@@ -2,6 +2,7 @@ package com.afadhitya.taskmanagement.adapter.in.web;
 
 import com.afadhitya.taskmanagement.application.dto.request.AddProjectMemberRequest;
 import com.afadhitya.taskmanagement.application.dto.request.CreateProjectRequest;
+import com.afadhitya.taskmanagement.application.dto.request.UpdateProjectMemberRoleRequest;
 import com.afadhitya.taskmanagement.application.dto.request.UpdateProjectRequest;
 import com.afadhitya.taskmanagement.application.dto.response.ProjectMemberResponse;
 import com.afadhitya.taskmanagement.application.dto.response.ProjectResponse;
@@ -12,6 +13,7 @@ import com.afadhitya.taskmanagement.application.port.in.project.GetProjectByIdUs
 import com.afadhitya.taskmanagement.application.port.in.project.GetProjectMembersUseCase;
 import com.afadhitya.taskmanagement.application.port.in.project.GetProjectsByWorkspaceUseCase;
 import com.afadhitya.taskmanagement.application.port.in.project.RemoveProjectMemberUseCase;
+import com.afadhitya.taskmanagement.application.port.in.project.UpdateProjectMemberRoleUseCase;
 import com.afadhitya.taskmanagement.application.port.in.project.UpdateProjectUseCase;
 import com.afadhitya.taskmanagement.infrastructure.config.OpenApiConfig;
 import com.afadhitya.taskmanagement.infrastructure.security.SecurityUtils;
@@ -38,6 +40,7 @@ public class ProjectController {
     private final GetProjectMembersUseCase getProjectMembersUseCase;
     private final AddProjectMemberUseCase addProjectMemberUseCase;
     private final RemoveProjectMemberUseCase removeProjectMemberUseCase;
+    private final UpdateProjectMemberRoleUseCase updateProjectMemberRoleUseCase;
 
     @PreAuthorize("@workspaceSecurity.isWorkspaceMember(#workspaceId)")
     @PostMapping("/workspaces/{workspaceId}/projects")
@@ -70,6 +73,17 @@ public class ProjectController {
     public ResponseEntity<List<ProjectMemberResponse>> getProjectMembers(@PathVariable Long id) {
         List<ProjectMemberResponse> members = getProjectMembersUseCase.getProjectMembers(id);
         return ResponseEntity.ok(members);
+    }
+
+    @PreAuthorize("@projectSecurity.canManageProject(#id)")
+    @PatchMapping("/projects/{id}/members/{userId}")
+    public ResponseEntity<ProjectMemberResponse> updateMemberRole(
+            @PathVariable Long id,
+            @PathVariable Long userId,
+            @Valid @RequestBody UpdateProjectMemberRoleRequest request) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        ProjectMemberResponse response = updateProjectMemberRoleUseCase.updateMemberRole(id, userId, request, currentUserId);
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("@projectSecurity.canManageProject(#id)")

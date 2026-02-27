@@ -3,6 +3,7 @@ package com.afadhitya.taskmanagement.adapter.out.persistence.project;
 import com.afadhitya.taskmanagement.adapter.out.persistence.ProjectMemberRepository;
 import com.afadhitya.taskmanagement.application.port.out.project.ProjectMemberPersistencePort;
 import com.afadhitya.taskmanagement.domain.entity.ProjectMember;
+import com.afadhitya.taskmanagement.domain.enums.ProjectPermission;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -38,5 +39,10 @@ public class ProjectMemberPersistenceAdapter implements ProjectMemberPersistence
     @Override
     public void deleteByProjectIdAndUserId(Long projectId, Long userId) {
         projectMemberRepository.deleteByProjectIdAndUserId(projectId, userId);
+    }
+
+    @Override
+    public long countByProjectIdAndPermission(Long projectId, ProjectPermission permission) {
+        return projectMemberRepository.countByProjectIdAndPermission(projectId, permission);
     }
 }
