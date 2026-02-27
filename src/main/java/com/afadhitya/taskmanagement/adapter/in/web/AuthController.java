@@ -1,4 +1,4 @@
-package com.afadhitya.taskmanagement.adapter.in.web.auth;
+package com.afadhitya.taskmanagement.adapter.in.web;
 
 import com.afadhitya.taskmanagement.application.dto.request.RegisterRequest;
 import com.afadhitya.taskmanagement.application.dto.response.AuthResponse;

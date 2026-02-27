@@ -76,7 +76,7 @@ A robust, RESTful backend service for task management — designed to be secure,
 - **Storage:** S3-compatible object storage for file attachments (AWS S3 / MinIO via Spring Cloud AWS)
 - **Docs:** OpenAPI 3.0 via Springdoc (auto-generated Swagger UI at `/swagger-ui.html`)
 - **Testing:** JUnit 5, Mockito, Spring Boot Test, Testcontainers (PostgreSQL for integration tests)
-- **Build Tool:** Maven or Gradle
+- **Build Tool:** Gradle (with Groovy DSL)
 
 ---
 
@@ -361,10 +361,10 @@ Request → CORS Filter → Rate Limit Filter → JWT Auth Filter → RBAC (Meth
 
 ## 12. Open Questions
 
-1. Will the project use **Maven or Gradle** as the build tool?
-2. Should the API be versioned from day one via URL path (e.g. `/api/v1/`)? Recommended: yes.
+1. ~~Will the project use **Maven or Gradle** as the build tool?~~ **Resolved:** Using Gradle with Groovy DSL
+2. ~~Should the API be versioned from day one via URL path (e.g. `/api/v1/`)?~~ **Resolved:** Partially implemented - Auth uses `/api/auth`, Users use `/api/users`, Workspaces use `/workspaces` (inconsistent, needs standardization)
 3. What is the expected scale at launch — how many workspaces / concurrent users?
-4. Is there a preference for **self-hosted PostgreSQL** vs. a managed service (AWS RDS, Supabase)?
+4. ~~Is there a preference for **self-hosted PostgreSQL** vs. a managed service (AWS RDS, Supabase)?~~ **Resolved:** Using Docker Compose for local development with PostgreSQL 15
 5. Should Redis be used for both caching and async pub/sub, or will a dedicated message broker (RabbitMQ) be introduced from the start?
 6. Are there existing internal services this API needs to integrate with?
 7. What is the deployment target — Docker + Kubernetes, AWS ECS, bare metal, or other?

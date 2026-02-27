@@ -49,25 +49,36 @@ This file contains guardrails and custom instructions for the AI assistant when 
 ## Custom Instructions
 
 ### Project Context
-<!-- Add specific context about this project -->
-- **Project Type**: Task Management System
-- **Language/Framework**: Java (Gradle-based)
-- **Architecture**: 
+- **Project Type**: Task Management System (Backend API)
+- **Language/Framework**: Java 17, Spring Boot 4.0.3, Gradle
+- **Architecture**: Clean Architecture (Robert C. Martin) with 4 layers:
+  - `domain` - Entities, enums (no framework dependencies)
+  - `application` - Use cases, ports (interfaces), DTOs, mappers
+  - `adapter` - Controllers (in/web), Persistence adapters (out/persistence)
+  - `infrastructure` - Config, security
+- **Package Base**: `com.afadhitya.taskmanagement`
 
 ### Coding Conventions
-<!-- Define your preferred coding styles -->
 - **Naming**: 
-- **Formatting**: 
-- **Documentation**: 
-- **Comment**: No need to add any comment if not necessary, except it is important and will help others
+  - Use cases: `[Action][Entity]UseCase` interface in `port/in`, `[Action][Entity]UseCaseImpl` in `usecase`
+  - Controllers: `[Entity]Controller` with `@RestController`
+  - DTOs: `[Action][Entity]Request`, `[Entity]Response`
+  - Mappers: MapStruct with `@Mapper(componentModel = "spring")`
+- **Formatting**: Standard Java conventions, Lombok for boilerplate
+- **Documentation**: No unnecessary comments
+- **Comment**: Only add comments for important logic that helps others understand
 
 ### Preferences
-<!-- Add any personal/team preferences -->
-- 
+- Use constructor injection with `@RequiredArgsConstructor` (Lombok)
+- Use `ResponseEntity<T>` for all controller responses
+- Return `201 CREATED` for POST, `200 OK` for GET/PUT/PATCH, `204 NO_CONTENT` for DELETE
+- Use Bean Validation (`@Valid`) on request DTOs
 
 ### Special Rules
-<!-- Any specific rules for this project -->
-- 
+- **Domain entities have JPA annotations** (pragmatic approach - not pure Clean Architecture)
+- **No separate JPA entities** - Domain entities are used directly for persistence
+- **MapStruct** is used for DTO/Entity mapping
+- **Controllers paths are inconsistent** - some use `/api/*`, some don't (standardize when touching related code) 
 
 ### Task Checkpoint
 - Checked to the file /docs/api-checkpoint, the api that listed on the task checkpoint should be same with the defined in prd doc file 

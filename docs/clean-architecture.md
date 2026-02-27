@@ -21,69 +21,113 @@ Clean Architecture (by Robert C. Martin) organizes code into concentric layers w
 
 ---
 
-## Recommended Folder Structure
+## Actual Project Structure
 
 ```
 src/
 └── main/
     ├── java/
-    │   └── com/yourcompany/yourapp/
+    │   └── com/afadhitya/taskmanagement/
     │       │
     │       ├── domain/                          # 🟡 DOMAIN LAYER (innermost)
     │       │   ├── entity/                      # Core business entities
-    │       │   │   └── User.java
-    │       │   ├── valueobject/                 # Immutable value types
-    │       │   │   └── Email.java
-    │       │   ├── exception/                   # Domain-specific exceptions
-    │       │   │   └── UserNotFoundException.java
-    │       │   └── event/                       # Domain events (optional)
-    │       │       └── UserCreatedEvent.java
+    │       │   │   ├── User.java
+    │       │   │   ├── Workspace.java
+    │       │   │   ├── WorkspaceMember.java
+    │       │   │   ├── Project.java
+    │       │   │   ├── ProjectMember.java
+    │       │   │   ├── Task.java
+    │       │   │   ├── TaskLabel.java
+    │       │   │   ├── Label.java
+    │       │   │   ├── Comment.java
+    │       │   │   ├── Attachment.java
+    │       │   │   ├── Notification.java
+    │       │   │   └── AuditLog.java
+    │       │   └── enums/                       # Domain enums
+    │       │       ├── PlanTier.java
+    │       │       ├── WorkspaceRole.java
+    │       │       ├── ProjectPermission.java
+    │       │       ├── TaskStatus.java
+    │       │       └── TaskPriority.java
     │       │
     │       ├── application/                     # 🟠 APPLICATION LAYER
-    │       │   ├── usecase/                     # One class per use case
-    │       │   │   ├── CreateUserUseCase.java
-    │       │   │   └── GetUserUseCase.java
+    │       │   ├── usecase/                     # Use case implementations
+    │       │   │   ├── auth/
+    │       │   │   │   └── RegisterUseCaseImpl.java
+    │       │   │   ├── user/
+    │       │   │   │   ├── CreateUserUseCaseImpl.java
+    │       │   │   │   ├── GetUserByIdUseCaseImpl.java
+    │       │   │   │   ├── GetAllUsersUseCaseImpl.java
+    │       │   │   │   ├── UpdateUserUseCaseImpl.java
+    │       │   │   │   └── DeleteUserByIdUseCaseImpl.java
+    │       │   │   └── workspace/
+    │       │   │       ├── CreateWorkspaceUseCaseImpl.java
+    │       │   │       ├── GetWorkspaceByIdUseCaseImpl.java
+    │       │   │       ├── UpdateWorkspaceUseCaseImpl.java
+    │       │   │       └── DeleteWorkspaceByIdUseCaseImpl.java
     │       │   ├── port/                        # Interfaces (boundaries)
     │       │   │   ├── in/                      # Driving ports (input)
-    │       │   │   │   └── CreateUserInputPort.java
+    │       │   │   │   ├── auth/
+    │       │   │   │   │   └── RegisterUseCase.java
+    │       │   │   │   ├── user/
+    │       │   │   │   │   ├── CreateUserUseCase.java
+    │       │   │   │   │   ├── GetUserByIdUseCase.java
+    │       │   │   │   │   ├── GetAllUsersUseCase.java
+    │       │   │   │   │   ├── UpdateUserUseCase.java
+    │       │   │   │   │   └── DeleteUserByIdUseCase.java
+    │       │   │   │   └── workspace/
+    │       │   │   │       ├── CreateWorkspaceUseCase.java
+    │       │   │   │       ├── GetWorkspaceByIdUseCase.java
+    │       │   │   │       ├── UpdateWorkspaceUseCase.java
+    │       │   │   │       └── DeleteWorkspaceByIdUseCase.java
     │       │   │   └── out/                     # Driven ports (output)
-    │       │   │       └── UserRepositoryPort.java
+    │       │   │       ├── auth/
+    │       │   │       │   └── UserAuthPersistencePort.java
+    │       │   │       ├── user/
+    │       │   │       │   └── UserPersistencePort.java
+    │       │   │       └── workspace/
+    │       │   │           └── WorkspacePersistencePort.java
     │       │   ├── dto/                         # Application-level DTOs
     │       │   │   ├── request/
-    │       │   │   │   └── CreateUserRequest.java
+    │       │   │   │   ├── RegisterRequest.java
+    │       │   │   │   ├── CreateUserRequest.java
+    │       │   │   │   ├── UpdateUserRequest.java
+    │       │   │   │   ├── CreateWorkspaceRequest.java
+    │       │   │   │   └── UpdateWorkspaceRequest.java
     │       │   │   └── response/
-    │       │   │       └── UserResponse.java
-    │       │   └── mapper/                      # Domain ↔ DTO mappers
-    │       │       └── UserMapper.java
+    │       │   │       ├── AuthResponse.java
+    │       │   │       ├── UserResponse.java
+    │       │   │       └── WorkspaceResponse.java
+    │       │   └── mapper/                      # MapStruct mappers
+    │       │       ├── UserMapper.java
+    │       │       └── WorkspaceMapper.java
     │       │
     │       ├── adapter/                         # 🔵 INTERFACE ADAPTER LAYER
     │       │   ├── in/                          # Driving adapters
     │       │   │   └── web/
-    │       │   │       ├── UserController.java
-    │       │   │       └── GlobalExceptionHandler.java
+    │       │   │       ├── AuthController.java       # /api/auth/*
+    │       │   │       ├── UserController.java       # /api/users/*
+    │       │   │       └── WorkspaceController.java  # /workspaces/*
     │       │   └── out/                         # Driven adapters
-    │       │       ├── persistence/
-    │       │       │   ├── UserPersistenceAdapter.java
-    │       │       │   ├── UserJpaRepository.java
-    │       │       │   └── UserEntity.java      # JPA entity (not domain entity)
-    │       │       └── messaging/               # e.g. Kafka, RabbitMQ
-    │       │           └── UserEventPublisher.java
+    │       │       └── persistence/
+    │       │           ├── UserRepository.java
+    │       │           ├── WorkspaceRepository.java
+    │       │           ├── auth/
+    │       │           │   └── UserAuthPersistenceAdapter.java
+    │       │           ├── user/
+    │       │           │   └── UserPersistenceAdapter.java
+    │       │           └── workspace/
+    │       │               └── WorkspacePersistenceAdapter.java
     │       │
     │       └── infrastructure/                  # 🔴 INFRASTRUCTURE LAYER (outermost)
-    │           ├── config/                      # Spring configs & beans
-    │           │   ├── SecurityConfig.java
-    │           │   ├── SwaggerConfig.java
-    │           │   └── PersistenceConfig.java
-    │           └── external/                    # Third-party integrations
-    │               └── EmailServiceClient.java
+    │           └── config/
+    │               └── SecurityConfig.java      # Password encoder config
     │
     └── resources/
-        ├── application.yml
-        ├── application-dev.yml
-        ├── application-prod.yml
+        ├── application.properties               # Main config
         └── db/
-            └── migration/                       # Flyway / Liquibase
-                └── V1__create_users_table.sql
+            └── migration/
+                └── V1__Initial_schema.sql       # Flyway migration
 ```
 
 ---
@@ -186,26 +230,54 @@ Database
 
 ---
 
-## Recommended Dependencies (`pom.xml` / `build.gradle`)
+## Actual Dependencies (build.gradle)
 
-```xml
-<!-- Core -->
+```gradle
+// Core Spring Boot
+spring-boot-starter (4.0.3)
 spring-boot-starter-web
 spring-boot-starter-data-jpa
 spring-boot-starter-validation
 
-<!-- Mapping -->
-mapstruct
+// Database
+flyway-core + flyway-database-postgresql
+postgresql (runtime)
 
-<!-- Testing -->
+// Mapping
+mapstruct 1.6.3
+mapstruct-processor 1.6.3 (annotation processor)
+
+// Utilities
+lombok (compileOnly + annotationProcessor)
+
+// Security
+spring-security-crypto
+
+// Testing
 spring-boot-starter-test
-testcontainers
-
-<!-- Optional -->
-spring-boot-starter-security
-springdoc-openapi-starter-webmvc-ui   <!-- Swagger UI -->
-flyway-core
 ```
+
+## Current Implementation Notes
+
+### ✅ Implemented
+- **Domain Layer**: All entities and enums defined
+- **Application Layer**: Use cases for Auth (Register), User (CRUD), Workspace (CRUD)
+- **Adapter Layer**: Controllers and persistence adapters
+- **Infrastructure**: SecurityConfig with BCrypt password encoder
+- **Database**: Flyway migration (V1__Initial_schema.sql)
+
+### 🔧 Architecture Decisions
+1. **No separate JPA Entities** - Using JPA annotations directly on domain entities (pragmatic approach for MVP)
+2. **MapStruct for mapping** - Between domain entities and DTOs
+3. **Lombok** - For reducing boilerplate code
+4. **No explicit output ports for repositories** - Spring Data JPA repositories used directly in adapters
+
+### 📋 Pending Implementations
+- Global exception handler
+- JWT authentication filter
+- Method-level security (@PreAuthorize)
+- Remaining use cases (Projects, Tasks, Comments, Labels, Attachments, Notifications)
+- OpenAPI/Swagger documentation
 
 ---
 

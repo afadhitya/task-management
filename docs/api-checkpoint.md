@@ -140,11 +140,30 @@ Each API should be marked as `done` once implemented and verified.
 
 ---
 
+## Implementation Notes
+
+### Endpoint Paths
+Current implementation uses inconsistent path prefixes:
+- `/api/auth/*` - Auth endpoints (with /api prefix)
+- `/api/users/*` - User endpoints (with /api prefix)  
+- `/workspaces/*` - Workspace endpoints (WITHOUT /api prefix)
+
+**Note:** When implementing new endpoints, follow the PRD specification. Consider standardizing all endpoints to use `/api` prefix in a future refactoring task.
+
+### User Controller (Non-PRD)
+There's a `/api/users` CRUD controller that provides basic user management but is NOT part of the PRD specification. The PRD only specifies:
+- `POST /auth/register` - Register new user
+- `GET /auth/me` - Get current user info
+
+The UserController may be refactored or removed in favor of auth-based user management.
+
+---
+
 ## Summary
 
 | Category | Total | Done | Pending |
 |----------|-------|------|---------|
-| Authentication | 8 | 0 | 8 |
+| Authentication | 8 | 1 | 7 |
 | Workspaces | 8 | 4 | 4 |
 | Projects | 7 | 0 | 7 |
 | Tasks | 8 | 0 | 8 |
@@ -155,7 +174,7 @@ Each API should be marked as `done` once implemented and verified.
 | Search | 1 | 0 | 1 |
 | Audit Logs | 1 | 0 | 1 |
 | Health Check | 1 | 0 | 1 |
-| **Total** | **51** | **4** | **47** |
+| **Total** | **51** | **5** | **46** |
 
 ---
 
