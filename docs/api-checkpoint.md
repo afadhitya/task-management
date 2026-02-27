@@ -19,7 +19,7 @@ Each API should be marked as `done` once implemented and verified.
 | [x] | POST | `/auth/register` | Register new user |
 | [x] | POST | `/auth/login` | User login |
 | [x] | POST | `/auth/logout` | User logout |
-| [ ] | POST | `/auth/refresh-token` | Refresh access token |
+| [x] | POST | `/auth/refresh-token` | Refresh access token |
 | [ ] | POST | `/auth/forgot-password` | Request password reset |
 | [ ] | POST | `/auth/reset-password` | Reset password with token |
 | [ ] | GET | `/auth/me` | Get current user info |

@@ -2,10 +2,12 @@ package com.afadhitya.taskmanagement.adapter.in.web;
 
 import com.afadhitya.taskmanagement.application.dto.request.LoginRequest;
 import com.afadhitya.taskmanagement.application.dto.request.LogoutRequest;
+import com.afadhitya.taskmanagement.application.dto.request.RefreshTokenRequest;
 import com.afadhitya.taskmanagement.application.dto.request.RegisterRequest;
 import com.afadhitya.taskmanagement.application.dto.response.AuthResponse;
 import com.afadhitya.taskmanagement.application.port.in.auth.LoginUseCase;
 import com.afadhitya.taskmanagement.application.port.in.auth.LogoutUseCase;
+import com.afadhitya.taskmanagement.application.port.in.auth.RefreshTokenUseCase;
 import com.afadhitya.taskmanagement.application.port.in.auth.RegisterUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class AuthController {
     private final RegisterUseCase registerUseCase;
     private final LoginUseCase loginUseCase;
     private final LogoutUseCase logoutUseCase;
+    private final RefreshTokenUseCase refreshTokenUseCase;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
@@ -41,5 +44,11 @@ public class AuthController {
     public ResponseEntity<Void> logout(@Valid @RequestBody LogoutRequest request) {
         logoutUseCase.logout(request.userId());
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        AuthResponse response = refreshTokenUseCase.refreshToken(request);
+        return ResponseEntity.ok(response);
     }
 }
