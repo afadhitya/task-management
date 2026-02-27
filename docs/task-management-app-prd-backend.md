@@ -115,7 +115,7 @@ created_at, updated_at
 **ProjectMember**
 ```
 id, project_id, user_id,
-permission (view | edit | admin)
+permission (view | contributor | manager)
 ```
 
 **Task**
@@ -273,9 +273,9 @@ GET    /workspaces/:id/audit-logs        (paginated, filterable)
 | Owner | Workspace | Full access, billing, delete workspace |
 | Admin | Workspace | Manage members, projects, settings |
 | Member | Workspace | Create/edit projects and tasks they have access to |
-| Guest | Project | View/comment only on specific projects |
+| Guest | Project | View/comment only on specific projects (no workspace access) |
 
-Project-level permissions override workspace defaults where stricter.
+Project-level permissions override workspace defaults where stricter. See `/docs/project-permissions.md` for detailed resolution rules.
 
 ### 6.3 Security Filter Chain (Spring Security)
 ```
