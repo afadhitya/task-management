@@ -42,6 +42,11 @@ public class WorkspaceMemberPersistenceAdapter implements WorkspaceMemberPersist
     }
 
     @Override
+    public Optional<WorkspaceRole> findRoleByWorkspaceIdAndUserId(Long workspaceId, Long userId) {
+        return workspaceMemberRepository.findRoleByWorkspaceIdAndUserId(workspaceId, userId);
+    }
+
+    @Override
     public void delete(WorkspaceMember workspaceMember) {
         workspaceMemberRepository.delete(workspaceMember);
     }

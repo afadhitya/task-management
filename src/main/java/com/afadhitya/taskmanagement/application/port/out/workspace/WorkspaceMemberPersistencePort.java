@@ -14,6 +14,8 @@ public interface WorkspaceMemberPersistencePort {
 
     Optional<WorkspaceMember> findByWorkspaceIdAndUserId(Long workspaceId, Long userId);
 
+    Optional<WorkspaceRole> findRoleByWorkspaceIdAndUserId(Long workspaceId, Long userId);
+
     boolean existsByWorkspaceIdAndUserIdAndRole(Long workspaceId, Long userId, WorkspaceRole role);
 
     boolean existsByWorkspaceIdAndUserId(Long workspaceId, Long userId);
