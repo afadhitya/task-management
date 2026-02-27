@@ -73,6 +73,8 @@ This file contains guardrails and custom instructions for the AI assistant when 
 - Use `ResponseEntity<T>` for all controller responses
 - Return `201 CREATED` for POST, `200 OK` for GET/PUT/PATCH, `204 NO_CONTENT` for DELETE
 - Use Bean Validation (`@Valid`) on request DTOs
+- **Use immutable objects where possible** - prefer `final` fields, avoid setters
+- **Always use Builder pattern** when constructing POJOs - use Lombok's `@Builder` on DTOs and entities
 
 ### Special Rules
 - **Domain entities have JPA annotations** (pragmatic approach - not pure Clean Architecture)

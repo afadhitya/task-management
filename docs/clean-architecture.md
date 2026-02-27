@@ -269,8 +269,10 @@ spring-boot-starter-test
 ### 🔧 Architecture Decisions
 1. **No separate JPA Entities** - Using JPA annotations directly on domain entities (pragmatic approach for MVP)
 2. **MapStruct for mapping** - Between domain entities and DTOs
-3. **Lombok** - For reducing boilerplate code
-4. **No explicit output ports for repositories** - Spring Data JPA repositories used directly in adapters
+3. **Lombok** - For reducing boilerplate code (`@Builder`, `@Value`, `@RequiredArgsConstructor`)
+4. **Immutable Objects** - Prefer `final` fields, use `@Value` or `@Builder` to avoid setters
+5. **Builder Pattern** - Always use `@Builder` for constructing DTOs and entities
+6. **No explicit output ports for repositories** - Spring Data JPA repositories used directly in adapters
 
 ### 📋 Pending Implementations
 - Global exception handler
