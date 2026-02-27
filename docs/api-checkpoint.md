@@ -1,0 +1,162 @@
+# API Implementation Checkpoint
+
+This file tracks the implementation status of all APIs defined in the PRD.
+Each API should be marked as `done` once implemented and verified.
+
+---
+
+## Legend
+
+- `[ ]` - Not implemented / Pending
+- `[x]` - Implemented and verified
+
+---
+
+## 1. Authentication
+
+| Status | Method | Endpoint | Description |
+|--------|--------|----------|-------------|
+| [ ] | POST | `/auth/register` | Register new user |
+| [ ] | POST | `/auth/login` | User login |
+| [ ] | POST | `/auth/logout` | User logout |
+| [ ] | POST | `/auth/refresh-token` | Refresh access token |
+| [ ] | POST | `/auth/forgot-password` | Request password reset |
+| [ ] | POST | `/auth/reset-password` | Reset password with token |
+| [ ] | GET | `/auth/me` | Get current user info |
+| [ ] | POST | `/auth/oauth/:provider` | OAuth login (Google, GitHub) |
+
+---
+
+## 2. Workspaces
+
+| Status | Method | Endpoint | Description |
+|--------|--------|----------|-------------|
+| [x] | POST | `/workspaces` | Create workspace |
+| [x] | GET | `/workspaces/:id` | Get workspace by ID |
+| [x] | PATCH | `/workspaces/:id` | Update workspace |
+| [x] | DELETE | `/workspaces/:id` | Delete workspace |
+| [ ] | GET | `/workspaces/:id/members` | List workspace members |
+| [ ] | POST | `/workspaces/:id/members/invite` | Invite member to workspace |
+| [ ] | PATCH | `/workspaces/:id/members/:userId` | Update member role |
+| [ ] | DELETE | `/workspaces/:id/members/:userId` | Remove member from workspace |
+
+---
+
+## 3. Projects
+
+| Status | Method | Endpoint | Description |
+|--------|--------|----------|-------------|
+| [ ] | POST | `/workspaces/:workspaceId/projects` | Create project |
+| [ ] | GET | `/workspaces/:workspaceId/projects` | List projects in workspace |
+| [ ] | GET | `/projects/:id` | Get project by ID |
+| [ ] | PATCH | `/projects/:id` | Update project |
+| [ ] | DELETE | `/projects/:id` | Delete project |
+| [ ] | POST | `/projects/:id/members` | Add member to project |
+| [ ] | DELETE | `/projects/:id/members/:userId` | Remove member from project |
+
+---
+
+## 4. Tasks
+
+| Status | Method | Endpoint | Description |
+|--------|--------|----------|-------------|
+| [ ] | POST | `/projects/:projectId/tasks` | Create task |
+| [ ] | GET | `/projects/:projectId/tasks` | List tasks (with filters, sort, pagination) |
+| [ ] | GET | `/tasks/:id` | Get task by ID |
+| [ ] | PATCH | `/tasks/:id` | Update task |
+| [ ] | DELETE | `/tasks/:id` | Delete task |
+| [ ] | POST | `/tasks/:id/subtasks` | Create subtask |
+| [ ] | PATCH | `/tasks/bulk` | Bulk update tasks |
+| [ ] | GET | `/users/me/tasks` | Get tasks assigned to current user |
+
+---
+
+## 5. Comments
+
+| Status | Method | Endpoint | Description |
+|--------|--------|----------|-------------|
+| [ ] | POST | `/tasks/:taskId/comments` | Add comment to task |
+| [ ] | GET | `/tasks/:taskId/comments` | List comments on task |
+| [ ] | PATCH | `/comments/:id` | Update comment |
+| [ ] | DELETE | `/comments/:id` | Delete comment |
+
+---
+
+## 6. Labels
+
+| Status | Method | Endpoint | Description |
+|--------|--------|----------|-------------|
+| [ ] | POST | `/workspaces/:workspaceId/labels` | Create label |
+| [ ] | GET | `/workspaces/:workspaceId/labels` | List labels in workspace |
+| [ ] | PATCH | `/labels/:id` | Update label |
+| [ ] | DELETE | `/labels/:id` | Delete label |
+| [ ] | POST | `/tasks/:taskId/labels/:labelId` | Assign label to task |
+| [ ] | DELETE | `/tasks/:taskId/labels/:labelId` | Remove label from task |
+
+---
+
+## 7. Attachments
+
+| Status | Method | Endpoint | Description |
+|--------|--------|----------|-------------|
+| [ ] | POST | `/tasks/:taskId/attachments` | Upload attachment (multipart) |
+| [ ] | GET | `/tasks/:taskId/attachments` | List task attachments |
+| [ ] | DELETE | `/attachments/:id` | Delete attachment |
+
+---
+
+## 8. Notifications
+
+| Status | Method | Endpoint | Description |
+|--------|--------|----------|-------------|
+| [ ] | GET | `/notifications` | List notifications (paginated) |
+| [ ] | PATCH | `/notifications/:id/read` | Mark notification as read |
+| [ ] | PATCH | `/notifications/read-all` | Mark all notifications as read |
+| [ ] | DELETE | `/notifications/:id` | Delete notification |
+
+---
+
+## 9. Search
+
+| Status | Method | Endpoint | Description |
+|--------|--------|----------|-------------|
+| [ ] | GET | `/search` | Search tasks, projects, users |
+
+---
+
+## 10. Audit Logs (Enterprise)
+
+| Status | Method | Endpoint | Description |
+|--------|--------|----------|-------------|
+| [ ] | GET | `/workspaces/:id/audit-logs` | List audit logs (paginated, filterable) |
+
+---
+
+## 11. Health Check
+
+| Status | Method | Endpoint | Description |
+|--------|--------|----------|-------------|
+| [ ] | GET | `/health` | Health check endpoint |
+
+---
+
+## Summary
+
+| Category | Total | Done | Pending |
+|----------|-------|------|---------|
+| Authentication | 8 | 0 | 8 |
+| Workspaces | 8 | 4 | 4 |
+| Projects | 7 | 0 | 7 |
+| Tasks | 8 | 0 | 8 |
+| Comments | 4 | 0 | 4 |
+| Labels | 6 | 0 | 6 |
+| Attachments | 3 | 0 | 3 |
+| Notifications | 4 | 0 | 4 |
+| Search | 1 | 0 | 1 |
+| Audit Logs | 1 | 0 | 1 |
+| Health Check | 1 | 0 | 1 |
+| **Total** | **51** | **4** | **47** |
+
+---
+
+*Last updated: 2026-02-27*

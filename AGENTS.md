@@ -48,6 +48,10 @@ This file contains guardrails and custom instructions for the AI assistant when 
 <!-- Any specific rules for this project -->
 - 
 
+### Task Checkpoint
+- Checked to the file /docs/api-checkpoint, the api that listed on the task checkpoint should be same with the defined in prd doc file 
+- After finishing implementing the api, then set to done
+
 ---
 
 ## Build & Test Instructions

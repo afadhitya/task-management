@@ -1,4 +1,4 @@
-package com.afadhitya.taskmanagement.application.dto;
+package com.afadhitya.taskmanagement.application.dto.response;
 
 import java.time.LocalDateTime;
 

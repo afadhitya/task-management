@@ -1,8 +1,8 @@
 package com.afadhitya.taskmanagement.adapter.in.web;
 
-import com.afadhitya.taskmanagement.application.dto.CreateWorkspaceRequest;
-import com.afadhitya.taskmanagement.application.dto.UpdateWorkspaceRequest;
-import com.afadhitya.taskmanagement.application.dto.WorkspaceResponse;
+import com.afadhitya.taskmanagement.application.dto.request.CreateWorkspaceRequest;
+import com.afadhitya.taskmanagement.application.dto.request.UpdateWorkspaceRequest;
+import com.afadhitya.taskmanagement.application.dto.response.WorkspaceResponse;
 import com.afadhitya.taskmanagement.application.port.in.workspace.CreateWorkspaceUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.DeleteWorkspaceByIdUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.GetWorkspaceByIdUseCase;

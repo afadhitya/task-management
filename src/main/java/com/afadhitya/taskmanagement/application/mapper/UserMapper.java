@@ -1,8 +1,8 @@
 package com.afadhitya.taskmanagement.application.mapper;
 
-import com.afadhitya.taskmanagement.application.dto.CreateUserRequest;
-import com.afadhitya.taskmanagement.application.dto.UpdateUserRequest;
-import com.afadhitya.taskmanagement.application.dto.UserResponse;
+import com.afadhitya.taskmanagement.application.dto.request.CreateUserRequest;
+import com.afadhitya.taskmanagement.application.dto.request.UpdateUserRequest;
+import com.afadhitya.taskmanagement.application.dto.response.UserResponse;
 import com.afadhitya.taskmanagement.domain.entity.User;
 import org.mapstruct.*;
 

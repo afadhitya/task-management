@@ -1,7 +1,7 @@
 package com.afadhitya.taskmanagement.application.usecase.workspace;
 
-import com.afadhitya.taskmanagement.application.dto.UpdateWorkspaceRequest;
-import com.afadhitya.taskmanagement.application.dto.WorkspaceResponse;
+import com.afadhitya.taskmanagement.application.dto.request.UpdateWorkspaceRequest;
+import com.afadhitya.taskmanagement.application.dto.response.WorkspaceResponse;
 import com.afadhitya.taskmanagement.application.mapper.WorkspaceMapper;
 import com.afadhitya.taskmanagement.application.port.in.workspace.UpdateWorkspaceUseCase;
 import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspacePersistencePort;

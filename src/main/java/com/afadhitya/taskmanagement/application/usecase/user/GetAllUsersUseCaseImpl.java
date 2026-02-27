@@ -1,6 +1,6 @@
 package com.afadhitya.taskmanagement.application.usecase.user;
 
-import com.afadhitya.taskmanagement.application.dto.UserResponse;
+import com.afadhitya.taskmanagement.application.dto.response.UserResponse;
 import com.afadhitya.taskmanagement.application.mapper.UserMapper;
 import com.afadhitya.taskmanagement.application.port.in.user.GetAllUsersUseCase;
 import com.afadhitya.taskmanagement.application.port.out.user.UserPersistencePort;

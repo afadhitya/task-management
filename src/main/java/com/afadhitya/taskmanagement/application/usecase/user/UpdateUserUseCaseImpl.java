@@ -1,7 +1,7 @@
 package com.afadhitya.taskmanagement.application.usecase.user;
 
-import com.afadhitya.taskmanagement.application.dto.UpdateUserRequest;
-import com.afadhitya.taskmanagement.application.dto.UserResponse;
+import com.afadhitya.taskmanagement.application.dto.request.UpdateUserRequest;
+import com.afadhitya.taskmanagement.application.dto.response.UserResponse;
 import com.afadhitya.taskmanagement.application.mapper.UserMapper;
 import com.afadhitya.taskmanagement.application.port.in.user.UpdateUserUseCase;
 import com.afadhitya.taskmanagement.application.port.out.user.UserPersistencePort;

@@ -1,4 +1,4 @@
-package com.afadhitya.taskmanagement.application.dto;
+package com.afadhitya.taskmanagement.application.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
