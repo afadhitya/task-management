@@ -68,7 +68,7 @@ Each API should be marked as `done` once implemented and verified.
 | [x] | PATCH | `/tasks/:id` | Update task |
 | [x] | DELETE | `/tasks/:id` | Delete task |
 | [x] | POST | `/tasks/:id/subtasks` | Create subtask |
-| [ ] | PATCH | `/tasks/bulk` | Bulk update tasks |
+| [x] | PATCH | `/tasks/bulk` | Bulk update tasks |
 | [ ] | GET | `/users/me/tasks` | Get tasks assigned to current user |
 
 ---
@@ -174,7 +174,7 @@ The UserController may be refactored or removed in favor of auth-based user mana
 | Authentication | 7 | 7 | 0 |
 | Workspaces | 8 | 4 | 4 |
 | Projects | 7 | 7 | 0 |
-| Tasks | 8 | 6 | 2 |
+| Tasks | 8 | 7 | 1 |
 | Comments | 4 | 0 | 4 |
 | Labels | 6 | 0 | 6 |
 | Attachments | 3 | 0 | 3 |
@@ -182,7 +182,7 @@ The UserController may be refactored or removed in favor of auth-based user mana
 | Search | 1 | 0 | 1 |
 | Audit Logs | 1 | 0 | 1 |
 | Health Check | 1 | 1 | 0 |
-| **Total** | **50** | **25** | **25** |
+| **Total** | **50** | **26** | **24** |
 
 ---
 

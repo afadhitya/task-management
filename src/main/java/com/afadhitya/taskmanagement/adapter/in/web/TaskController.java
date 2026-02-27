@@ -1,11 +1,14 @@
 package com.afadhitya.taskmanagement.adapter.in.web;
 
+import com.afadhitya.taskmanagement.application.dto.request.BulkUpdateTasksRequest;
 import com.afadhitya.taskmanagement.application.dto.request.CreateSubtaskRequest;
 import com.afadhitya.taskmanagement.application.dto.request.CreateTaskRequest;
 import com.afadhitya.taskmanagement.application.dto.request.TaskFilterRequest;
 import com.afadhitya.taskmanagement.application.dto.request.UpdateTaskRequest;
+import com.afadhitya.taskmanagement.application.dto.response.BulkJobResponse;
 import com.afadhitya.taskmanagement.application.dto.response.PagedResponse;
 import com.afadhitya.taskmanagement.application.dto.response.TaskResponse;
+import com.afadhitya.taskmanagement.application.port.in.bulkjob.SubmitBulkJobUseCase;
 import com.afadhitya.taskmanagement.application.port.in.task.CreateSubtaskUseCase;
 import com.afadhitya.taskmanagement.application.port.in.task.CreateTaskUseCase;
 import com.afadhitya.taskmanagement.application.port.in.task.DeleteTaskUseCase;
@@ -39,6 +42,7 @@ public class TaskController {
     private final UpdateTaskUseCase updateTaskUseCase;
     private final DeleteTaskUseCase deleteTaskUseCase;
     private final CreateSubtaskUseCase createSubtaskUseCase;
+    private final SubmitBulkJobUseCase submitBulkJobUseCase;
 
     @PreAuthorize("@projectSecurity.canContributeToProject(#projectId)")
     @PostMapping("/projects/{projectId}/tasks")
@@ -114,5 +118,12 @@ public class TaskController {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         TaskResponse response = createSubtaskUseCase.createSubtask(id, request, currentUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PatchMapping("/tasks/bulk")
+    public ResponseEntity<BulkJobResponse> bulkUpdateTasks(@Valid @RequestBody BulkUpdateTasksRequest request) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        BulkJobResponse response = submitBulkJobUseCase.submitBulkUpdateTasks(request, currentUserId);
+        return ResponseEntity.ok(response);
     }
 }
