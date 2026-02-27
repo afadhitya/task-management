@@ -9,6 +9,7 @@ import com.afadhitya.taskmanagement.application.port.in.project.AddProjectMember
 import com.afadhitya.taskmanagement.application.port.in.project.CreateProjectUseCase;
 import com.afadhitya.taskmanagement.application.port.in.project.DeleteProjectUseCase;
 import com.afadhitya.taskmanagement.application.port.in.project.GetProjectByIdUseCase;
+import com.afadhitya.taskmanagement.application.port.in.project.GetProjectMembersUseCase;
 import com.afadhitya.taskmanagement.application.port.in.project.GetProjectsByWorkspaceUseCase;
 import com.afadhitya.taskmanagement.application.port.in.project.RemoveProjectMemberUseCase;
 import com.afadhitya.taskmanagement.application.port.in.project.UpdateProjectUseCase;
@@ -34,6 +35,7 @@ public class ProjectController {
     private final GetProjectByIdUseCase getProjectByIdUseCase;
     private final UpdateProjectUseCase updateProjectUseCase;
     private final DeleteProjectUseCase deleteProjectUseCase;
+    private final GetProjectMembersUseCase getProjectMembersUseCase;
     private final AddProjectMemberUseCase addProjectMemberUseCase;
     private final RemoveProjectMemberUseCase removeProjectMemberUseCase;
 
@@ -61,6 +63,13 @@ public class ProjectController {
     public ResponseEntity<ProjectResponse> getProjectById(@PathVariable Long id) {
         ProjectResponse project = getProjectByIdUseCase.getProjectById(id);
         return ResponseEntity.ok(project);
+    }
+
+    @PreAuthorize("@projectSecurity.canViewProject(#id)")
+    @GetMapping("/projects/{id}/members")
+    public ResponseEntity<List<ProjectMemberResponse>> getProjectMembers(@PathVariable Long id) {
+        List<ProjectMemberResponse> members = getProjectMembersUseCase.getProjectMembers(id);
+        return ResponseEntity.ok(members);
     }
 
     @PreAuthorize("@projectSecurity.canManageProject(#id)")

@@ -6,6 +6,7 @@ import com.afadhitya.taskmanagement.domain.entity.ProjectMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -22,6 +23,11 @@ public class ProjectMemberPersistenceAdapter implements ProjectMemberPersistence
     @Override
     public Optional<ProjectMember> findByProjectIdAndUserId(Long projectId, Long userId) {
         return projectMemberRepository.findByProjectIdAndUserId(projectId, userId);
+    }
+
+    @Override
+    public List<ProjectMember> findByProjectId(Long projectId) {
+        return projectMemberRepository.findByProjectId(projectId);
     }
 
     @Override
