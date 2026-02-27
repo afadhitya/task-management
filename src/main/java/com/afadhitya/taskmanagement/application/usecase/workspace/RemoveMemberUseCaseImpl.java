@@ -26,7 +26,7 @@ public class RemoveMemberUseCaseImpl implements RemoveMemberUseCase {
 
         WorkspaceMember currentUserMembership = workspaceMemberPersistencePort
                 .findByWorkspaceIdAndUserId(workspaceId, currentUserId)
-                .orElseThrow(() -> new IllegalArgumentException("You are not a member of this workspace"));
+                .orElseThrow(() -> new IllegalStateException("Current user membership not found"));
 
         WorkspaceRole currentUserRole = currentUserMembership.getRole();
 

@@ -25,8 +25,7 @@ public class LeaveWorkspaceUseCaseImpl implements LeaveWorkspaceUseCase {
 
         WorkspaceMember currentUserMembership = workspaceMemberPersistencePort
                 .findByWorkspaceIdAndUserId(workspaceId, currentUserId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "You are not a member of this workspace"));
+                .orElseThrow(() -> new IllegalStateException("Current user membership not found"));
 
         if (currentUserMembership.getRole() == WorkspaceRole.OWNER) {
             throw new IllegalArgumentException(

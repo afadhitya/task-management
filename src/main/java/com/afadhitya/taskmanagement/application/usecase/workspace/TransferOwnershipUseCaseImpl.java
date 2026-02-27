@@ -27,7 +27,7 @@ public class TransferOwnershipUseCaseImpl implements TransferOwnershipUseCase {
 
         WorkspaceMember currentOwnerMembership = workspaceMemberPersistencePort
                 .findByWorkspaceIdAndUserId(workspaceId, currentUserId)
-                .orElseThrow(() -> new IllegalArgumentException("You are not a member of this workspace"));
+                .orElseThrow(() -> new IllegalStateException("Current user membership not found"));
 
         WorkspaceMember newOwnerMembership = workspaceMemberPersistencePort
                 .findByWorkspaceIdAndUserId(workspaceId, request.newOwnerId())
