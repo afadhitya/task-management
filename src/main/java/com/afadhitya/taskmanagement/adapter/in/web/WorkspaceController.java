@@ -12,6 +12,8 @@ import com.afadhitya.taskmanagement.application.port.in.workspace.DeleteWorkspac
 import com.afadhitya.taskmanagement.application.port.in.workspace.GetWorkspaceByIdUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.GetWorkspaceMembersUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.InviteMemberUseCase;
+import com.afadhitya.taskmanagement.application.port.in.workspace.LeaveWorkspaceUseCase;
+import com.afadhitya.taskmanagement.application.port.in.workspace.RemoveMemberUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.TransferOwnershipUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.UpdateMemberRoleUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.UpdateWorkspaceUseCase;
@@ -40,6 +42,8 @@ public class WorkspaceController {
     private final InviteMemberUseCase inviteMemberUseCase;
     private final UpdateMemberRoleUseCase updateMemberRoleUseCase;
     private final TransferOwnershipUseCase transferOwnershipUseCase;
+    private final RemoveMemberUseCase removeMemberUseCase;
+    private final LeaveWorkspaceUseCase leaveWorkspaceUseCase;
 
     @PostMapping
     public ResponseEntity<WorkspaceResponse> createWorkspace(@Valid @RequestBody CreateWorkspaceRequest request) {
@@ -103,5 +107,21 @@ public class WorkspaceController {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         WorkspaceMemberResponse response = transferOwnershipUseCase.transferOwnership(id, request, currentUserId);
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}/members/{userId}")
+    public ResponseEntity<Void> removeMember(
+            @PathVariable Long id,
+            @PathVariable Long userId) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        removeMemberUseCase.removeMember(id, userId, currentUserId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/leave")
+    public ResponseEntity<Void> leaveWorkspace(@PathVariable Long id) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        leaveWorkspaceUseCase.leaveWorkspace(id, currentUserId);
+        return ResponseEntity.noContent().build();
     }
 }
