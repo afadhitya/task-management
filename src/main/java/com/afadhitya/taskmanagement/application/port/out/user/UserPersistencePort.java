@@ -18,4 +18,6 @@ public interface UserPersistencePort {
     Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);
+
+    List<User> searchByWorkspaceId(Long workspaceId, String query);
 }

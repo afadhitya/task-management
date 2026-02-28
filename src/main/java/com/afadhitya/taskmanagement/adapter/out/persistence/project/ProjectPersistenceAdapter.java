@@ -39,4 +39,9 @@ public class ProjectPersistenceAdapter implements ProjectPersistencePort {
     public void deleteById(Long id) {
         projectRepository.deleteById(id);
     }
+
+    @Override
+    public List<Project> searchByWorkspaceId(Long workspaceId, String query) {
+        return projectRepository.searchByWorkspaceId(workspaceId, query);
+    }
 }

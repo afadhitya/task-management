@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -32,4 +33,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query("UPDATE User u SET u.passwordHash = :newPasswordHash WHERE u.id = :userId")
     void updatePassword(@Param("userId") Long userId, @Param("newPasswordHash") String newPasswordHash);
+
+    @Query("""
+            SELECT u FROM User u
+            JOIN WorkspaceMember wm ON wm.user.id = u.id
+            WHERE wm.workspace.id = :workspaceId
+            AND (:query IS NULL OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', CAST(:query AS string), '%'))
+                 OR LOWER(u.email) LIKE LOWER(CONCAT('%', CAST(:query AS string), '%')))
+            """)
+    List<User> searchByWorkspaceId(@Param("workspaceId") Long workspaceId, @Param("query") String query);
 }

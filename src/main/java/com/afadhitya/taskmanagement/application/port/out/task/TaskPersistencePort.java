@@ -28,4 +28,6 @@ public interface TaskPersistencePort {
     boolean existsById(Long id);
 
     void deleteById(Long id);
+
+    List<Task> searchByWorkspaceId(Long workspaceId, String query);
 }

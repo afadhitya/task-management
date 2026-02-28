@@ -73,4 +73,9 @@ public class TaskPersistenceAdapter implements TaskPersistencePort {
     public void deleteById(Long id) {
         taskRepository.deleteById(id);
     }
+
+    @Override
+    public List<Task> searchByWorkspaceId(Long workspaceId, String query) {
+        return taskRepository.searchByWorkspaceId(workspaceId, query);
+    }
 }

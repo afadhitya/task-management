@@ -16,4 +16,6 @@ public interface ProjectPersistencePort {
     boolean existsById(Long id);
 
     void deleteById(Long id);
+
+    List<Project> searchByWorkspaceId(Long workspaceId, String query);
 }

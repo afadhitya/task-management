@@ -49,4 +49,12 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Query("SELECT t FROM Task t WHERE :assigneeId MEMBER OF t.assigneeIds")
     List<Task> findByAssigneeId(@Param("assigneeId") Long assigneeId);
+
+    @Query("""
+            SELECT t FROM Task t
+            WHERE t.project.workspace.id = :workspaceId
+            AND (:query IS NULL OR LOWER(t.title) LIKE LOWER(CONCAT('%', CAST(:query AS string), '%'))
+                 OR LOWER(t.description) LIKE LOWER(CONCAT('%', CAST(:query AS string), '%')))
+            """)
+    List<Task> searchByWorkspaceId(@Param("workspaceId") Long workspaceId, @Param("query") String query);
 }

@@ -5,6 +5,8 @@ import com.afadhitya.taskmanagement.application.port.out.user.UserPersistencePor
 import com.afadhitya.taskmanagement.domain.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -31,5 +33,10 @@ public class UserPersistenceAdapter implements UserPersistencePort {
     @Override
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    @Override
+    public List<User> searchByWorkspaceId(Long workspaceId, String query) {
+        return userRepository.searchByWorkspaceId(workspaceId, query);
     }
 }
