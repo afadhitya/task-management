@@ -6,6 +6,7 @@ import lombok.Builder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Builder
@@ -21,6 +22,7 @@ public record TaskResponse(
         String projectName,
         Long parentTaskId,
         Set<Long> assigneeIds,
+        List<LabelSummaryResponse> labels,
         Long createdBy,
         String createdByName,
         LocalDateTime createdAt,
