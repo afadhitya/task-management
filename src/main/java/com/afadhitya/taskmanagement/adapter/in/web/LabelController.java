@@ -4,6 +4,7 @@ import com.afadhitya.taskmanagement.application.dto.request.CreateLabelRequest;
 import com.afadhitya.taskmanagement.application.dto.request.UpdateLabelRequest;
 import com.afadhitya.taskmanagement.application.dto.response.LabelResponse;
 import com.afadhitya.taskmanagement.application.port.in.label.CreateLabelUseCase;
+import com.afadhitya.taskmanagement.application.port.in.label.DeleteLabelUseCase;
 import com.afadhitya.taskmanagement.application.port.in.label.GetLabelsByProjectUseCase;
 import com.afadhitya.taskmanagement.application.port.in.label.UpdateLabelUseCase;
 import com.afadhitya.taskmanagement.infrastructure.config.OpenApiConfig;
@@ -26,6 +27,7 @@ public class LabelController {
     private final CreateLabelUseCase createLabelUseCase;
     private final GetLabelsByProjectUseCase getLabelsByProjectUseCase;
     private final UpdateLabelUseCase updateLabelUseCase;
+    private final DeleteLabelUseCase deleteLabelUseCase;
 
     @PreAuthorize("@workspaceSecurity.isWorkspaceMember(#workspaceId)")
     @PostMapping("/workspaces/{workspaceId}/labels")
@@ -52,5 +54,13 @@ public class LabelController {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         LabelResponse response = updateLabelUseCase.updateLabel(id, request, currentUserId);
         return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("@labelSecurity.canDeleteLabel(#id)")
+    @DeleteMapping("/labels/{id}")
+    public ResponseEntity<Void> deleteLabel(@PathVariable Long id) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        deleteLabelUseCase.deleteLabel(id, currentUserId);
+        return ResponseEntity.noContent().build();
     }
 }
