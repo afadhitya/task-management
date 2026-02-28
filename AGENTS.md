@@ -109,7 +109,64 @@ This file contains guardrails and custom instructions for the AI assistant when 
   ```
   - Create security expression beans in `infrastructure/security/[Entity]SecurityExpression.java`
   - Keep use cases focused on business logic, security handled at controller level
-  - For create operations that need request body data, permission checks may remain in use case 
+  - For create operations that need request body data, permission checks may remain in use case
+
+### Audit Log Implementation Pattern
+When implementing audit logging, follow the **Decorator Pattern with Direct Service Calls**:
+
+```
+Controller → UseCase Interface → @Primary Decorator → Impl (pure logic)
+                                        │
+                                        └──▶ AuditLogService (REQUIRES_NEW)
+```
+
+**Key Principles:**
+1. **Use cases are pure** - No audit code in use case implementations
+2. **Decorators handle audit** - Create `@Primary` decorator classes that wrap use cases
+3. **Direct service calls** - Call `AuditLogService` directly (not event-driven)
+4. **Transaction isolation** - Use `REQUIRES_NEW` for audit log persistence
+5. **Diff calculation** - Calculate diffs in decorator before/after calling delegate
+
+**Example Structure:**
+```java
+@Service
+@Primary
+@RequiredArgsConstructor
+public class AuditedUpdateTaskUseCase implements UpdateTaskUseCase {
+    
+    private final UpdateTaskUseCaseImpl delegate;  // Pure business logic
+    private final AuditLogService auditLogService;
+    
+    @Override
+    @Transactional
+    public TaskResponse updateTask(Long id, UpdateTaskRequest request) {
+        // 1. Capture before state
+        Task oldTask = taskRepository.findById(id).orElseThrow();
+        Map<String, Object> diff = calculateDiff(oldTask, request);
+        
+        // 2. Execute pure business logic
+        TaskResponse response = delegate.updateTask(id, request);
+        
+        // 3. Create audit log (separate transaction)
+        if (!diff.isEmpty()) {
+            auditLogService.createUpdate(workspaceId, actorId, 
+                AuditEntityType.TASK, id, diff);
+        }
+        
+        return response;
+    }
+}
+```
+
+**Location:** Place all audit decorators in `application/usecase/audit/` package.
+
+**Note on AuditContextHolder:** 
+`AuditContextHolder` (ThreadLocal) was considered but not used. Decorators fetch workspace/actor info directly from the database. This avoids:
+- ThreadLocal complexity and cleanup requirements
+- Controller modifications
+- Risk of context leaks
+
+The double DB read is acceptable for audit operations (relatively infrequent). 
 
 ### Task Checkpoint
 - Checked to the file /docs/api-checkpoint, the api that listed on the task checkpoint should be same with the defined in prd doc file 
