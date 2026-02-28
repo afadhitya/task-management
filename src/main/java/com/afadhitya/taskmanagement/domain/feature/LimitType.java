@@ -6,10 +6,10 @@ package com.afadhitya.taskmanagement.domain.feature;
  */
 public enum LimitType {
     
-    MAX_PROJECTS("max_projects", "Maximum projects per workspace"),
-    MAX_MEMBERS("max_members", "Maximum members per workspace"),
-    MAX_STORAGE_MB("max_storage_mb", "Maximum storage in MB per workspace"),
-    MAX_TASKS_PER_PROJECT("max_tasks_per_project", "Maximum tasks per project");
+    MAX_PROJECTS("MAX_PROJECTS", "Maximum projects per workspace"),
+    MAX_MEMBERS("MAX_MEMBERS", "Maximum members per workspace"),
+    MAX_STORAGE_MB("MAX_STORAGE_MB", "Maximum storage in MB per workspace"),
+    MAX_TASKS_PER_PROJECT("MAX_TASKS_PER_PROJECT", "Maximum tasks per project");
 
     private final String code;
     private final String description;

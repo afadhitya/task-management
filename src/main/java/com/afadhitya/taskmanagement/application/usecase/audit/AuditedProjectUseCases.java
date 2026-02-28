@@ -33,7 +33,6 @@ public class AuditedProjectUseCases {
     private final AuditFeatureInterceptor auditInterceptor;
 
     @Service
-    @Primary
     @RequiredArgsConstructor
     public class CreateProject implements CreateProjectUseCase {
 

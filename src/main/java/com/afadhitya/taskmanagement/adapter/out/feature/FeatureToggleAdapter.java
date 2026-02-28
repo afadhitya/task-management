@@ -19,7 +19,7 @@ public class FeatureToggleAdapter implements FeatureTogglePort {
     private final WorkspaceRepository workspaceRepository;
 
     @Override
-    @Cacheable(value = "workspaceFeatures", key = "#workspaceId + ':' + #feature.code()")
+    @Cacheable(value = "workspaceFeatures", key = "#workspaceId + ':' + #feature.getCode()")
     public boolean isEnabled(Long workspaceId, Feature feature) {
         log.debug("Checking feature {} for workspace {}", feature.getCode(), workspaceId);
 
@@ -35,7 +35,7 @@ public class FeatureToggleAdapter implements FeatureTogglePort {
     }
 
     @Override
-    @Cacheable(value = "workspaceLimits", key = "#workspaceId + ':' + #limitType.code()")
+    @Cacheable(value = "workspaceLimits", key = "#workspaceId + ':' + #limitType.getCode()")
     public int getLimit(Long workspaceId, LimitType limitType) {
         log.debug("Getting limit {} for workspace {}", limitType.getCode(), workspaceId);
 

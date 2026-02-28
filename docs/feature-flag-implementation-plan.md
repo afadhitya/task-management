@@ -302,64 +302,155 @@ public class AuditedTaskUseCases {
 ```
 
 ### Phase 2 Exit Criteria
-- [ ] AuditFeatureInterceptor created and tested
-- [ ] All 5 Audited*UseCases classes modified with feature flag checks
-- [ ] All 22 audit operations check feature flag before DB reads
-- [ ] Zero DB reads verified when audit disabled (FREE plan)
-- [ ] Performance: feature check < 5ms (cached)
+- [x] AuditFeatureInterceptor created and tested
+- [x] All 5 Audited*UseCases classes modified with feature flag checks
+- [x] All 22 audit operations check feature flag before DB reads
+- [x] Zero DB reads verified when audit disabled (FREE plan)
+- [x] Performance: feature check < 5ms (cached)
+
+---
+
+## Phase 2.5: Limit Enforcement Dispatchers
+
+### Goal
+Wire up the limit handlers (`ProjectLimitFeatureHandler`, `MemberLimitFeatureHandler`) to actually enforce plan limits when creating projects and inviting members.
+
+### Problem
+The limit handlers exist but are not being called. We need to integrate them into the request flow.
+
+### Solution: Chained Dispatchers (Option B)
+
+Chain the limit validation dispatcher BEFORE the audit decorator:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Chained Dispatcher Flow                                    │
+│                                                             │
+│  Controller ──► LimitDispatcher (@Primary)                  │
+│                      │                                      │
+│                      ▼                                      │
+│              Validate Limits                                │
+│                      │                                      │
+│              Exceeded? ──► Throw Exception                  │
+│                      │                                      │
+│                      ▼ (if valid)                           │
+│              AuditedUseCase (existing @Primary inner class) │
+│                      │                                      │
+│                      ▼                                      │
+│              UseCaseImpl (pure business logic)              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Key Points:**
+- LimitDispatcher is `@Primary` at the class level
+- LimitDispatcher injects the AuditedUseCase (not the Impl directly)
+- AuditedUseCase remains unchanged, still handles audit logic
+- Both limit validation AND audit are executed
+
+### Tasks
+
+#### Day 1: CreateProjectFeatureDispatcher
+```
+┌─────────────────────────────────────────────────────────────┐
+│  TASKS                                                      │
+│  ├── Create CreateProjectFeatureDispatcher                  │
+│  │   ├── @Primary bean implementing CreateProjectUseCase    │
+│  │   ├── Injects AuditedProjectUseCases.CreateProject       │
+│  │   ├── Injects ProjectLimitFeatureHandler                 │
+│  │   ├── Creates FeatureContext with workspaceId            │
+│  │   ├── Calls handler.validate() before delegate           │
+│  │   └── Delegates to audited use case if validation passes │
+│  └── Test: FREE plan with 3 projects rejects 4th            │
+│      └── Verify audit log still created when allowed        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Structure:**
+```java
+@Service
+@Primary
+@RequiredArgsConstructor
+public class CreateProjectFeatureDispatcher implements CreateProjectUseCase {
+    
+    // Inject the AuditedUseCase (not Impl) to preserve audit
+    private final AuditedProjectUseCases.CreateProject auditedCreateProject;
+    private final ProjectLimitFeatureHandler limitHandler;
+    
+    @Override
+    @Transactional
+    public ProjectResponse createProject(CreateProjectRequest request, Long createdByUserId) {
+        Long workspaceId = request.workspaceId();
+        
+        FeatureContext context = new FeatureContext(workspaceId, createdByUserId);
+        
+        // 1. Validate limits first
+        limitHandler.validate(context, request);
+        
+        // 2. Delegate to audited use case (which will audit then call impl)
+        return auditedCreateProject.createProject(request, createdByUserId);
+    }
+}
+```
+
+#### Day 2: InviteMemberFeatureDispatcher
+```
+┌─────────────────────────────────────────────────────────────┐
+│  TASKS                                                      │
+│  ├── Create InviteMemberFeatureDispatcher                   │
+│  │   ├── @Primary bean implementing InviteMemberUseCase     │
+│  │   ├── Injects AuditedWorkspaceUseCases.InviteMember      │
+│  │   ├── Injects MemberLimitFeatureHandler                  │
+│  │   ├── Creates FeatureContext with workspaceId            │
+│  │   ├── Calls handler.validate() before delegate           │
+│  │   └── Delegates to audited use case if validation passes │
+│  └── Test: FREE plan with 5 members rejects 6th             │
+│      └── Verify audit log still created when allowed        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Structure:**
+```java
+@Service
+@Primary
+@RequiredArgsConstructor
+public class InviteMemberFeatureDispatcher implements InviteMemberUseCase {
+    
+    // Inject the AuditedUseCase (not Impl) to preserve audit
+    private final AuditedWorkspaceUseCases.InviteMember auditedInviteMember;
+    private final MemberLimitFeatureHandler limitHandler;
+    
+    @Override
+    @Transactional
+    public WorkspaceMemberResponse inviteMember(Long workspaceId, InviteMemberRequest request, Long currentUserId) {
+        FeatureContext context = new FeatureContext(workspaceId, currentUserId);
+        
+        // 1. Validate limits first
+        limitHandler.validate(context, request);
+        
+        // 2. Delegate to audited use case (which will audit then call impl)
+        return auditedInviteMember.inviteMember(workspaceId, request, currentUserId);
+    }
+}
+```
+
+### Phase 2.5 Exit Criteria
+- [ ] CreateProjectFeatureDispatcher enforces project limits
+- [ ] InviteMemberFeatureDispatcher enforces member limits
+- [ ] FREE plan rejects project creation when at 3 projects
+- [ ] FREE plan rejects member invite when at 5 members
+- [ ] TEAM/ENTERPRISE plans allow creation up to their limits
+- [ ] Audit logs are still created when operations are allowed
 
 ---
 
 ## Phase 3: Limits & Admin APIs (Week 3)
 
 ### Goal
-Implement project/member limits and admin configuration APIs.
+Implement admin configuration APIs for managing plan features and limits. Note: Limit enforcement is handled in Phase 2.5 by Feature Dispatchers.
 
 ### Tasks
 
-#### Day 1-2: Limit Handlers
-```
-┌─────────────────────────────────────────────────────────────┐
-│  TASKS                                                      │
-│  ├── Create ProjectLimitFeatureHandler                      │
-│  │   ├── validate(): check MAX_PROJECTS before create       │
-│  │   └── throw PlanLimitExceededException if over limit     │
-│  ├── Create MemberLimitFeatureHandler                       │
-│  │   └── validate(): check MAX_MEMBERS before invite        │
-│  └── Add count methods to repositories                      │
-│      ├── WorkspaceRepository.countProjects()                │
-│      └── WorkspaceRepository.countMembers()                 │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**ProjectLimitFeatureHandler:**
-```java
-@Component
-@RequiredArgsConstructor
-public class ProjectLimitFeatureHandler implements FeatureHandler<CreateProjectRequest, ProjectResponse> {
-    
-    private final WorkspacePersistencePort workspacePersistence;
-    private final FeatureTogglePort featureToggle;
-    
-    @Override
-    public Feature getFeature() { return Feature.PROJECT_LIMITS; }
-    
-    @Override
-    public void validate(FeatureContext context, CreateProjectRequest request) {
-        Long workspaceId = request.workspaceId();
-        int current = workspacePersistence.countProjects(workspaceId);
-        int max = featureToggle.getLimit(workspaceId, LimitType.MAX_PROJECTS);
-        
-        if (max >= 0 && current >= max) {
-            throw new PlanLimitExceededException(MAX_PROJECTS, current, max);
-        }
-    }
-}
-```
-
----
-
-#### Day 3-4: Admin APIs
+#### Day 1-2: Admin APIs
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  TASKS                                                      │
@@ -435,11 +526,11 @@ public class AdminPlanController {
 ---
 
 ### Phase 3 Exit Criteria
-- [ ] Project limit enforced on FREE plan (max 3)
-- [ ] Member limit enforced on FREE plan (max 5)
-- [ ] Admin APIs working with proper security
-- [ ] Workspace entitlement endpoint returns correct data
-- [ ] Cache invalidation on plan configuration change
+- [x] Admin APIs working with proper security
+- [x] Workspace entitlement endpoint returns correct data
+- [x] Cache invalidation on plan configuration change
+
+**Note:** Project/Member limit enforcement moved to Phase 2.5
 
 ---
 

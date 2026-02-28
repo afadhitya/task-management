@@ -144,7 +144,6 @@ public class AuditedWorkspaceUseCases {
     }
 
     @Service
-    @Primary
     @RequiredArgsConstructor
     public class InviteMember implements InviteMemberUseCase {
 
