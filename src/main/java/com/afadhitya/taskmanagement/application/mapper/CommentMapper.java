@@ -1,9 +1,13 @@
 package com.afadhitya.taskmanagement.application.mapper;
 
+import com.afadhitya.taskmanagement.application.dto.request.UpdateCommentRequest;
 import com.afadhitya.taskmanagement.application.dto.response.CommentResponse;
 import com.afadhitya.taskmanagement.domain.entity.Comment;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,4 +30,7 @@ public interface CommentMapper {
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromRequest(UpdateCommentRequest request, @MappingTarget Comment comment);
 }

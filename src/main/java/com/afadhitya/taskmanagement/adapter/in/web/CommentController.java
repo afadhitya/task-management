@@ -1,9 +1,12 @@
 package com.afadhitya.taskmanagement.adapter.in.web;
 
 import com.afadhitya.taskmanagement.application.dto.request.CreateCommentRequest;
+import com.afadhitya.taskmanagement.application.dto.request.UpdateCommentRequest;
 import com.afadhitya.taskmanagement.application.dto.response.CommentResponse;
 import com.afadhitya.taskmanagement.application.port.in.comment.CreateCommentUseCase;
+import com.afadhitya.taskmanagement.application.port.in.comment.DeleteCommentUseCase;
 import com.afadhitya.taskmanagement.application.port.in.comment.GetCommentsByTaskUseCase;
+import com.afadhitya.taskmanagement.application.port.in.comment.UpdateCommentUseCase;
 import com.afadhitya.taskmanagement.infrastructure.config.OpenApiConfig;
 import com.afadhitya.taskmanagement.infrastructure.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -23,6 +26,8 @@ public class CommentController {
 
     private final CreateCommentUseCase createCommentUseCase;
     private final GetCommentsByTaskUseCase getCommentsByTaskUseCase;
+    private final UpdateCommentUseCase updateCommentUseCase;
+    private final DeleteCommentUseCase deleteCommentUseCase;
 
     @PreAuthorize("@taskSecurity.canViewTask(#taskId)")
     @PostMapping("/tasks/{taskId}/comments")
@@ -39,5 +44,21 @@ public class CommentController {
     public ResponseEntity<List<CommentResponse>> getCommentsByTask(@PathVariable Long taskId) {
         List<CommentResponse> comments = getCommentsByTaskUseCase.getCommentsByTask(taskId);
         return ResponseEntity.ok(comments);
+    }
+
+    @PatchMapping("/comments/{id}")
+    public ResponseEntity<CommentResponse> updateComment(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateCommentRequest request) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        CommentResponse response = updateCommentUseCase.updateComment(id, request, currentUserId);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/comments/{id}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        deleteCommentUseCase.deleteComment(id, currentUserId);
+        return ResponseEntity.noContent().build();
     }
 }
