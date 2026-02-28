@@ -204,57 +204,10 @@ public class TaskFeatureDispatcher implements UpdateTaskUseCase {
 }
 ```
 
----
-
-#### Day 5: Testing & Migration
-```
-┌─────────────────────────────────────────────────────────────┐
-│  TASKS                                                      │
-│  ├── Write integration tests for TaskFeatureDispatcher      │
-│  │   ├── Test: audit disabled = no audit log created        │
-│  │   ├── Test: audit enabled = audit log created            │
-│  │   └── Test: feature check cached                         │
-│  ├── Update existing audit tests if needed                  │
-│  ├── Verify zero DB reads when audit disabled               │
-│  └── Remove AuditedTaskUseCases (UpdateTask inner class)    │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**Test Scenarios:**
-```java
-@Test
-void updateTask_whenAuditDisabled_shouldNotCreateAuditLog() {
-    // Given: FREE plan (audit disabled)
-    when(featureToggle.isEnabled(workspaceId, AUDIT_LOG)).thenReturn(false);
-    
-    // When
-    dispatcher.updateTask(id, request);
-    
-    // Then: No audit service calls, no extra DB reads
-    verify(auditLogService, never()).create(any());
-    verify(taskPersistencePort, never()).findById(any()); // No old state fetch
-}
-
-@Test
-void updateTask_whenAuditEnabled_shouldCreateAuditLog() {
-    // Given: ENTERPRISE plan (audit enabled)
-    when(featureToggle.isEnabled(workspaceId, AUDIT_LOG)).thenReturn(true);
-    
-    // When
-    dispatcher.updateTask(id, request);
-    
-    // Then: Audit log created
-    verify(auditLogService).create(any());
-}
-```
-
----
-
 ### Phase 2 Exit Criteria
 - [ ] TaskAuditFeatureHandler created and tested
 - [ ] TaskFeatureDispatcher replaces AuditedTaskUseCases.UpdateTask
 - [ ] Zero DB reads verified when audit disabled
-- [ ] All existing tests pass
 - [ ] AuditedTaskUseCases.UpdateTask removed
 
 ---
