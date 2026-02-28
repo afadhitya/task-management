@@ -16,21 +16,6 @@ public class LabelSecurityExpression {
     private final WorkspacePermissionUseCase workspacePermissionUseCase;
     private final ProjectPermissionUseCase projectPermissionUseCase;
 
-    public boolean canCreateLabel(Long workspaceId, Long projectId) {
-        Long currentUserId = SecurityUtils.getCurrentUserId();
-
-        if (projectId == null) {
-            // Global label - only OWNER/ADMIN can update
-            return workspacePermissionUseCase.hasRole(workspaceId, currentUserId, WorkspaceRole.OWNER, WorkspaceRole.ADMIN);
-        } else {
-            // Project label - OWNER/ADMIN or Project MANAGER can update
-            boolean isWorkspaceAdmin = workspacePermissionUseCase.hasRole(workspaceId, currentUserId, WorkspaceRole.OWNER, WorkspaceRole.ADMIN);
-            boolean isProjectManager = projectPermissionUseCase.canManageProject(projectId, currentUserId);
-
-            return isWorkspaceAdmin || isProjectManager;
-        }
-    }
-
     public boolean canUpdateLabel(Long labelId) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
 
