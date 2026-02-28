@@ -7,6 +7,7 @@ import com.afadhitya.taskmanagement.application.port.in.label.AssignLabelToTaskU
 import com.afadhitya.taskmanagement.application.port.in.label.CreateLabelUseCase;
 import com.afadhitya.taskmanagement.application.port.in.label.DeleteLabelUseCase;
 import com.afadhitya.taskmanagement.application.port.in.label.GetLabelsByProjectUseCase;
+import com.afadhitya.taskmanagement.application.port.in.label.RemoveLabelFromTaskUseCase;
 import com.afadhitya.taskmanagement.application.port.in.label.UpdateLabelUseCase;
 import com.afadhitya.taskmanagement.infrastructure.config.OpenApiConfig;
 import com.afadhitya.taskmanagement.infrastructure.security.SecurityUtils;
@@ -30,6 +31,7 @@ public class LabelController {
     private final UpdateLabelUseCase updateLabelUseCase;
     private final DeleteLabelUseCase deleteLabelUseCase;
     private final AssignLabelToTaskUseCase assignLabelToTaskUseCase;
+    private final RemoveLabelFromTaskUseCase removeLabelFromTaskUseCase;
 
     @PreAuthorize("@workspaceSecurity.isWorkspaceMember(#workspaceId)")
     @PostMapping("/workspaces/{workspaceId}/labels")
@@ -74,5 +76,14 @@ public class LabelController {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         LabelResponse response = assignLabelToTaskUseCase.assignLabelToTask(taskId, labelId, currentUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PreAuthorize("@taskSecurity.canContributeToTask(#taskId)")
+    @DeleteMapping("/tasks/{taskId}/labels/{labelId}")
+    public ResponseEntity<Void> removeLabelFromTask(
+            @PathVariable Long taskId,
+            @PathVariable Long labelId) {
+        removeLabelFromTaskUseCase.removeLabelFromTask(taskId, labelId);
+        return ResponseEntity.noContent().build();
     }
 }

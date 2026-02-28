@@ -95,7 +95,7 @@ Each API should be marked as `done` once implemented and verified.
 | [x] | PATCH | `/labels/:id` | Update label |
 | [x] | DELETE | `/labels/:id` | Delete label |
 | [x] | POST | `/tasks/:taskId/labels/:labelId` | Assign label to task |
-| [ ] | DELETE | `/tasks/:taskId/labels/:labelId` | Remove label from task |
+| [x] | DELETE | `/tasks/:taskId/labels/:labelId` | Remove label from task |
 
 ---
 
