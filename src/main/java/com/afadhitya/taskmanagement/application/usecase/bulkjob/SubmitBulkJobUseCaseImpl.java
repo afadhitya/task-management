@@ -2,6 +2,7 @@ package com.afadhitya.taskmanagement.application.usecase.bulkjob;
 
 import com.afadhitya.taskmanagement.application.dto.request.BulkUpdateTasksRequest;
 import com.afadhitya.taskmanagement.application.dto.response.BulkJobResponse;
+import com.afadhitya.taskmanagement.application.event.BulkJobSubmittedEvent;
 import com.afadhitya.taskmanagement.application.mapper.BulkJobMapper;
 import com.afadhitya.taskmanagement.application.port.in.bulkjob.SubmitBulkJobUseCase;
 import com.afadhitya.taskmanagement.application.port.out.bulkjob.BulkJobPersistencePort;
@@ -12,6 +13,7 @@ import com.afadhitya.taskmanagement.domain.entity.Task;
 import com.afadhitya.taskmanagement.domain.entity.User;
 import com.afadhitya.taskmanagement.domain.enums.JobStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +29,7 @@ public class SubmitBulkJobUseCaseImpl implements SubmitBulkJobUseCase {
     private final BulkJobPersistencePort bulkJobPersistencePort;
     private final UserPersistencePort userPersistencePort;
     private final TaskPersistencePort taskPersistencePort;
-    private final BulkJobProcessor bulkJobProcessor;
+    private final ApplicationEventPublisher eventPublisher;
     private final BulkJobMapper bulkJobMapper;
 
     @Override
@@ -47,8 +49,12 @@ public class SubmitBulkJobUseCaseImpl implements SubmitBulkJobUseCase {
 
         BulkJob savedJob = bulkJobPersistencePort.save(bulkJob);
 
-        // Trigger async processing
-        bulkJobProcessor.processBulkUpdateTasks(savedJob.getId(), request);
+        // Publish event - will trigger after transaction commits
+        BulkJobSubmittedEvent event = BulkJobSubmittedEvent.builder()
+                .jobId(savedJob.getId())
+                .request(request)
+                .build();
+        eventPublisher.publishEvent(event);
 
         return bulkJobMapper.toResponse(savedJob);
     }

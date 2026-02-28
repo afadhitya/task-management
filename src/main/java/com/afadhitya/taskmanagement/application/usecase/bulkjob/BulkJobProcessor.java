@@ -8,7 +8,6 @@ import com.afadhitya.taskmanagement.domain.entity.Task;
 import com.afadhitya.taskmanagement.domain.enums.JobStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +22,6 @@ public class BulkJobProcessor {
     private final BulkJobPersistencePort bulkJobPersistencePort;
     private final TaskPersistencePort taskPersistencePort;
 
-    @Async
     @Transactional
     public void processBulkUpdateTasks(String jobId, BulkUpdateTasksRequest request) {
         log.info("Starting bulk update job: {} for {} tasks", jobId, request.taskIds().size());
