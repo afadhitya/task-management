@@ -132,7 +132,7 @@ Each API should be marked as `done` once implemented and verified.
 
 | Status | Method | Endpoint | Description |
 |--------|--------|----------|-------------|
-| [ ] | GET | `/workspaces/:id/audit-logs` | List audit logs (paginated, filterable) |
+| [x] | GET | `/workspaces/:id/audit-logs` | List audit logs (paginated, filterable) |
 
 ---
 
