@@ -6,20 +6,16 @@ import com.afadhitya.taskmanagement.application.mapper.TaskMapper;
 import com.afadhitya.taskmanagement.application.port.in.task.CreateSubtaskUseCase;
 import com.afadhitya.taskmanagement.application.port.out.task.TaskPersistencePort;
 import com.afadhitya.taskmanagement.application.port.out.user.UserPersistencePort;
-import com.afadhitya.taskmanagement.application.service.AuditEventPublisher;
 import com.afadhitya.taskmanagement.domain.entity.Project;
 import com.afadhitya.taskmanagement.domain.entity.Task;
 import com.afadhitya.taskmanagement.domain.entity.User;
-import com.afadhitya.taskmanagement.domain.enums.AuditEntityType;
 import com.afadhitya.taskmanagement.domain.enums.TaskPriority;
 import com.afadhitya.taskmanagement.domain.enums.TaskStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +25,6 @@ public class CreateSubtaskUseCaseImpl implements CreateSubtaskUseCase {
     private final TaskPersistencePort taskPersistencePort;
     private final UserPersistencePort userPersistencePort;
     private final TaskMapper taskMapper;
-    private final AuditEventPublisher auditEventPublisher;
 
     @Override
     public TaskResponse createSubtask(Long parentTaskId, CreateSubtaskRequest request, Long createdByUserId) {
@@ -54,21 +49,6 @@ public class CreateSubtaskUseCaseImpl implements CreateSubtaskUseCase {
                 .build();
 
         Task savedSubtask = taskPersistencePort.save(subtask);
-
-        Map<String, Object> newValues = new HashMap<>();
-        newValues.put("title", savedSubtask.getTitle());
-        newValues.put("status", savedSubtask.getStatus().name());
-        newValues.put("priority", savedSubtask.getPriority().name());
-        newValues.put("projectId", project.getId());
-        newValues.put("parentTaskId", parentTaskId);
-
-        auditEventPublisher.publishCreate(
-                project.getWorkspace().getId(),
-                createdByUserId,
-                AuditEntityType.TASK,
-                savedSubtask.getId(),
-                newValues
-        );
 
         return taskMapper.toResponse(savedSubtask);
     }

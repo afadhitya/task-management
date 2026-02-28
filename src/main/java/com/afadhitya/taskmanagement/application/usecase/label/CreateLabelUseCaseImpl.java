@@ -10,19 +10,14 @@ import com.afadhitya.taskmanagement.application.port.out.label.LabelPersistenceP
 import com.afadhitya.taskmanagement.application.port.out.project.ProjectPersistencePort;
 import com.afadhitya.taskmanagement.application.port.out.user.UserPersistencePort;
 import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspacePersistencePort;
-import com.afadhitya.taskmanagement.application.service.AuditEventPublisher;
 import com.afadhitya.taskmanagement.domain.entity.Label;
 import com.afadhitya.taskmanagement.domain.entity.Project;
 import com.afadhitya.taskmanagement.domain.entity.User;
 import com.afadhitya.taskmanagement.domain.entity.Workspace;
-import com.afadhitya.taskmanagement.domain.enums.AuditEntityType;
 import com.afadhitya.taskmanagement.domain.enums.WorkspaceRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +31,6 @@ public class CreateLabelUseCaseImpl implements CreateLabelUseCase {
     private final WorkspacePermissionUseCase workspacePermissionUseCase;
     private final ProjectPermissionUseCase projectPermissionUseCase;
     private final LabelMapper labelMapper;
-    private final AuditEventPublisher auditEventPublisher;
 
     @Override
     public LabelResponse createLabel(Long workspaceId, CreateLabelRequest request, Long createdByUserId) {
@@ -46,14 +40,11 @@ public class CreateLabelUseCaseImpl implements CreateLabelUseCase {
         Workspace workspace = workspacePersistencePort.findById(workspaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Workspace not found with id: " + workspaceId));
 
-        // Check permission based on label type
         if (request.projectId() == null) {
-            // Global label - only OWNER/ADMIN can create
             if (!workspacePermissionUseCase.hasRole(workspaceId, createdByUserId, WorkspaceRole.OWNER, WorkspaceRole.ADMIN)) {
                 throw new IllegalStateException("Only workspace owner or admin can create global labels");
             }
 
-            // Check for duplicate global label
             if (labelPersistencePort.existsByWorkspaceIdAndNameAndProjectIdIsNull(workspaceId, request.name())) {
                 throw new IllegalArgumentException("Global label with name '" + request.name() + "' already exists");
             }
@@ -64,7 +55,6 @@ public class CreateLabelUseCaseImpl implements CreateLabelUseCase {
                 throw new IllegalStateException("Only workspace owner/admin or project manager can create project labels");
             }
 
-            // Check for duplicate project label
             if (labelPersistencePort.existsByProjectIdAndName(request.projectId(), request.name())) {
                 throw new IllegalArgumentException("Label with name '" + request.name() + "' already exists in this project");
             }
@@ -84,21 +74,6 @@ public class CreateLabelUseCaseImpl implements CreateLabelUseCase {
 
         Label label = labelBuilder.build();
         Label savedLabel = labelPersistencePort.save(label);
-
-        Map<String, Object> newValues = new HashMap<>();
-        newValues.put("name", savedLabel.getName());
-        newValues.put("color", savedLabel.getColor());
-        if (request.projectId() != null) {
-            newValues.put("projectId", request.projectId());
-        }
-
-        auditEventPublisher.publishCreate(
-                workspaceId,
-                createdByUserId,
-                AuditEntityType.LABEL,
-                savedLabel.getId(),
-                newValues
-        );
 
         return labelMapper.toResponse(savedLabel);
     }
