@@ -1,6 +1,8 @@
 package com.afadhitya.taskmanagement.adapter.out.persistence;
 
 import com.afadhitya.taskmanagement.domain.entity.Task;
+import com.afadhitya.taskmanagement.domain.enums.TaskPriority;
+import com.afadhitya.taskmanagement.domain.enums.TaskStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,7 +29,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             AND (:parentTaskId IS NULL OR t.parentTask.id = :parentTaskId)
             AND (:dueDateFrom IS NULL OR t.dueDate >= :dueDateFrom)
             AND (:dueDateTo IS NULL OR t.dueDate <= :dueDateTo)
-            AND (:search IS NULL OR LOWER(t.title) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(t.description) LIKE LOWER(CONCAT('%', :search, '%')))
+            AND (:search IS NULL OR LOWER(t.title) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) OR LOWER(t.description) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')))
             AND (COALESCE(:assigneeIds, NULL) IS NULL OR EXISTS (
                 SELECT 1 FROM t.assigneeIds aid WHERE aid IN :assigneeIds
             ))
@@ -35,8 +37,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     )
     Page<Task> findByProjectIdWithFilters(
             @Param("projectId") Long projectId,
-            @Param("status") com.afadhitya.taskmanagement.domain.enums.TaskStatus status,
-            @Param("priority") com.afadhitya.taskmanagement.domain.enums.TaskPriority priority,
+            @Param("status") TaskStatus status,
+            @Param("priority") TaskPriority priority,
             @Param("parentTaskId") Long parentTaskId,
             @Param("dueDateFrom") LocalDate dueDateFrom,
             @Param("dueDateTo") LocalDate dueDateTo,
