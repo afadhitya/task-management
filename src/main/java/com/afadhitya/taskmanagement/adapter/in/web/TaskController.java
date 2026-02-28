@@ -12,6 +12,7 @@ import com.afadhitya.taskmanagement.application.port.in.bulkjob.SubmitBulkJobUse
 import com.afadhitya.taskmanagement.application.port.in.task.CreateSubtaskUseCase;
 import com.afadhitya.taskmanagement.application.port.in.task.CreateTaskUseCase;
 import com.afadhitya.taskmanagement.application.port.in.task.DeleteTaskUseCase;
+import com.afadhitya.taskmanagement.application.port.in.task.GetMyTasksUseCase;
 import com.afadhitya.taskmanagement.application.port.in.task.GetTaskByIdUseCase;
 import com.afadhitya.taskmanagement.application.port.in.task.GetTasksByProjectUseCase;
 import com.afadhitya.taskmanagement.application.port.in.task.UpdateTaskUseCase;
@@ -29,6 +30,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -43,6 +45,7 @@ public class TaskController {
     private final DeleteTaskUseCase deleteTaskUseCase;
     private final CreateSubtaskUseCase createSubtaskUseCase;
     private final SubmitBulkJobUseCase submitBulkJobUseCase;
+    private final GetMyTasksUseCase getMyTasksUseCase;
 
     @PreAuthorize("@projectSecurity.canContributeToProject(#projectId)")
     @PostMapping("/projects/{projectId}/tasks")
@@ -128,5 +131,12 @@ public class TaskController {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         BulkJobResponse response = submitBulkJobUseCase.submitBulkUpdateTasks(projectId, request, currentUserId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/users/me/tasks")
+    public ResponseEntity<List<TaskResponse>> getMyTasks() {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        List<TaskResponse> tasks = getMyTasksUseCase.getMyTasks(currentUserId);
+        return ResponseEntity.ok(tasks);
     }
 }

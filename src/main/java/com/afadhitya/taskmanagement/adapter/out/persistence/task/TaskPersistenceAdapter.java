@@ -60,6 +60,11 @@ public class TaskPersistenceAdapter implements TaskPersistencePort {
     }
 
     @Override
+    public List<Task> findByAssigneeId(Long assigneeId) {
+        return taskRepository.findByAssigneeId(assigneeId);
+    }
+
+    @Override
     public boolean existsById(Long id) {
         return taskRepository.existsById(id);
     }

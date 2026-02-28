@@ -23,6 +23,8 @@ public interface TaskPersistencePort {
 
     List<Task> findAllById(Set<Long> ids);
 
+    List<Task> findByAssigneeId(Long assigneeId);
+
     boolean existsById(Long id);
 
     void deleteById(Long id);

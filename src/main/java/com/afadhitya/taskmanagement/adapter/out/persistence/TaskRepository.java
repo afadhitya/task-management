@@ -44,4 +44,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             @Param("assigneeIds") Set<Long> assigneeIds,
             Pageable pageable
     );
+
+    @Query("SELECT t FROM Task t WHERE :assigneeId MEMBER OF t.assigneeIds")
+    List<Task> findByAssigneeId(@Param("assigneeId") Long assigneeId);
 }
