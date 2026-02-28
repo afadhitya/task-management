@@ -8,16 +8,20 @@ import com.afadhitya.taskmanagement.application.port.out.project.ProjectMemberPe
 import com.afadhitya.taskmanagement.application.port.out.project.ProjectPersistencePort;
 import com.afadhitya.taskmanagement.application.port.out.task.TaskPersistencePort;
 import com.afadhitya.taskmanagement.application.port.out.user.UserPersistencePort;
+import com.afadhitya.taskmanagement.application.service.AuditEventPublisher;
 import com.afadhitya.taskmanagement.domain.entity.Project;
 import com.afadhitya.taskmanagement.domain.entity.Task;
 import com.afadhitya.taskmanagement.domain.entity.User;
+import com.afadhitya.taskmanagement.domain.enums.AuditEntityType;
 import com.afadhitya.taskmanagement.domain.enums.TaskPriority;
 import com.afadhitya.taskmanagement.domain.enums.TaskStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,6 +35,7 @@ public class CreateTaskUseCaseImpl implements CreateTaskUseCase {
     private final ProjectMemberPersistencePort projectMemberPersistencePort;
     private final UserPersistencePort userPersistencePort;
     private final TaskMapper taskMapper;
+    private final AuditEventPublisher auditEventPublisher;
 
     @Override
     public TaskResponse createTask(CreateTaskRequest request, Long createdByUserId) {
@@ -64,6 +69,23 @@ public class CreateTaskUseCaseImpl implements CreateTaskUseCase {
 
         Task task = taskBuilder.build();
         Task savedTask = taskPersistencePort.save(task);
+
+        Map<String, Object> newValues = new HashMap<>();
+        newValues.put("title", savedTask.getTitle());
+        newValues.put("status", savedTask.getStatus().name());
+        newValues.put("priority", savedTask.getPriority().name());
+        newValues.put("projectId", project.getId());
+        if (request.parentTaskId() != null) {
+            newValues.put("parentTaskId", request.parentTaskId());
+        }
+
+        auditEventPublisher.publishCreate(
+                project.getWorkspace().getId(),
+                createdByUserId,
+                AuditEntityType.TASK,
+                savedTask.getId(),
+                newValues
+        );
 
         return taskMapper.toResponse(savedTask);
     }

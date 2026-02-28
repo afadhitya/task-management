@@ -2,10 +2,14 @@ package com.afadhitya.taskmanagement.application.usecase.comment;
 
 import com.afadhitya.taskmanagement.application.port.in.comment.DeleteCommentUseCase;
 import com.afadhitya.taskmanagement.application.port.out.comment.CommentPersistencePort;
+import com.afadhitya.taskmanagement.application.service.AuditEventPublisher;
 import com.afadhitya.taskmanagement.domain.entity.Comment;
+import com.afadhitya.taskmanagement.domain.enums.AuditEntityType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -13,11 +17,22 @@ import org.springframework.transaction.annotation.Transactional;
 public class DeleteCommentUseCaseImpl implements DeleteCommentUseCase {
 
     private final CommentPersistencePort commentPersistencePort;
+    private final AuditEventPublisher auditEventPublisher;
 
     @Override
     public void deleteComment(Long commentId, Long currentUserId) {
         Comment comment = commentPersistencePort.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("Comment not found with id: " + commentId));
+
+        Long workspaceId = comment.getTask().getProject().getWorkspace().getId();
+
+        auditEventPublisher.publishDelete(
+                workspaceId,
+                currentUserId,
+                AuditEntityType.COMMENT,
+                commentId,
+                Map.of("taskId", comment.getTask().getId())
+        );
 
         comment.setIsDeleted(true);
         commentPersistencePort.save(comment);
