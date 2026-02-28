@@ -44,6 +44,7 @@ public class LabelController {
         return ResponseEntity.ok(labels);
     }
 
+    @PreAuthorize("@labelSecurity.canUpdateLabel(#id)")
     @PatchMapping("/labels/{id}")
     public ResponseEntity<LabelResponse> updateLabel(
             @PathVariable Long id,
