@@ -46,6 +46,7 @@ public class CommentController {
         return ResponseEntity.ok(comments);
     }
 
+    @PreAuthorize("@commentSecurity.canModifyComment(#id)")
     @PatchMapping("/comments/{id}")
     public ResponseEntity<CommentResponse> updateComment(
             @PathVariable Long id,
@@ -55,6 +56,7 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("@commentSecurity.canModifyComment(#id)")
     @DeleteMapping("/comments/{id}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
