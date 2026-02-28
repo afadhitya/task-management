@@ -11,9 +11,7 @@ public interface CommentPersistencePort {
 
     Optional<Comment> findById(Long id);
 
-    List<Comment> findByTaskId(Long taskId);
-
-    List<Comment> findByTaskIdAndParentCommentIsNull(Long taskId);
+    List<Comment> findByTaskIdAndParentCommentIsNullAndIsDeletedFalse(Long taskId);
 
     void deleteById(Long id);
 }

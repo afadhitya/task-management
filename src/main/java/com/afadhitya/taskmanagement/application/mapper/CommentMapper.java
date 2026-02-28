@@ -19,8 +19,16 @@ public interface CommentMapper {
     @Mapping(target = "authorId", source = "author.id")
     @Mapping(target = "authorName", source = "author.fullName")
     @Mapping(target = "parentCommentId", source = "parentComment.id")
+    @Mapping(target = "body", expression = "java(maskDeletedBody(comment))")
     @Mapping(target = "replies", expression = "java(mapReplies(comment.getReplies()))")
     CommentResponse toResponse(Comment comment);
+
+    default String maskDeletedBody(Comment comment) {
+        if (Boolean.TRUE.equals(comment.getIsDeleted())) {
+            return "[deleted]";
+        }
+        return comment.getBody();
+    }
 
     default List<CommentResponse> mapReplies(List<Comment> replies) {
         if (replies == null || replies.isEmpty()) {

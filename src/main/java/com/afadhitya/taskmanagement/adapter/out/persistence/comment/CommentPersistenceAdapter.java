@@ -26,13 +26,8 @@ public class CommentPersistenceAdapter implements CommentPersistencePort {
     }
 
     @Override
-    public List<Comment> findByTaskId(Long taskId) {
-        return commentRepository.findByTaskId(taskId);
-    }
-
-    @Override
-    public List<Comment> findByTaskIdAndParentCommentIsNull(Long taskId) {
-        return commentRepository.findByTaskIdAndParentCommentIsNull(taskId);
+    public List<Comment> findByTaskIdAndParentCommentIsNullAndIsDeletedFalse(Long taskId) {
+        return commentRepository.findByTaskIdAndParentCommentIsNullAndIsDeletedFalse(taskId);
     }
 
     @Override

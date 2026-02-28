@@ -21,7 +21,7 @@ public class GetCommentsByTaskUseCaseImpl implements GetCommentsByTaskUseCase {
 
     @Override
     public List<CommentResponse> getCommentsByTask(Long taskId) {
-        List<Comment> comments = commentPersistencePort.findByTaskIdAndParentCommentIsNull(taskId);
+        List<Comment> comments = commentPersistencePort.findByTaskIdAndParentCommentIsNullAndIsDeletedFalse(taskId);
         return comments.stream()
                 .map(commentMapper::toResponse)
                 .toList();
