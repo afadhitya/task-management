@@ -1,18 +1,33 @@
 package com.afadhitya.taskmanagement.application.usecase.audit;
 
 import com.afadhitya.taskmanagement.application.dto.request.CreateWorkspaceRequest;
+import com.afadhitya.taskmanagement.application.dto.request.InviteMemberRequest;
+import com.afadhitya.taskmanagement.application.dto.request.UpdateMemberRoleRequest;
 import com.afadhitya.taskmanagement.application.dto.request.UpdateWorkspaceRequest;
+import com.afadhitya.taskmanagement.application.dto.response.WorkspaceMemberResponse;
 import com.afadhitya.taskmanagement.application.dto.response.WorkspaceResponse;
 import com.afadhitya.taskmanagement.application.port.in.workspace.CreateWorkspaceUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.DeleteWorkspaceByIdUseCase;
+import com.afadhitya.taskmanagement.application.port.in.workspace.InviteMemberUseCase;
+import com.afadhitya.taskmanagement.application.port.in.workspace.LeaveWorkspaceUseCase;
+import com.afadhitya.taskmanagement.application.port.in.workspace.RemoveMemberUseCase;
+import com.afadhitya.taskmanagement.application.port.in.workspace.UpdateMemberRoleUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.UpdateWorkspaceUseCase;
+import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspaceMemberPersistencePort;
 import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspacePersistencePort;
 import com.afadhitya.taskmanagement.application.service.AuditLogService;
 import com.afadhitya.taskmanagement.application.usecase.workspace.CreateWorkspaceUseCaseImpl;
 import com.afadhitya.taskmanagement.application.usecase.workspace.DeleteWorkspaceByIdUseCaseImpl;
+import com.afadhitya.taskmanagement.application.usecase.workspace.InviteMemberUseCaseImpl;
+import com.afadhitya.taskmanagement.application.usecase.workspace.LeaveWorkspaceUseCaseImpl;
+import com.afadhitya.taskmanagement.application.usecase.workspace.RemoveMemberUseCaseImpl;
+import com.afadhitya.taskmanagement.application.usecase.workspace.UpdateMemberRoleUseCaseImpl;
 import com.afadhitya.taskmanagement.application.usecase.workspace.UpdateWorkspaceUseCaseImpl;
 import com.afadhitya.taskmanagement.domain.entity.Workspace;
+import com.afadhitya.taskmanagement.domain.entity.WorkspaceMember;
+import com.afadhitya.taskmanagement.domain.enums.AuditAction;
 import com.afadhitya.taskmanagement.domain.enums.AuditEntityType;
+import com.afadhitya.taskmanagement.domain.enums.WorkspaceRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -27,6 +42,7 @@ import java.util.Map;
 public class AuditedWorkspaceUseCases {
 
     private final WorkspacePersistencePort workspacePersistencePort;
+    private final WorkspaceMemberPersistencePort workspaceMemberPersistencePort;
     private final AuditLogService auditLogService;
 
     @Service
@@ -112,6 +128,131 @@ public class AuditedWorkspaceUseCases {
             );
 
             delegate.deleteWorkspace(id, currentUserId);
+        }
+    }
+
+    @Service
+    @Primary
+    @RequiredArgsConstructor
+    public class InviteMember implements InviteMemberUseCase {
+
+        private final InviteMemberUseCaseImpl delegate;
+
+        @Override
+        @Transactional
+        public WorkspaceMemberResponse inviteMember(Long workspaceId, InviteMemberRequest request, Long currentUserId) {
+            WorkspaceMemberResponse response = delegate.inviteMember(workspaceId, request, currentUserId);
+
+            auditLogService.create(
+                    workspaceId,
+                    currentUserId,
+                    AuditEntityType.WORKSPACE,
+                    workspaceId,
+                    AuditAction.MEMBER_INVITE,
+                    Map.of(
+                            "invitedUserId", response.userId(),
+                            "invitedUserEmail", response.email(),
+                            "role", response.role().name()
+                    )
+            );
+
+            return response;
+        }
+    }
+
+    @Service
+    @Primary
+    @RequiredArgsConstructor
+    public class RemoveMember implements RemoveMemberUseCase {
+
+        private final RemoveMemberUseCaseImpl delegate;
+
+        @Override
+        @Transactional
+        public void removeMember(Long workspaceId, Long userId, Long currentUserId) {
+            WorkspaceMember member = workspaceMemberPersistencePort.findByWorkspaceIdAndUserId(workspaceId, userId)
+                    .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+
+            auditLogService.create(
+                    workspaceId,
+                    currentUserId,
+                    AuditEntityType.WORKSPACE,
+                    workspaceId,
+                    AuditAction.MEMBER_REMOVE,
+                    Map.of(
+                            "removedUserId", userId,
+                            "removedUserEmail", member.getUser().getEmail(),
+                            "role", member.getRole().name()
+                    )
+            );
+
+            delegate.removeMember(workspaceId, userId, currentUserId);
+        }
+    }
+
+    @Service
+    @Primary
+    @RequiredArgsConstructor
+    public class UpdateMemberRole implements UpdateMemberRoleUseCase {
+
+        private final UpdateMemberRoleUseCaseImpl delegate;
+
+        @Override
+        @Transactional
+        public WorkspaceMemberResponse updateMemberRole(Long workspaceId, Long userId, UpdateMemberRoleRequest request, Long currentUserId) {
+            WorkspaceMember member = workspaceMemberPersistencePort.findByWorkspaceIdAndUserId(workspaceId, userId)
+                    .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+
+            WorkspaceRole oldRole = member.getRole();
+
+            WorkspaceMemberResponse response = delegate.updateMemberRole(workspaceId, userId, request, currentUserId);
+
+            auditLogService.create(
+                    workspaceId,
+                    currentUserId,
+                    AuditEntityType.WORKSPACE,
+                    workspaceId,
+                    AuditAction.MEMBER_UPDATE,
+                    Map.of(
+                            "userId", userId,
+                            "userEmail", member.getUser().getEmail(),
+                            "oldRole", oldRole.name(),
+                            "newRole", request.role().name()
+                    )
+            );
+
+            return response;
+        }
+    }
+
+    @Service
+    @Primary
+    @RequiredArgsConstructor
+    public class LeaveWorkspace implements LeaveWorkspaceUseCase {
+
+        private final LeaveWorkspaceUseCaseImpl delegate;
+
+        @Override
+        @Transactional
+        public void leaveWorkspace(Long workspaceId, Long currentUserId) {
+            WorkspaceMember member = workspaceMemberPersistencePort.findByWorkspaceIdAndUserId(workspaceId, currentUserId)
+                    .orElseThrow(() -> new IllegalArgumentException("Membership not found"));
+
+            auditLogService.create(
+                    workspaceId,
+                    currentUserId,
+                    AuditEntityType.WORKSPACE,
+                    workspaceId,
+                    AuditAction.MEMBER_REMOVE,
+                    Map.of(
+                            "userId", currentUserId,
+                            "userEmail", member.getUser().getEmail(),
+                            "role", member.getRole().name(),
+                            "actionType", "SELF_LEAVE"
+                    )
+            );
+
+            delegate.leaveWorkspace(workspaceId, currentUserId);
         }
     }
 }
