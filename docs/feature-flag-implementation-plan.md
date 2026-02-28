@@ -113,19 +113,53 @@ spring.cache.caffeine.spec=maximumSize=10000,expireAfterWrite=5m
 ## Phase 2: Audit Migration (Week 2)
 
 ### Goal
-Migrate existing audit decorators to the new feature-aware pattern. This proves the system works with a real feature.
+Migrate ALL existing audit decorators to the new feature-aware pattern using a simplified interceptor approach. This proves the system works with a real feature while minimizing code changes.
+
+### Approach: Simplified Interceptor Pattern (Option B)
+
+Instead of creating 40+ dispatcher classes, we'll use a **single AuditFeatureInterceptor** that wraps all audit operations.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  SIMPLIFIED ARCHITECTURE                                    │
+│                                                             │
+│  Existing Decorator                                         │
+│       │                                                     │
+│       ▼                                                     │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  Modified Audit Decorator                           │   │
+│  │  ┌─────────────────────────────────────────────┐   │   │
+│  │  │ 1. Check Feature Flag First                  │   │   │
+│  │  │    if (!auditEnabled) return; // Skip all    │   │   │
+│  │  └─────────────────────────────────────────────┘   │   │
+│  │       │                                             │   │
+│  │       ▼ (only if enabled)                           │   │
+│  │  ┌─────────────────────────────────────────────┐   │   │
+│  │  │ 2. Existing Audit Logic                      │   │   │
+│  │  │    - Fetch old state                         │   │   │
+│  │  │    - Calculate diff                          │   │   │
+│  │  │    - Create audit log                        │   │   │
+│  │  └─────────────────────────────────────────────┘   │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  Result: Zero DB reads when audit disabled                  │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ### Tasks
 
-#### Day 1-2: Create Task Audit Feature Handler
+#### Day 1: Create AuditFeatureInterceptor
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  TASKS                                                      │
-│  ├── Create TaskAuditFeatureHandler                         │
-│  │   ├── implements FeatureHandler<UpdateTaskRequest, ...>  │
-│  │   ├── before(): capture old task state                   │
-│  │   └── after(): create audit log entry                    │
-│  └── Move diff calculation logic from AuditedTaskUseCases   │
+│  ├── Create AuditFeatureInterceptor                         │
+│  │   ├── Check FeatureTogglePort.isEnabled()               │
+│  │   ├── Early return if AUDIT_LOG disabled               │
+│  │   └── Helper methods for common audit operations        │
+│  └── Create AuditHelper utility class                       │
+│      ├── buildCreateData()                                  │
+│      ├── buildUpdateData()                                  │
+│      └── buildDeleteData()                                  │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -133,82 +167,146 @@ Migrate existing audit decorators to the new feature-aware pattern. This proves 
 ```java
 @Component
 @RequiredArgsConstructor
-public class TaskAuditFeatureHandler implements FeatureHandler<UpdateTaskRequest, TaskResponse> {
+public class AuditFeatureInterceptor {
     
-    @Override
-    public Feature getFeature() { return Feature.AUDIT_LOG; }
+    private final FeatureTogglePort featureToggle;
+    private final AuditLogService auditLogService;
     
-    @Override
-    public void before(FeatureContext context, UpdateTaskRequest request) {
-        // Only fetch if audit enabled - checked by dispatcher
-        Long taskId = context.getAttribute("taskId");
-        Task oldTask = taskPersistencePort.findById(taskId).orElse(null);
-        context.setAttribute("audit.oldTask", oldTask);
+    /**
+     * Checks if audit is enabled before executing audit logic.
+     * Returns true if audit should proceed, false to skip.
+     */
+    public boolean shouldAudit(Long workspaceId) {
+        return featureToggle.isEnabled(workspaceId, Feature.AUDIT_LOG);
     }
     
-    @Override
-    public void after(FeatureContext context, TaskResponse result) {
-        Task oldTask = context.getAttribute("audit.oldTask");
-        if (oldTask == null) return;
-        
-        Map<String, Object> diff = calculateDiff(oldTask, result);
-        if (!diff.isEmpty()) {
-            auditLogService.create(...);
+    /**
+     * Creates audit log if feature is enabled.
+     */
+    public void audit(Long workspaceId, Long actorId, AuditEntityType entityType,
+                      Long entityId, AuditAction action, Map<String, Object> data) {
+        if (!shouldAudit(workspaceId)) {
+            return; // Zero resource waste
         }
+        auditLogService.create(workspaceId, actorId, entityType, entityId, action, data);
     }
 }
 ```
 
 ---
 
-#### Day 3-4: Create Task Feature Dispatcher
+#### Day 2-3: Modify All Existing Audit Decorators
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  TASKS                                                      │
-│  ├── Create TaskFeatureDispatcher                           │
-│  │   ├── @Primary bean implementing UpdateTaskUseCase       │
-│  │   ├── Injects UpdateTaskUseCaseImpl (delegate)           │
-│  │   ├── Injects List<FeatureHandler> (auto-discovered)     │
-│  │   └── Implements validate/before/after/async phases      │
-│  └── Add workspaceId to UpdateTaskRequest DTO               │
+│  ENTITIES TO MIGRATE (All at once)                          │
+│                                                             │
+│  1. Task (4 operations)                                     │
+│     ├── CreateTask                                          │
+│     ├── CreateSubtask                                       │
+│     ├── UpdateTask                                          │
+│     └── DeleteTask                                          │
+│                                                             │
+│  2. Project (3 operations)                                  │
+│     ├── CreateProject                                       │
+│     ├── UpdateProject                                       │
+│     └── DeleteProject                                       │
+│                                                             │
+│  3. Workspace (7 operations)                                │
+│     ├── CreateWorkspace                                     │
+│     ├── UpdateWorkspace                                     │
+│     ├── DeleteWorkspace                                     │
+│     ├── InviteMember                                        │
+│     ├── RemoveMember                                        │
+│     ├── UpdateMemberRole                                    │
+│     └── LeaveWorkspace                                      │
+│                                                             │
+│  4. Label (5 operations)                                    │
+│     ├── CreateLabel                                         │
+│     ├── UpdateLabel                                         │
+│     ├── DeleteLabel                                         │
+│     ├── AssignLabelToTask                                   │
+│     └── RemoveLabelFromTask                                 │
+│                                                             │
+│  5. Comment (3 operations)                                  │
+│     ├── CreateComment                                       │
+│     ├── UpdateComment                                       │
+│     └── DeleteComment                                       │
+│                                                             │
+│  TOTAL: 5 classes, 22 operations                            │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Dispatcher Structure:**
+**Modification Pattern per Decorator:**
 ```java
 @Service
 @Primary
 @RequiredArgsConstructor
-public class TaskFeatureDispatcher implements UpdateTaskUseCase {
+public class AuditedTaskUseCases {
     
-    private final UpdateTaskUseCaseImpl delegate;
-    private final FeatureTogglePort featureToggle;
-    private final List<FeatureHandler<UpdateTaskRequest, TaskResponse>> handlers;
+    private final TaskPersistencePort taskPersistencePort;
+    private final AuditLogService auditLogService;
+    private final AuditFeatureInterceptor auditInterceptor; // NEW
     
-    @Override
-    public TaskResponse updateTask(Long id, UpdateTaskRequest request) {
-        // 1. Check if AUDIT_LOG enabled (cached)
-        boolean auditEnabled = featureToggle.isEnabled(workspaceId, Feature.AUDIT_LOG);
+    @Service
+    @Primary
+    @RequiredArgsConstructor
+    public class UpdateTask implements UpdateTaskUseCase {
         
-        // 2. PRE phase: Only if enabled
-        if (auditEnabled) auditHandler.before(context, request);
+        private final UpdateTaskUseCaseImpl delegate;
         
-        // 3. Execute pure business logic
-        TaskResponse result = delegate.updateTask(id, request);
-        
-        // 4. POST phase: Only if enabled
-        if (auditEnabled) auditHandler.after(context, result);
-        
-        return result;
+        @Override
+        @Transactional
+        public TaskResponse updateTask(Long id, UpdateTaskRequest request) {
+            Task task = taskPersistencePort.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Task not found"));
+            
+            Long workspaceId = task.getProject().getWorkspace().getId();
+            
+            // NEW: Check feature flag before any audit work
+            boolean shouldAudit = auditInterceptor.shouldAudit(workspaceId);
+            
+            Map<String, Object> diff = new HashMap<>();
+            if (shouldAudit) { // Only calculate diff if auditing
+                if (request.title() != null && !request.title().equals(task.getTitle())) {
+                    diff.put("title", Map.of("old", task.getTitle(), "new", request.title()));
+                }
+                // ... other fields
+            }
+            
+            TaskResponse response = delegate.updateTask(id, request);
+            
+            // NEW: Use interceptor instead of direct service call
+            if (shouldAudit && !diff.isEmpty()) {
+                AuditAction action = diff.containsKey("status") ? 
+                    AuditAction.STATUS_CHANGE : AuditAction.UPDATE;
+                auditInterceptor.audit(workspaceId, SecurityUtils.getCurrentUserId(),
+                    AuditEntityType.TASK, id, action, diff);
+            }
+            
+            return response;
+        }
     }
 }
 ```
 
+#### Day 5: Cleanup & Documentation
+```
+┌─────────────────────────────────────────────────────────────┐
+│  TASKS                                                      │
+│  ├── Verify all existing tests pass                         │
+│  ├── Remove Audited*UseCases classes if fully migrated      │
+│  │   (Decision: NO - keep modified versions)                │
+│  ├── Update API documentation                               │
+│  └── Document zero-resource-waste verification              │
+└─────────────────────────────────────────────────────────────┘
+```
+
 ### Phase 2 Exit Criteria
-- [ ] TaskAuditFeatureHandler created and tested
-- [ ] TaskFeatureDispatcher replaces AuditedTaskUseCases.UpdateTask
-- [ ] Zero DB reads verified when audit disabled
-- [ ] AuditedTaskUseCases.UpdateTask removed
+- [ ] AuditFeatureInterceptor created and tested
+- [ ] All 5 Audited*UseCases classes modified with feature flag checks
+- [ ] All 22 audit operations check feature flag before DB reads
+- [ ] Zero DB reads verified when audit disabled (FREE plan)
+- [ ] Performance: feature check < 5ms (cached)
 
 ---
 
@@ -348,51 +446,49 @@ public class AdminPlanController {
 ## Phase 4: Polish & Expand (Week 4)
 
 ### Goal
-Add remaining features, complete migration of all audit decorators, and finalize documentation.
+Add remaining features (notifications, search), finalize documentation, and production hardening.
 
 ### Tasks
 
-#### Day 1-2: Migrate Remaining Audit Decorators
+#### Day 1-2: Additional Feature Handlers
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  TASKS                                                      │
-│  ├── Create handlers for remaining audit operations         │
-│  │   ├── CreateTaskHandler                                  │
-│  │   ├── DeleteTaskHandler                                  │
-│  │   └── CreateSubtaskHandler                               │
-│  ├── Create ProjectFeatureDispatcher                        │
-│  ├── Create WorkspaceFeatureDispatcher                      │
-│  └── Remove AuditedTaskUseCases entirely                    │
-│      ├── AuditedProjectUseCases                            │
-│      ├── AuditedWorkspaceUseCases                          │
-│      ├── AuditedLabelUseCases                              │
-│      └── AuditedCommentUseCases                            │
+│  ├── Create NotificationFeatureHandler (POST timing)        │
+│  │   └── Send email/push notifications                      │
+│  ├── Create SearchIndexFeatureHandler (ASYNC timing)        │
+│  │   └── Index tasks/projects for search                    │
+│  ├── Create WebhookFeatureHandler (ASYNC timing)            │
+│  │   └── Trigger external webhooks                          │
+│  └── Verify @Async execution works correctly                │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Migration Pattern per Domain:**
+**Notification Handler:**
 ```java
-// 1. Create handlers for each operation
 @Component
-public class CreateTaskFeatureHandler implements FeatureHandler<CreateTaskRequest, TaskResponse> { ... }
-
-@Component
-public class DeleteTaskFeatureHandler implements FeatureHandler<DeleteTaskRequest, Void> { ... }
-
-// 2. Create dispatcher
-@Service
-@Primary
-public class TaskFeatureDispatcher implements 
-    CreateTaskUseCase, 
-    UpdateTaskUseCase, 
-    DeleteTaskUseCase { ... }
-
-// 3. Remove old AuditedTaskUseCases
+@RequiredArgsConstructor
+public class NotificationFeatureHandler implements FeatureHandler<UpdateTaskRequest, TaskResponse> {
+    
+    private final NotificationService notificationService;
+    
+    @Override
+    public Feature getFeature() { return Feature.NOTIFICATIONS; }
+    
+    @Override
+    public void after(FeatureContext context, TaskResponse result) {
+        if (result.assigneeIds() != null && !result.assigneeIds().isEmpty()) {
+            notificationService.sendTaskUpdatedNotification(
+                result.id(), result.assigneeIds(), context.getActorId()
+            );
+        }
+    }
+}
 ```
 
 ---
 
-#### Day 3: Additional Features
+#### Day 3: Attachment & Storage Limits
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  TASKS                                                      │
@@ -453,8 +549,10 @@ public class TaskFeatureDispatcher implements
 ---
 
 ### Phase 4 Exit Criteria
-- [ ] All audit decorators migrated to new pattern
-- [ ] Notification and search handlers working
+- [ ] Notification handler sends notifications when enabled
+- [ ] Search indexing works asynchronously
+- [ ] Webhook handler triggers external calls
+- [ ] Attachment uploads respect storage limits
 - [ ] Error handling polished with clear messages
 - [ ] Performance targets met
 - [ ] Documentation complete
@@ -478,16 +576,27 @@ Unit Tests:
 
 ### Phase 2 Tests
 ```
-Integration Tests:
-├── TaskFeatureDispatcherTest
-│   ├── updateTask_auditDisabled_noAuditCreated()
-│   ├── updateTask_auditEnabled_auditCreated()
-│   ├── updateTask_cacheHit_noDbQuery()
-│   └── updateTask_featureCheckBeforeDbRead()
-└── TaskAuditFeatureHandlerTest
-    ├── before_capturesOldState()
-    ├── after_createsAuditLog()
-    └── after_noChanges_noAuditLog()
+Unit Tests:
+├── AuditFeatureInterceptorTest
+│   ├── shouldAudit_whenEnabled_returnsTrue()
+│   ├── shouldAudit_whenDisabled_returnsFalse()
+│   ├── audit_whenDisabled_doesNotCallService()
+│   └── audit_whenEnabled_createsAuditLog()
+
+Integration Tests (per entity):
+├── TaskAuditInterceptorTest
+│   ├── createTask_auditDisabled_noAuditCreated()
+│   ├── updateTask_auditDisabled_noDiffCalculation()
+│   ├── deleteTask_auditDisabled_noFetchOldState()
+│   └── allOperations_auditEnabled_auditCreated()
+├── ProjectAuditInterceptorTest
+│   └── (same pattern)
+├── WorkspaceAuditInterceptorTest
+│   └── (same pattern)
+├── LabelAuditInterceptorTest
+│   └── (same pattern)
+└── CommentAuditInterceptorTest
+    └── (same pattern)
 ```
 
 ### Phase 3 Tests
@@ -531,6 +640,32 @@ End-to-End Tests:
 
 ---
 
+## Implementation Decisions
+
+### Phase 2 Approach: Simplified Interceptor (Approved)
+
+| Decision | Option Chosen | Rationale |
+|----------|---------------|-----------|
+| **Architecture** | Option B: Simplified Interceptor | Less code (~10 files vs ~45 files), faster implementation, easier maintenance |
+| **Scope** | All entities at once | Complete migration in one phase, consistent pattern across codebase |
+| **Fallback** | Keep modified decorators | Safer approach, can rollback if issues; decorators modified not replaced |
+
+### Alternative Approaches Considered
+
+**Option A: Full Dispatcher Pattern (Rejected)**
+- 40+ dispatcher classes, one per use case
+- Complete clean architecture compliance
+- More testable but significantly more code
+- Longer implementation time
+
+**Option B: Simplified Interceptor (Selected)**
+- Single interceptor class + modified existing decorators
+- Pragmatic balance of clean code and velocity
+- Same zero-resource-waste benefit
+- Easier to understand and maintain
+
+---
+
 ## Rollback Plan
 
 ### Per Phase Rollback
@@ -540,8 +675,9 @@ End-to-End Tests:
 - Old code doesn't use new tables (safe to keep)
 
 **Phase 2 (Audit Migration):**
-- Keep AuditedTaskUseCases commented out initially
-- Quick switch back if issues
+- Modified decorators keep same structure, just add early return
+- Can comment out feature flag check to restore old behavior
+- No structural changes to audit logic
 
 **Phase 3 (Limits):**
 - Limits can be set to -1 (unlimited) to disable
