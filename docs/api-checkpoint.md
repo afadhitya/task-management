@@ -79,8 +79,8 @@ Each API should be marked as `done` once implemented and verified.
 
 | Status | Method | Endpoint | Description |
 |--------|--------|----------|-------------|
-| [ ] | POST | `/tasks/:taskId/comments` | Add comment to task |
-| [ ] | GET | `/tasks/:taskId/comments` | List comments on task |
+| [x] | POST | `/tasks/:taskId/comments` | Add comment to task |
+| [x] | GET | `/tasks/:taskId/comments` | List comments on task |
 | [ ] | PATCH | `/comments/:id` | Update comment |
 | [ ] | DELETE | `/comments/:id` | Delete comment |
 
@@ -177,14 +177,14 @@ The UserController may be refactored or removed in favor of auth-based user mana
 | Workspaces | 8 | 4 | 4 |
 | Projects | 9 | 9 | 0 |
 | Tasks | 8 | 8 | 0 |
-| Comments | 4 | 0 | 4 |
+| Comments | 4 | 2 | 2 |
 | Labels | 6 | 0 | 6 |
 | Attachments | 3 | 0 | 3 |
 | Notifications | 4 | 0 | 4 |
 | Search | 1 | 0 | 1 |
 | Audit Logs | 1 | 0 | 1 |
 | Health Check | 1 | 1 | 0 |
-| **Total** | **52** | **29** | **23** |
+| **Total** | **52** | **31** | **21** |
 
 ---
 

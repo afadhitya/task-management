@@ -221,6 +221,12 @@ PATCH  /comments/:id
 DELETE /comments/:id
 ```
 
+**Comment Threading Rules:**
+- Comments support one level of replies (nested threading)
+- A reply can be added to a top-level comment
+- **Replies to replies are NOT allowed** - attempting to reply to a reply will return `400 Bad Request`
+- This keeps discussions readable and prevents deeply nested threads
+
 ### 5.6 Labels
 ```
 POST   /workspaces/:workspaceId/labels
