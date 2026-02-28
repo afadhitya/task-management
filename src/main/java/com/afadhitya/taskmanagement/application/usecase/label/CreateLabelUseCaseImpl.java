@@ -54,7 +54,7 @@ public class CreateLabelUseCaseImpl implements CreateLabelUseCase {
         } else {
             boolean isProjectManager = projectPermissionUseCase.canManageProject(request.projectId(), createdByUserId);
 
-            if (isProjectManager) {
+            if (!isProjectManager) {
                 throw new IllegalStateException("Only workspace owner/admin or project manager can create project labels");
             }
 
