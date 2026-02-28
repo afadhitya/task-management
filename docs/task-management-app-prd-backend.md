@@ -228,13 +228,36 @@ DELETE /comments/:id
 - This keeps discussions readable and prevents deeply nested threads
 
 ### 5.6 Labels
+
+**Label Design: Hybrid (Global + Project-Specific)**
+
+Labels can be either:
+- **Global Labels** - Available across all projects in a workspace (project_id = NULL)
+- **Project Labels** - Only available within a specific project (project_id = projectId)
+
+**Permission:**
+| Label Type | Who Can Create |
+|------------|----------------|
+| Global | Workspace OWNER/ADMIN only |
+| Project-Specific | Workspace OWNER/ADMIN OR Project MANAGER |
+
+**Endpoints:**
 ```
-POST   /workspaces/:workspaceId/labels
-GET    /workspaces/:workspaceId/labels
-PATCH  /labels/:id
-DELETE /labels/:id
-POST   /tasks/:taskId/labels/:labelId
-DELETE /tasks/:taskId/labels/:labelId
+POST   /workspaces/:workspaceId/labels          - Create label (global or project-specific)
+GET    /projects/:projectId/labels              - List all available labels (global + project-specific)
+PATCH  /labels/:id                              - Update label
+DELETE /labels/:id                              - Delete label
+POST   /tasks/:taskId/labels/:labelId           - Assign label to task
+DELETE /tasks/:taskId/labels/:labelId           - Remove label from task
+```
+
+**Create Label Request:**
+```json
+{
+  "name": "Bug",
+  "color": "#FF0000",
+  "projectId": null        // null = global label, or set projectId for project-specific
+}
 ```
 
 ### 5.7 Attachments

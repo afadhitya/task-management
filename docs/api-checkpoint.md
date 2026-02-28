@@ -90,8 +90,8 @@ Each API should be marked as `done` once implemented and verified.
 
 | Status | Method | Endpoint | Description |
 |--------|--------|----------|-------------|
-| [ ] | POST | `/workspaces/:workspaceId/labels` | Create label |
-| [ ] | GET | `/workspaces/:workspaceId/labels` | List labels in workspace |
+| [x] | POST | `/workspaces/:workspaceId/labels` | Create label |
+| [x] | GET | `/projects/:projectId/labels` | List labels (global + project) |
 | [ ] | PATCH | `/labels/:id` | Update label |
 | [ ] | DELETE | `/labels/:id` | Delete label |
 | [ ] | POST | `/tasks/:taskId/labels/:labelId` | Assign label to task |
@@ -178,13 +178,13 @@ The UserController may be refactored or removed in favor of auth-based user mana
 | Projects | 9 | 9 | 0 |
 | Tasks | 8 | 8 | 0 |
 | Comments | 4 | 4 | 0 |
-| Labels | 6 | 0 | 6 |
+| Labels | 6 | 2 | 4 |
 | Attachments | 3 | 0 | 3 |
 | Notifications | 4 | 0 | 4 |
 | Search | 1 | 0 | 1 |
 | Audit Logs | 1 | 0 | 1 |
 | Health Check | 1 | 1 | 0 |
-| **Total** | **52** | **33** | **19** |
+| **Total** | **52** | **35** | **17** |
 
 ---
 
