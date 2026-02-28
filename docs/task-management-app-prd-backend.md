@@ -5,6 +5,11 @@
 **Date:** February 27, 2026  
 **Status:** Draft
 
+**Related Documents:**
+- [Feature Flag & Plan-Based Access Control PRD](./feature-flag-prd.md) - Feature gating and plan limits
+- [Clean Architecture](./clean-architecture.md) - Project structure and coding patterns
+- [API Checkpoint](./api-checkpoint.md) - Implementation status tracking
+
 ---
 
 ## 1. Overview
