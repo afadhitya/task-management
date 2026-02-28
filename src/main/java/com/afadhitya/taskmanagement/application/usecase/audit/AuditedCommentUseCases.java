@@ -11,6 +11,7 @@ import com.afadhitya.taskmanagement.application.service.AuditLogService;
 import com.afadhitya.taskmanagement.application.usecase.comment.CreateCommentUseCaseImpl;
 import com.afadhitya.taskmanagement.application.usecase.comment.DeleteCommentUseCaseImpl;
 import com.afadhitya.taskmanagement.application.usecase.comment.UpdateCommentUseCaseImpl;
+import com.afadhitya.taskmanagement.application.usecase.feature.AuditFeatureInterceptor;
 import com.afadhitya.taskmanagement.domain.entity.Comment;
 import com.afadhitya.taskmanagement.domain.enums.AuditEntityType;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class AuditedCommentUseCases {
 
     private final CommentPersistencePort commentPersistencePort;
     private final AuditLogService auditLogService;
+    private final AuditFeatureInterceptor auditInterceptor;
 
     @Service
     @Primary
@@ -43,7 +45,11 @@ public class AuditedCommentUseCases {
             Comment comment = commentPersistencePort.findById(response.id()).orElseThrow();
             Long workspaceId = comment.getTask().getProject().getWorkspace().getId();
 
-            auditLogService.createCreate(
+            if (!auditInterceptor.shouldAudit(workspaceId)) {
+                return response;
+            }
+
+            auditInterceptor.auditCreate(
                     workspaceId,
                     authorId,
                     AuditEntityType.COMMENT,
@@ -70,7 +76,11 @@ public class AuditedCommentUseCases {
             Comment comment = commentPersistencePort.findById(response.id()).orElseThrow();
             Long workspaceId = comment.getTask().getProject().getWorkspace().getId();
 
-            auditLogService.createUpdate(
+            if (!auditInterceptor.shouldAudit(workspaceId)) {
+                return response;
+            }
+
+            auditInterceptor.auditUpdate(
                     workspaceId,
                     currentUserId,
                     AuditEntityType.COMMENT,
@@ -97,13 +107,15 @@ public class AuditedCommentUseCases {
 
             Long workspaceId = comment.getTask().getProject().getWorkspace().getId();
 
-            auditLogService.createDelete(
-                    workspaceId,
-                    currentUserId,
-                    AuditEntityType.COMMENT,
-                    commentId,
-                    Map.of("taskId", comment.getTask().getId())
-            );
+            if (auditInterceptor.shouldAudit(workspaceId)) {
+                auditInterceptor.auditDelete(
+                        workspaceId,
+                        currentUserId,
+                        AuditEntityType.COMMENT,
+                        commentId,
+                        Map.of("taskId", comment.getTask().getId())
+                );
+            }
 
             delegate.deleteComment(commentId, currentUserId);
         }

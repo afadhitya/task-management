@@ -16,6 +16,7 @@ import com.afadhitya.taskmanagement.application.port.in.workspace.UpdateWorkspac
 import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspaceMemberPersistencePort;
 import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspacePersistencePort;
 import com.afadhitya.taskmanagement.application.service.AuditLogService;
+import com.afadhitya.taskmanagement.application.usecase.feature.AuditFeatureInterceptor;
 import com.afadhitya.taskmanagement.application.usecase.workspace.CreateWorkspaceUseCaseImpl;
 import com.afadhitya.taskmanagement.application.usecase.workspace.DeleteWorkspaceByIdUseCaseImpl;
 import com.afadhitya.taskmanagement.application.usecase.workspace.InviteMemberUseCaseImpl;
@@ -44,6 +45,7 @@ public class AuditedWorkspaceUseCases {
     private final WorkspacePersistencePort workspacePersistencePort;
     private final WorkspaceMemberPersistencePort workspaceMemberPersistencePort;
     private final AuditLogService auditLogService;
+    private final AuditFeatureInterceptor auditInterceptor;
 
     @Service
     @Primary
@@ -57,7 +59,11 @@ public class AuditedWorkspaceUseCases {
         public WorkspaceResponse createWorkspace(CreateWorkspaceRequest request, Long ownerId) {
             WorkspaceResponse response = delegate.createWorkspace(request, ownerId);
 
-            auditLogService.createCreate(
+            if (!auditInterceptor.shouldAudit(response.id())) {
+                return response;
+            }
+
+            auditInterceptor.auditCreate(
                     response.id(),
                     ownerId,
                     AuditEntityType.WORKSPACE,
@@ -82,18 +88,22 @@ public class AuditedWorkspaceUseCases {
             Workspace workspace = workspacePersistencePort.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("Workspace not found with id: " + id));
 
+            boolean shouldAudit = auditInterceptor.shouldAudit(id);
+
             Map<String, Object> diff = new HashMap<>();
-            if (request.name() != null && !request.name().equals(workspace.getName())) {
-                diff.put("name", Map.of("old", workspace.getName(), "new", request.name()));
-            }
-            if (request.logoUrl() != null && !request.logoUrl().equals(workspace.getLogoUrl())) {
-                diff.put("logoUrl", Map.of("old", workspace.getLogoUrl(), "new", request.logoUrl()));
+            if (shouldAudit) {
+                if (request.name() != null && !request.name().equals(workspace.getName())) {
+                    diff.put("name", Map.of("old", workspace.getName(), "new", request.name()));
+                }
+                if (request.logoUrl() != null && !request.logoUrl().equals(workspace.getLogoUrl())) {
+                    diff.put("logoUrl", Map.of("old", workspace.getLogoUrl(), "new", request.logoUrl()));
+                }
             }
 
             WorkspaceResponse response = delegate.updateWorkspace(id, request, currentUserId);
 
-            if (!diff.isEmpty()) {
-                auditLogService.createUpdate(
+            if (shouldAudit && !diff.isEmpty()) {
+                auditInterceptor.auditUpdate(
                         id,
                         currentUserId,
                         AuditEntityType.WORKSPACE,
@@ -119,13 +129,15 @@ public class AuditedWorkspaceUseCases {
             Workspace workspace = workspacePersistencePort.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("Workspace not found with id: " + id));
 
-            auditLogService.createDelete(
-                    id,
-                    currentUserId,
-                    AuditEntityType.WORKSPACE,
-                    id,
-                    Map.of("name", workspace.getName(), "slug", workspace.getSlug())
-            );
+            if (auditInterceptor.shouldAudit(id)) {
+                auditInterceptor.auditDelete(
+                        id,
+                        currentUserId,
+                        AuditEntityType.WORKSPACE,
+                        id,
+                        Map.of("name", workspace.getName(), "slug", workspace.getSlug())
+                );
+            }
 
             delegate.deleteWorkspace(id, currentUserId);
         }
@@ -143,7 +155,11 @@ public class AuditedWorkspaceUseCases {
         public WorkspaceMemberResponse inviteMember(Long workspaceId, InviteMemberRequest request, Long currentUserId) {
             WorkspaceMemberResponse response = delegate.inviteMember(workspaceId, request, currentUserId);
 
-            auditLogService.create(
+            if (!auditInterceptor.shouldAudit(workspaceId)) {
+                return response;
+            }
+
+            auditInterceptor.audit(
                     workspaceId,
                     currentUserId,
                     AuditEntityType.WORKSPACE,
@@ -173,18 +189,20 @@ public class AuditedWorkspaceUseCases {
             WorkspaceMember member = workspaceMemberPersistencePort.findByWorkspaceIdAndUserId(workspaceId, userId)
                     .orElseThrow(() -> new IllegalArgumentException("Member not found"));
 
-            auditLogService.create(
-                    workspaceId,
-                    currentUserId,
-                    AuditEntityType.WORKSPACE,
-                    workspaceId,
-                    AuditAction.MEMBER_REMOVE,
-                    Map.of(
-                            "removedUserId", userId,
-                            "removedUserEmail", member.getUser().getEmail(),
-                            "role", member.getRole().name()
-                    )
-            );
+            if (auditInterceptor.shouldAudit(workspaceId)) {
+                auditInterceptor.audit(
+                        workspaceId,
+                        currentUserId,
+                        AuditEntityType.WORKSPACE,
+                        workspaceId,
+                        AuditAction.MEMBER_REMOVE,
+                        Map.of(
+                                "removedUserId", userId,
+                                "removedUserEmail", member.getUser().getEmail(),
+                                "role", member.getRole().name()
+                        )
+                );
+            }
 
             delegate.removeMember(workspaceId, userId, currentUserId);
         }
@@ -203,23 +221,26 @@ public class AuditedWorkspaceUseCases {
             WorkspaceMember member = workspaceMemberPersistencePort.findByWorkspaceIdAndUserId(workspaceId, userId)
                     .orElseThrow(() -> new IllegalArgumentException("Member not found"));
 
-            WorkspaceRole oldRole = member.getRole();
+            boolean shouldAudit = auditInterceptor.shouldAudit(workspaceId);
+            WorkspaceRole oldRole = shouldAudit ? member.getRole() : null;
 
             WorkspaceMemberResponse response = delegate.updateMemberRole(workspaceId, userId, request, currentUserId);
 
-            auditLogService.create(
-                    workspaceId,
-                    currentUserId,
-                    AuditEntityType.WORKSPACE,
-                    workspaceId,
-                    AuditAction.MEMBER_UPDATE,
-                    Map.of(
-                            "userId", userId,
-                            "userEmail", member.getUser().getEmail(),
-                            "oldRole", oldRole.name(),
-                            "newRole", request.role().name()
-                    )
-            );
+            if (shouldAudit) {
+                auditInterceptor.audit(
+                        workspaceId,
+                        currentUserId,
+                        AuditEntityType.WORKSPACE,
+                        workspaceId,
+                        AuditAction.MEMBER_UPDATE,
+                        Map.of(
+                                "userId", userId,
+                                "userEmail", member.getUser().getEmail(),
+                                "oldRole", oldRole.name(),
+                                "newRole", request.role().name()
+                        )
+                );
+            }
 
             return response;
         }
@@ -238,19 +259,21 @@ public class AuditedWorkspaceUseCases {
             WorkspaceMember member = workspaceMemberPersistencePort.findByWorkspaceIdAndUserId(workspaceId, currentUserId)
                     .orElseThrow(() -> new IllegalArgumentException("Membership not found"));
 
-            auditLogService.create(
-                    workspaceId,
-                    currentUserId,
-                    AuditEntityType.WORKSPACE,
-                    workspaceId,
-                    AuditAction.MEMBER_REMOVE,
-                    Map.of(
-                            "userId", currentUserId,
-                            "userEmail", member.getUser().getEmail(),
-                            "role", member.getRole().name(),
-                            "actionType", "SELF_LEAVE"
-                    )
-            );
+            if (auditInterceptor.shouldAudit(workspaceId)) {
+                auditInterceptor.audit(
+                        workspaceId,
+                        currentUserId,
+                        AuditEntityType.WORKSPACE,
+                        workspaceId,
+                        AuditAction.MEMBER_REMOVE,
+                        Map.of(
+                                "userId", currentUserId,
+                                "userEmail", member.getUser().getEmail(),
+                                "role", member.getRole().name(),
+                                "actionType", "SELF_LEAVE"
+                        )
+                );
+            }
 
             delegate.leaveWorkspace(workspaceId, currentUserId);
         }
