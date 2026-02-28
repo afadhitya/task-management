@@ -14,6 +14,7 @@ import com.afadhitya.taskmanagement.application.port.out.user.UserPersistencePor
 import com.afadhitya.taskmanagement.domain.entity.Project;
 import com.afadhitya.taskmanagement.domain.entity.Task;
 import com.afadhitya.taskmanagement.domain.entity.User;
+import com.afadhitya.taskmanagement.domain.enums.SearchType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,28 +35,28 @@ public class SearchUseCaseImpl implements SearchUseCase {
     private final UserMapper userMapper;
 
     @Override
-    public SearchResponse search(Long workspaceId, String query, String type) {
+    public SearchResponse search(Long workspaceId, String query, SearchType type) {
         List<TaskResponse> tasks = Collections.emptyList();
         List<ProjectResponse> projects = Collections.emptyList();
         List<UserResponse> users = Collections.emptyList();
 
         // If type is specified, search only that type
-        // If type is null/empty, search all types
-        if (type == null || type.isBlank() || "tasks".equalsIgnoreCase(type)) {
+        // If type is null, search all types
+        if (type == null || type == SearchType.TASKS) {
             List<Task> taskEntities = taskPersistencePort.searchByWorkspaceId(workspaceId, query);
             tasks = taskEntities.stream()
                     .map(taskMapper::toResponse)
                     .toList();
         }
 
-        if (type == null || type.isBlank() || "projects".equalsIgnoreCase(type)) {
+        if (type == null || type == SearchType.PROJECTS) {
             List<Project> projectEntities = projectPersistencePort.searchByWorkspaceId(workspaceId, query);
             projects = projectEntities.stream()
                     .map(projectMapper::toResponse)
                     .toList();
         }
 
-        if (type == null || type.isBlank() || "users".equalsIgnoreCase(type)) {
+        if (type == null || type == SearchType.USERS) {
             List<User> userEntities = userPersistencePort.searchByWorkspaceId(workspaceId, query);
             users = userEntities.stream()
                     .map(userMapper::toResponse)

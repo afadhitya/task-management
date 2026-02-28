@@ -124,7 +124,7 @@ Each API should be marked as `done` once implemented and verified.
 
 | Status | Method | Endpoint | Description |
 |--------|--------|----------|-------------|
-| [ ] | GET | `/search` | Search tasks, projects, users |
+| [x] | GET | `/search` | Search tasks, projects, users |
 
 ---
 
