@@ -8,9 +8,12 @@ A robust, RESTful backend service for task management — designed to be secure,
 
 - **Authentication & Authorization**: JWT-based auth with access/refresh tokens, role-based access control (RBAC)
 - **Workspace Management**: Multi-tenant workspaces with member roles (owner, admin, member, guest)
-- **Project Management**: Organize work into projects within workspaces
-- **Task Management**: Full CRUD for tasks with priorities, statuses, and assignments
-- **Collaboration**: Comments, labels, attachments (in progress)
+- **Project Management**: Organize work into projects with member management
+- **Task Management**: Full CRUD for tasks with priorities, statuses, assignments, subtasks, and bulk operations
+- **Collaboration**: Comments on tasks with update/delete capabilities
+- **Organization**: Labels for categorizing tasks across workspaces
+- **Search**: Global search across tasks, projects, and users within a workspace
+- **Audit Logging**: Track all changes for enterprise compliance
 - **API Documentation**: Auto-generated OpenAPI/Swagger UI
 
 ---
@@ -86,15 +89,15 @@ com.afadhitya.taskmanagement
 |----------|-------|------|---------|
 | Authentication | 7 | 7 | 0 |
 | Workspaces | 9 | 9 | 0 |
-| Projects | 7 | 0 | 7 |
-| Tasks | 8 | 0 | 8 |
-| Comments | 4 | 0 | 4 |
-| Labels | 6 | 0 | 6 |
+| Projects | 7 | 7 | 0 |
+| Tasks | 8 | 8 | 0 |
+| Comments | 4 | 4 | 0 |
+| Labels | 6 | 6 | 0 |
 | Attachments | 3 | 0 | 3 |
 | Notifications | 4 | 0 | 4 |
-| Search | 1 | 0 | 1 |
-| Audit Logs | 1 | 0 | 1 |
-| **Total** | **50** | **16** | **34** |
+| Search | 1 | 1 | 0 |
+| Audit Logs | 1 | 1 | 0 |
+| **Total** | **50** | **43** | **7** |
 
 ### Available Endpoints
 
@@ -122,6 +125,64 @@ com.afadhitya.taskmanagement
 | DELETE | `/workspaces/{id}/members/{userId}` | Remove member from workspace |
 | POST | `/workspaces/{id}/transfer-ownership` | Transfer workspace ownership |
 | POST | `/workspaces/{id}/leave` | Leave workspace (non-owner) |
+
+#### Projects (`/workspaces/{workspaceId}/projects`, `/projects`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/workspaces/{workspaceId}/projects` | Create project |
+| GET | `/workspaces/{workspaceId}/projects` | List projects in workspace |
+| GET | `/projects/{id}` | Get project by ID |
+| GET | `/projects/{id}/members` | List project members |
+| PATCH | `/projects/{id}` | Update project |
+| PATCH | `/projects/{id}/members/{userId}` | Update member role |
+| DELETE | `/projects/{id}` | Delete project |
+| POST | `/projects/{id}/members` | Add member to project |
+| DELETE | `/projects/{id}/members/{userId}` | Remove member from project |
+
+#### Tasks (`/projects/{projectId}/tasks`, `/tasks`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/projects/{projectId}/tasks` | Create task |
+| GET | `/projects/{projectId}/tasks` | List tasks with filters, sort, pagination |
+| GET | `/tasks/{id}` | Get task by ID |
+| PATCH | `/tasks/{id}` | Update task |
+| DELETE | `/tasks/{id}` | Delete task |
+| POST | `/tasks/{id}/subtasks` | Create subtask |
+| PATCH | `/projects/{projectId}/tasks/bulk` | Bulk update tasks |
+| GET | `/users/me/tasks` | Get tasks assigned to current user |
+
+#### Comments (`/tasks/{taskId}/comments`, `/comments`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/tasks/{taskId}/comments` | Add comment to task |
+| GET | `/tasks/{taskId}/comments` | List comments on task |
+| PATCH | `/comments/{id}` | Update comment |
+| DELETE | `/comments/{id}` | Delete comment |
+
+#### Labels (`/workspaces/{workspaceId}/labels`, `/projects/{projectId}/labels`, `/tasks/{taskId}/labels`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/workspaces/{workspaceId}/labels` | Create label |
+| GET | `/projects/{projectId}/labels` | List labels in project |
+| PATCH | `/labels/{id}` | Update label |
+| DELETE | `/labels/{id}` | Delete label |
+| POST | `/tasks/{taskId}/labels/{labelId}` | Assign label to task |
+| DELETE | `/tasks/{taskId}/labels/{labelId}` | Remove label from task |
+
+#### Search (`/search`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/search?q=&workspace_id=&type=` | Search tasks, projects, users |
+
+#### Audit Logs (`/workspaces/{workspaceId}/audit-logs`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/workspaces/{workspaceId}/audit-logs` | List audit logs (paginated, filterable) |
+
+#### Job Status (`/jobs`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/jobs/{jobId}` | Get bulk job status |
 
 #### Health
 | Method | Endpoint | Description |
@@ -192,11 +253,11 @@ Application configuration is located in `config/application.yml`:
 
 | Phase | Scope | Status |
 |-------|-------|--------|
-| **Phase 1 — Core** | Auth, Users, Workspaces | ✅ In Progress |
-| **Phase 2 — Collaboration** | Projects, Tasks, Comments | ⏳ Pending |
-| **Phase 3 — Organization** | Labels, Filters, Search | ⏳ Pending |
-| **Phase 4 — Enterprise** | RBAC, Audit logs, SSO | ⏳ Pending |
-| **Phase 5 — Async & Scale** | Queues, WebSockets, Observability | ⏳ Pending |
+| **Phase 1 — Core** | Auth, Users, Workspaces | ✅ Complete |
+| **Phase 2 — Collaboration** | Projects, Tasks, Comments, Labels | ✅ Complete |
+| **Phase 3 — Organization** | Search, Bulk actions | ✅ Complete |
+| **Phase 4 — Enterprise** | Audit Logs, RBAC hardening | ✅ Complete |
+| **Phase 5 — Async & Scale** | Attachments, Notifications, Job Queues | 🔄 In Progress |
 
 ---
 
@@ -205,7 +266,8 @@ Application configuration is located in `config/application.yml`:
 - JWT-based authentication with short-lived access tokens (15 min) and long-lived refresh tokens (30 days)
 - Password hashing with BCrypt (cost factor ≥ 12)
 - Role-based access control at workspace and project levels
-- Rate limiting and CORS protection
+- Method-level security with `@PreAuthorize` annotations
+- Custom security expressions for fine-grained permissions
 
 ---
 
@@ -215,4 +277,4 @@ This project is proprietary and confidential.
 
 ---
 
-*Last updated: February 27, 2026*
+*Last updated: February 28, 2026*
