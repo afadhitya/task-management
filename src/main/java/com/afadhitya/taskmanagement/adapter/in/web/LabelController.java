@@ -3,6 +3,7 @@ package com.afadhitya.taskmanagement.adapter.in.web;
 import com.afadhitya.taskmanagement.application.dto.request.CreateLabelRequest;
 import com.afadhitya.taskmanagement.application.dto.request.UpdateLabelRequest;
 import com.afadhitya.taskmanagement.application.dto.response.LabelResponse;
+import com.afadhitya.taskmanagement.application.port.in.label.AssignLabelToTaskUseCase;
 import com.afadhitya.taskmanagement.application.port.in.label.CreateLabelUseCase;
 import com.afadhitya.taskmanagement.application.port.in.label.DeleteLabelUseCase;
 import com.afadhitya.taskmanagement.application.port.in.label.GetLabelsByProjectUseCase;
@@ -28,6 +29,7 @@ public class LabelController {
     private final GetLabelsByProjectUseCase getLabelsByProjectUseCase;
     private final UpdateLabelUseCase updateLabelUseCase;
     private final DeleteLabelUseCase deleteLabelUseCase;
+    private final AssignLabelToTaskUseCase assignLabelToTaskUseCase;
 
     @PreAuthorize("@workspaceSecurity.isWorkspaceMember(#workspaceId)")
     @PostMapping("/workspaces/{workspaceId}/labels")
@@ -62,5 +64,15 @@ public class LabelController {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         deleteLabelUseCase.deleteLabel(id, currentUserId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("@taskSecurity.canContributeToTask(#taskId)")
+    @PostMapping("/tasks/{taskId}/labels/{labelId}")
+    public ResponseEntity<LabelResponse> assignLabelToTask(
+            @PathVariable Long taskId,
+            @PathVariable Long labelId) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        LabelResponse response = assignLabelToTaskUseCase.assignLabelToTask(taskId, labelId, currentUserId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

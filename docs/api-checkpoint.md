@@ -94,7 +94,7 @@ Each API should be marked as `done` once implemented and verified.
 | [x] | GET | `/projects/:projectId/labels` | List labels (global + project) |
 | [x] | PATCH | `/labels/:id` | Update label |
 | [x] | DELETE | `/labels/:id` | Delete label |
-| [ ] | POST | `/tasks/:taskId/labels/:labelId` | Assign label to task |
+| [x] | POST | `/tasks/:taskId/labels/:labelId` | Assign label to task |
 | [ ] | DELETE | `/tasks/:taskId/labels/:labelId` | Remove label from task |
 
 ---
