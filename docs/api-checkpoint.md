@@ -92,7 +92,7 @@ Each API should be marked as `done` once implemented and verified.
 |--------|--------|----------|-------------|
 | [x] | POST | `/workspaces/:workspaceId/labels` | Create label |
 | [x] | GET | `/projects/:projectId/labels` | List labels (global + project) |
-| [ ] | PATCH | `/labels/:id` | Update label |
+| [x] | PATCH | `/labels/:id` | Update label |
 | [ ] | DELETE | `/labels/:id` | Delete label |
 | [ ] | POST | `/tasks/:taskId/labels/:labelId` | Assign label to task |
 | [ ] | DELETE | `/tasks/:taskId/labels/:labelId` | Remove label from task |
