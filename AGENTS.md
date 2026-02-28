@@ -100,7 +100,16 @@ This file contains guardrails and custom instructions for the AI assistant when 
   - **Project MANAGER**: Can change CONTRIBUTOR or VIEW members only, CANNOT change another MANAGER's role
   - **CONTRIBUTOR/VIEW**: No permission to change roles
   - **Last Manager Safeguard**: Always prevent demoting the last manager - at least one MANAGER must remain in every project
-- **Controllers paths are inconsistent** - some use `/api/*`, some don't (standardize when touching related code) 
+- **Controllers paths are inconsistent** - some use `/api/*`, some don't (standardize when touching related code)
+- **Use method-level RBAC with `@PreAuthorize`** - For resource-level permission checks (update, delete), use Spring Security method-level annotations with custom security expression beans (e.g., `@labelSecurity`, `@workspaceSecurity`, `@projectSecurity`). Example:
+  ```java
+  @PreAuthorize("@labelSecurity.canUpdateLabel(#id)")
+  @PatchMapping("/labels/{id}")
+  public ResponseEntity<LabelResponse> updateLabel(@PathVariable Long id, ...) { ... }
+  ```
+  - Create security expression beans in `infrastructure/security/[Entity]SecurityExpression.java`
+  - Keep use cases focused on business logic, security handled at controller level
+  - For create operations that need request body data, permission checks may remain in use case 
 
 ### Task Checkpoint
 - Checked to the file /docs/api-checkpoint, the api that listed on the task checkpoint should be same with the defined in prd doc file 
