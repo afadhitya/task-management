@@ -18,4 +18,8 @@ public interface WorkspacePersistencePort {
     boolean existsBySlug(String slug);
 
     void deleteById(Long id);
+
+    int countProjects(Long workspaceId);
+
+    int countMembers(Long workspaceId);
 }

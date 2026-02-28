@@ -1,5 +1,7 @@
 package com.afadhitya.taskmanagement.adapter.out.persistence.workspace;
 
+import com.afadhitya.taskmanagement.adapter.out.persistence.ProjectRepository;
+import com.afadhitya.taskmanagement.adapter.out.persistence.WorkspaceMemberRepository;
 import com.afadhitya.taskmanagement.adapter.out.persistence.WorkspaceRepository;
 import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspacePersistencePort;
 import com.afadhitya.taskmanagement.domain.entity.Workspace;
@@ -14,6 +16,8 @@ import java.util.Optional;
 public class WorkspacePersistenceAdapter implements WorkspacePersistencePort {
 
     private final WorkspaceRepository workspaceRepository;
+    private final ProjectRepository projectRepository;
+    private final WorkspaceMemberRepository workspaceMemberRepository;
 
     @Override
     public Workspace save(Workspace workspace) {
@@ -43,5 +47,15 @@ public class WorkspacePersistenceAdapter implements WorkspacePersistencePort {
     @Override
     public void deleteById(Long id) {
         workspaceRepository.deleteById(id);
+    }
+
+    @Override
+    public int countProjects(Long workspaceId) {
+        return projectRepository.countByWorkspaceId(workspaceId);
+    }
+
+    @Override
+    public int countMembers(Long workspaceId) {
+        return workspaceMemberRepository.countByWorkspaceId(workspaceId);
     }
 }

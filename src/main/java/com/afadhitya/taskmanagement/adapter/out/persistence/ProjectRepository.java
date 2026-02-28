@@ -20,4 +20,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
                  OR LOWER(p.description) LIKE LOWER(CONCAT('%', CAST(:query AS string), '%')))
             """)
     List<Project> searchByWorkspaceId(@Param("workspaceId") Long workspaceId, @Param("query") String query);
+
+    int countByWorkspaceId(Long workspaceId);
 }

@@ -5,8 +5,10 @@ import com.afadhitya.taskmanagement.application.dto.request.InviteMemberRequest;
 import com.afadhitya.taskmanagement.application.dto.request.TransferOwnershipRequest;
 import com.afadhitya.taskmanagement.application.dto.request.UpdateMemberRoleRequest;
 import com.afadhitya.taskmanagement.application.dto.request.UpdateWorkspaceRequest;
+import com.afadhitya.taskmanagement.application.dto.response.WorkspaceEntitlementResponse;
 import com.afadhitya.taskmanagement.application.dto.response.WorkspaceMemberResponse;
 import com.afadhitya.taskmanagement.application.dto.response.WorkspaceResponse;
+import com.afadhitya.taskmanagement.application.port.in.entitlement.GetWorkspaceEntitlementsUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.CreateWorkspaceUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.DeleteWorkspaceByIdUseCase;
 import com.afadhitya.taskmanagement.application.port.in.workspace.GetWorkspaceByIdUseCase;
@@ -45,6 +47,7 @@ public class WorkspaceController {
     private final TransferOwnershipUseCase transferOwnershipUseCase;
     private final RemoveMemberUseCase removeMemberUseCase;
     private final LeaveWorkspaceUseCase leaveWorkspaceUseCase;
+    private final GetWorkspaceEntitlementsUseCase getWorkspaceEntitlementsUseCase;
 
     @PostMapping
     public ResponseEntity<WorkspaceResponse> createWorkspace(@Valid @RequestBody CreateWorkspaceRequest request) {
@@ -133,5 +136,11 @@ public class WorkspaceController {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         leaveWorkspaceUseCase.leaveWorkspace(id, currentUserId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("@workspaceSecurity.isWorkspaceMember(#id)")
+    @GetMapping("/{id}/entitlements")
+    public ResponseEntity<WorkspaceEntitlementResponse> getEntitlements(@PathVariable Long id) {
+        return ResponseEntity.ok(getWorkspaceEntitlementsUseCase.getEntitlements(id));
     }
 }
