@@ -1,5 +1,6 @@
 package com.afadhitya.taskmanagement.domain.entity;
 
+import com.afadhitya.taskmanagement.domain.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,6 +40,11 @@ public class User {
     @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private UserRole role = UserRole.USER;
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;

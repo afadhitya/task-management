@@ -13,7 +13,6 @@ import java.util.Optional;
 public class AdminPlanPersistenceAdapter implements AdminPlanPersistencePort {
 
     private final PlanConfigurationRepository planConfigRepository;
-    private final FeatureRepository featureRepository;
     private final PlanFeatureRepository planFeatureRepository;
     private final PlanLimitRepository planLimitRepository;
 
@@ -28,27 +27,17 @@ public class AdminPlanPersistenceAdapter implements AdminPlanPersistencePort {
     }
 
     @Override
-    public Optional<FeatureEntity> findFeatureByCode(String code) {
-        return featureRepository.findByCode(code);
+    public List<PlanFeatureEntity> findPlanFeaturesByPlanId(Long planId) {
+        return planFeatureRepository.findByPlanConfigurationId(planId);
     }
 
     @Override
-    public Optional<PlanFeatureEntity> findPlanFeature(Long planConfigurationId, Long featureId) {
-        return planFeatureRepository.findByPlanConfigurationIdAndFeatureId(planConfigurationId, featureId);
+    public int updateFeatureStatus(Long planId, String featureCode, Boolean isEnabled) {
+        return planFeatureRepository.updateFeatureStatus(planId, featureCode, isEnabled);
     }
 
     @Override
-    public void savePlanFeature(PlanFeatureEntity planFeature) {
-        planFeatureRepository.save(planFeature);
-    }
-
-    @Override
-    public Optional<PlanLimitEntity> findPlanLimit(Long planConfigurationId, String limitType) {
-        return planLimitRepository.findByPlanConfigurationIdAndLimitType(planConfigurationId, limitType);
-    }
-
-    @Override
-    public void savePlanLimit(PlanLimitEntity planLimit) {
-        planLimitRepository.save(planLimit);
+    public int updateLimitValue(Long planId, String limitType, Integer limitValue) {
+        return planLimitRepository.updateLimitValue(planId, limitType, limitValue);
     }
 }

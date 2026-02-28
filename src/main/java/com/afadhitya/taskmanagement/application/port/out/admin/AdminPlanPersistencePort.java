@@ -11,13 +11,9 @@ public interface AdminPlanPersistencePort {
 
     Optional<PlanConfigurationEntity> findPlanById(Long id);
 
-    Optional<FeatureEntity> findFeatureByCode(String code);
+    List<PlanFeatureEntity> findPlanFeaturesByPlanId(Long planId);
 
-    Optional<PlanFeatureEntity> findPlanFeature(Long planConfigurationId, Long featureId);
+    int updateFeatureStatus(Long planId, String featureCode, Boolean isEnabled);
 
-    void savePlanFeature(PlanFeatureEntity planFeature);
-
-    Optional<PlanLimitEntity> findPlanLimit(Long planConfigurationId, String limitType);
-
-    void savePlanLimit(PlanLimitEntity planLimit);
+    int updateLimitValue(Long planId, String limitType, Integer limitValue);
 }

@@ -1,6 +1,7 @@
 package com.afadhitya.taskmanagement.application.usecase.admin;
 
 import com.afadhitya.taskmanagement.adapter.out.feature.PlanConfigurationEntity;
+import com.afadhitya.taskmanagement.adapter.out.feature.PlanFeatureEntity;
 import com.afadhitya.taskmanagement.application.dto.response.admin.PlanDetailResponse;
 import com.afadhitya.taskmanagement.application.dto.response.admin.PlanFeatureResponse;
 import com.afadhitya.taskmanagement.application.dto.response.admin.PlanLimitResponse;
@@ -23,11 +24,9 @@ public class GetPlanUseCaseImpl implements GetPlanUseCase {
         PlanConfigurationEntity plan = adminPlanPersistencePort.findPlanById(planId)
             .orElseThrow(() -> new IllegalArgumentException("Plan not found: " + planId));
 
-        return toDetailResponse(plan);
-    }
+        List<PlanFeatureEntity> planFeatures = adminPlanPersistencePort.findPlanFeaturesByPlanId(planId);
 
-    private PlanDetailResponse toDetailResponse(PlanConfigurationEntity plan) {
-        List<PlanFeatureResponse> features = plan.getPlanFeatures().stream()
+        List<PlanFeatureResponse> features = planFeatures.stream()
             .map(pf -> PlanFeatureResponse.builder()
                 .code(pf.getFeature().getCode())
                 .name(pf.getFeature().getName())
