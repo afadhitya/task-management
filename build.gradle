@@ -36,6 +36,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
 	implementation 'com.github.ben-manes.caffeine:caffeine'
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	implementation 'com.bucket4j:bucket4j-core:8.10.1'
+	implementation 'com.bucket4j:bucket4j-caffeine:8.10.1'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
