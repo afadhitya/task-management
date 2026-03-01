@@ -1,6 +1,5 @@
 package com.afadhitya.taskmanagement.infrastructure.config;
 
-import com.afadhitya.taskmanagement.infrastructure.security.JwtAuthenticationFilter;
 import com.afadhitya.taskmanagement.infrastructure.security.RbacAccessDeniedHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +18,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -27,7 +25,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
     private final RbacAccessDeniedHandler accessDeniedHandler;
 
@@ -56,8 +53,7 @@ public class SecurityConfig {
                 .exceptionHandling(exception ->
                         exception.accessDeniedHandler(accessDeniedHandler)
                 )
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .authenticationProvider(authenticationProvider());
 
         return http.build();
     }
