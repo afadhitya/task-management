@@ -88,8 +88,8 @@ com.afadhitya.taskmanagement
 | Category | Total | Done | Pending |
 |----------|-------|------|---------|
 | Authentication | 7 | 7 | 0 |
-| Workspaces | 9 | 9 | 0 |
-| Projects | 7 | 7 | 0 |
+| Workspaces | 10 | 10 | 0 |
+| Projects | 9 | 9 | 0 |
 | Tasks | 8 | 8 | 0 |
 | Comments | 4 | 4 | 0 |
 | Labels | 6 | 6 | 0 |
@@ -97,7 +97,8 @@ com.afadhitya.taskmanagement
 | Notifications | 4 | 0 | 4 |
 | Search | 1 | 1 | 0 |
 | Audit Logs | 1 | 1 | 0 |
-| **Total** | **50** | **43** | **7** |
+| Health Check | 1 | 1 | 0 |
+| **Total** | **54** | **47** | **7** |
 
 ### Available Endpoints
 
@@ -120,6 +121,7 @@ com.afadhitya.taskmanagement
 | PATCH | `/workspaces/{id}` | Update workspace |
 | DELETE | `/workspaces/{id}` | Delete workspace |
 | GET | `/workspaces/{id}/members` | List workspace members |
+| GET | `/workspaces/{id}/entitlements` | Get workspace entitlements |
 | POST | `/workspaces/{id}/members/invite` | Invite member to workspace |
 | PATCH | `/workspaces/{id}/members/{userId}` | Update member role |
 | DELETE | `/workspaces/{id}/members/{userId}` | Remove member from workspace |
@@ -253,11 +255,11 @@ Application configuration is located in `config/application.yml`:
 
 | Phase | Scope | Status |
 |-------|-------|--------|
-| **Phase 1 — Core** | Auth, Users, Workspaces | ✅ Complete |
-| **Phase 2 — Collaboration** | Projects, Tasks, Comments, Labels | ✅ Complete |
-| **Phase 3 — Organization** | Search, Bulk actions | ✅ Complete |
-| **Phase 4 — Enterprise** | Audit Logs, RBAC hardening | ✅ Complete |
-| **Phase 5 — Async & Scale** | Attachments, Notifications, Job Queues | 🔄 In Progress |
+| **Phase 1 — Core** | Auth, Workspaces, Projects | ✅ Complete |
+| **Phase 2 — Collaboration** | Tasks, Comments, Labels | ✅ Complete |
+| **Phase 3 — Organization** | Search, Bulk actions, Audit Logs | ✅ Complete |
+| **Phase 4 — Enterprise** | RBAC hardening, Entitlements | ✅ Complete |
+| **Phase 5 — Async & Scale** | Attachments, Notifications | 🔄 Pending |
 
 ---
 
@@ -277,4 +279,4 @@ This project is proprietary and confidential.
 
 ---
 
-*Last updated: February 28, 2026*
+*Last updated: March 1, 2026*

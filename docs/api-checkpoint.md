@@ -41,6 +41,7 @@ Each API should be marked as `done` once implemented and verified.
 | [x] | POST | `/workspaces/:id/transfer-ownership` | Transfer workspace ownership |
 | [x] | DELETE | `/workspaces/:id/members/:userId` | Remove member from workspace |
 | [x] | POST | `/workspaces/:id/leave` | Leave workspace (non-owner only) |
+| [x] | GET | `/workspaces/:id/entitlements` | Get workspace entitlements |
 
 ---
 
@@ -163,17 +164,12 @@ Each API should be marked as `done` once implemented and verified.
 ### Endpoint Paths
 Current implementation uses inconsistent path prefixes:
 - `/api/auth/*` - Auth endpoints (with /api prefix)
-- `/api/users/*` - User endpoints (with /api prefix) - **NOT part of PRD**
 - `/workspaces/*` - Workspace endpoints (WITHOUT /api prefix)
+- `/projects/*` - Project endpoints (WITHOUT /api prefix)
+- `/tasks/*` - Task endpoints (WITHOUT /api prefix)
+- `/search` - Search endpoint (WITHOUT /api prefix)
 
 **Note:** When implementing new endpoints, follow the PRD specification. Consider standardizing all endpoints to use `/api` prefix in a future refactoring task.
-
-### User Controller (Non-PRD)
-There's a `/api/users` CRUD controller that provides basic user management but is NOT part of the PRD specification. The PRD only specifies:
-- `POST /auth/register` - Register new user
-- `GET /auth/me` - Get current user info
-
-The UserController may be refactored or removed in favor of auth-based user management.
 
 ### Authentication Flow
 - JWT-based authentication with access tokens (15 min) and refresh tokens (30 days)
@@ -185,21 +181,20 @@ The UserController may be refactored or removed in favor of auth-based user mana
 
 ## Summary
 
-| Category | Total  | Done | Pending |
-|----------|--------|------|---------|
-| Authentication | 7      | 7 | 0       |
-| Workspaces | 8      | 4 | 4       |
-| Projects | 9      | 9 | 0       |
-| Tasks | 8      | 8 | 0       |
-| Comments | 4      | 4 | 0       |
-| Labels | 6      | 2 | 4       |
-| Attachments | 3      | 0 | 3       |
-| Notifications | 4      | 0 | 4       |
-| Search | 1      | 0 | 1       |
-| Audit Logs | 1      | 0 | 1       |
-| Health Check | 1      | 1 | 0       |
-| Global Error Handler | 3      | 3 | 0       |
-| **Total** | **56** | **38** | **18**  |
+| Category | Total | Done | Pending |
+|----------|-------|------|---------|
+| Authentication | 7 | 7 | 0 |
+| Workspaces | 10 | 10 | 0 |
+| Projects | 9 | 9 | 0 |
+| Tasks | 8 | 8 | 0 |
+| Comments | 4 | 4 | 0 |
+| Labels | 6 | 6 | 0 |
+| Attachments | 3 | 0 | 3 |
+| Notifications | 4 | 0 | 4 |
+| Search | 1 | 1 | 0 |
+| Audit Logs | 1 | 1 | 0 |
+| Health Check | 1 | 1 | 0 |
+| **Total** | **54** | **47** | **7** |
 
 ---
 
