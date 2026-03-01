@@ -1,13 +1,16 @@
 package com.afadhitya.taskmanagement.infrastructure.config;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.*;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -30,36 +33,32 @@ public class CacheConfig {
 
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
-        Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
-        
-        RedisSerializationContext.SerializationPair<Object> serializationPair =
+        GenericJacksonJsonRedisSerializer serializer = new GenericJacksonJsonRedisSerializer(new ObjectMapper());
+
+        RedisSerializationContext.SerializationPair<String> keySerializer =
+                RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer());
+
+        RedisSerializationContext.SerializationPair<Object> valueSerializer =
                 RedisSerializationContext.SerializationPair.fromSerializer(serializer);
 
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeValuesWith(serializationPair)
-                .entryTtl(TTL_10_MINUTES);
+                .serializeKeysWith(keySerializer)
+                .serializeValuesWith(valueSerializer)
+                .entryTtl(TTL_10_MINUTES)
+                .disableCachingNullValues();
 
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
-        
-        cacheConfigurations.put(WORKSPACE_FEATURES, 
+
+        cacheConfigurations.put(WORKSPACE_FEATURES,
                 defaultConfig.entryTtl(TTL_5_MINUTES));
-        cacheConfigurations.put(WORKSPACE_LIMITS, 
+        cacheConfigurations.put(WORKSPACE_LIMITS,
                 defaultConfig.entryTtl(TTL_5_MINUTES));
-        cacheConfigurations.put(USERS, 
-                defaultConfig.entryTtl(TTL_10_MINUTES));
-        cacheConfigurations.put(WORKSPACES, 
-                defaultConfig.entryTtl(TTL_10_MINUTES));
-        cacheConfigurations.put(PROJECTS, 
-                defaultConfig.entryTtl(TTL_10_MINUTES));
-        cacheConfigurations.put(LABELS, 
-                defaultConfig.entryTtl(TTL_10_MINUTES));
-        cacheConfigurations.put(PROJECT_MEMBERS, 
+        cacheConfigurations.put(PROJECT_MEMBERS,
                 defaultConfig.entryTtl(TTL_5_MINUTES));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)
                 .withInitialCacheConfigurations(cacheConfigurations)
-                .transactionAware()
                 .build();
     }
 }
