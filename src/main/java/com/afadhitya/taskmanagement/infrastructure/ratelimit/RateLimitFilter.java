@@ -1,7 +1,6 @@
-package com.afadhitya.taskmanagement.infrastructure.filter;
+package com.afadhitya.taskmanagement.infrastructure.ratelimit;
 
 import com.afadhitya.taskmanagement.infrastructure.security.JwtService;
-import com.afadhitya.taskmanagement.infrastructure.service.BucketProvider;
 
 import io.github.bucket4j.Bucket;
 import jakarta.servlet.FilterChain;

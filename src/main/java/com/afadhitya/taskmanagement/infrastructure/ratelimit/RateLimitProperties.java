@@ -1,4 +1,4 @@
-package com.afadhitya.taskmanagement.infrastructure.config;
+package com.afadhitya.taskmanagement.infrastructure.ratelimit;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

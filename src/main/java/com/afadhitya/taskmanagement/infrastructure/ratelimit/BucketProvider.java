@@ -1,4 +1,4 @@
-package com.afadhitya.taskmanagement.infrastructure.service;
+package com.afadhitya.taskmanagement.infrastructure.ratelimit;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import io.github.bucket4j.Bandwidth;

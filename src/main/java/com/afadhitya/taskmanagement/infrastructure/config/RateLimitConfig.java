@@ -1,5 +1,6 @@
 package com.afadhitya.taskmanagement.infrastructure.config;
 
+import com.afadhitya.taskmanagement.infrastructure.ratelimit.RateLimitProperties;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.github.bucket4j.Bandwidth;
