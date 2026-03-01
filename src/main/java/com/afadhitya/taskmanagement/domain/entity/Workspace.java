@@ -39,6 +39,9 @@ public class Workspace {
     @Builder.Default
     private PlanTier planTier = PlanTier.FREE;
 
+    @Column(name = "plan_configuration_id")
+    private Long planConfigurationId;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

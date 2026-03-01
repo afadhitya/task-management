@@ -10,6 +10,7 @@ import com.afadhitya.taskmanagement.application.port.in.task.DeleteTaskUseCase;
 import com.afadhitya.taskmanagement.application.port.in.task.UpdateTaskUseCase;
 import com.afadhitya.taskmanagement.application.port.out.task.TaskPersistencePort;
 import com.afadhitya.taskmanagement.application.service.AuditLogService;
+import com.afadhitya.taskmanagement.application.usecase.feature.AuditFeatureInterceptor;
 import com.afadhitya.taskmanagement.application.usecase.task.CreateSubtaskUseCaseImpl;
 import com.afadhitya.taskmanagement.application.usecase.task.CreateTaskUseCaseImpl;
 import com.afadhitya.taskmanagement.domain.entity.Task;
@@ -31,6 +32,7 @@ public class AuditedTaskUseCases {
 
     private final TaskPersistencePort taskPersistencePort;
     private final AuditLogService auditLogService;
+    private final AuditFeatureInterceptor auditInterceptor;
 
     @Service
     @Primary
@@ -47,13 +49,17 @@ public class AuditedTaskUseCases {
             Task task = taskPersistencePort.findById(response.id()).orElseThrow();
             Long workspaceId = task.getProject().getWorkspace().getId();
 
+            if (!auditInterceptor.shouldAudit(workspaceId)) {
+                return response;
+            }
+
             Map<String, Object> newValues = new HashMap<>();
             newValues.put("title", response.title());
             newValues.put("status", response.status().name());
             newValues.put("priority", response.priority().name());
             newValues.put("projectId", request.projectId());
 
-            auditLogService.createCreate(
+            auditInterceptor.auditCreate(
                     workspaceId,
                     createdByUserId,
                     AuditEntityType.TASK,
@@ -80,13 +86,17 @@ public class AuditedTaskUseCases {
             Task task = taskPersistencePort.findById(response.id()).orElseThrow();
             Long workspaceId = task.getProject().getWorkspace().getId();
 
+            if (!auditInterceptor.shouldAudit(workspaceId)) {
+                return response;
+            }
+
             Map<String, Object> newValues = new HashMap<>();
             newValues.put("title", response.title());
             newValues.put("status", response.status().name());
             newValues.put("priority", response.priority().name());
             newValues.put("parentTaskId", parentTaskId);
 
-            auditLogService.createCreate(
+            auditInterceptor.auditCreate(
                     workspaceId,
                     createdByUserId,
                     AuditEntityType.TASK,
@@ -112,37 +122,38 @@ public class AuditedTaskUseCases {
                     .orElseThrow(() -> new IllegalArgumentException("Task not found with id: " + id));
 
             Long workspaceId = task.getProject().getWorkspace().getId();
+            boolean shouldAudit = auditInterceptor.shouldAudit(workspaceId);
 
             Map<String, Object> diff = new HashMap<>();
-            if (request.title() != null && !request.title().equals(task.getTitle())) {
-                diff.put("title", Map.of("old", task.getTitle(), "new", request.title()));
-            }
-            if (request.description() != null && !request.description().equals(task.getDescription())) {
-                diff.put("description", Map.of("old", task.getDescription(), "new", request.description()));
-            }
-            if (request.status() != null && request.status() != task.getStatus()) {
-                diff.put("status", Map.of("old", task.getStatus().name(), "new", request.status().name()));
-            }
-            if (request.priority() != null && request.priority() != task.getPriority()) {
-                diff.put("priority", Map.of("old", task.getPriority().name(), "new", request.priority().name()));
-            }
-            if (request.dueDate() != null && !request.dueDate().equals(task.getDueDate())) {
-                diff.put("dueDate", Map.of("old", task.getDueDate(), "new", request.dueDate()));
-            }
-            if (request.assigneeIds() != null && !request.assigneeIds().equals(task.getAssigneeIds())) {
-                diff.put("assigneeIds", Map.of("old", task.getAssigneeIds(), "new", request.assigneeIds()));
+            if (shouldAudit) {
+                if (request.title() != null && !request.title().equals(task.getTitle())) {
+                    diff.put("title", Map.of("old", task.getTitle(), "new", request.title()));
+                }
+                if (request.description() != null && !request.description().equals(task.getDescription())) {
+                    diff.put("description", Map.of("old", task.getDescription(), "new", request.description()));
+                }
+                if (request.status() != null && request.status() != task.getStatus()) {
+                    diff.put("status", Map.of("old", task.getStatus().name(), "new", request.status().name()));
+                }
+                if (request.priority() != null && request.priority() != task.getPriority()) {
+                    diff.put("priority", Map.of("old", task.getPriority().name(), "new", request.priority().name()));
+                }
+                if (request.dueDate() != null && !request.dueDate().equals(task.getDueDate())) {
+                    diff.put("dueDate", Map.of("old", task.getDueDate(), "new", request.dueDate()));
+                }
+                if (request.assigneeIds() != null && !request.assigneeIds().equals(task.getAssigneeIds())) {
+                    diff.put("assigneeIds", Map.of("old", task.getAssigneeIds(), "new", request.assigneeIds()));
+                }
             }
 
             TaskResponse response = delegate.updateTask(id, request);
 
-            if (!diff.isEmpty()) {
-                AuditAction action = diff.containsKey("status") ? AuditAction.STATUS_CHANGE : AuditAction.UPDATE;
-                auditLogService.create(
+            if (shouldAudit && !diff.isEmpty()) {
+                auditInterceptor.auditUpdate(
                         workspaceId,
                         SecurityUtils.getCurrentUserId(),
                         AuditEntityType.TASK,
                         id,
-                        action,
                         diff
                 );
             }
@@ -166,17 +177,19 @@ public class AuditedTaskUseCases {
 
             Long workspaceId = task.getProject().getWorkspace().getId();
 
-            auditLogService.createDelete(
-                    workspaceId,
-                    SecurityUtils.getCurrentUserId(),
-                    AuditEntityType.TASK,
-                    id,
-                    Map.of(
-                            "title", task.getTitle(),
-                            "status", task.getStatus().name(),
-                            "projectId", task.getProject().getId()
-                    )
-            );
+            if (auditInterceptor.shouldAudit(workspaceId)) {
+                auditInterceptor.auditDelete(
+                        workspaceId,
+                        SecurityUtils.getCurrentUserId(),
+                        AuditEntityType.TASK,
+                        id,
+                        Map.of(
+                                "title", task.getTitle(),
+                                "status", task.getStatus().name(),
+                                "projectId", task.getProject().getId()
+                        )
+                );
+            }
 
             delegate.deleteTask(id);
         }

@@ -8,6 +8,7 @@ import com.afadhitya.taskmanagement.application.port.in.label.DeleteLabelUseCase
 import com.afadhitya.taskmanagement.application.port.in.label.UpdateLabelUseCase;
 import com.afadhitya.taskmanagement.application.port.out.label.LabelPersistencePort;
 import com.afadhitya.taskmanagement.application.service.AuditLogService;
+import com.afadhitya.taskmanagement.application.usecase.feature.AuditFeatureInterceptor;
 import com.afadhitya.taskmanagement.application.usecase.label.CreateLabelUseCaseImpl;
 import com.afadhitya.taskmanagement.application.usecase.label.DeleteLabelUseCaseImpl;
 import com.afadhitya.taskmanagement.application.usecase.label.UpdateLabelUseCaseImpl;
@@ -28,6 +29,7 @@ public class AuditedLabelUseCases {
 
     private final LabelPersistencePort labelPersistencePort;
     private final AuditLogService auditLogService;
+    private final AuditFeatureInterceptor auditInterceptor;
 
     @Service
     @Primary
@@ -41,6 +43,10 @@ public class AuditedLabelUseCases {
         public LabelResponse createLabel(Long workspaceId, CreateLabelRequest request, Long createdByUserId) {
             LabelResponse response = delegate.createLabel(workspaceId, request, createdByUserId);
 
+            if (!auditInterceptor.shouldAudit(workspaceId)) {
+                return response;
+            }
+
             Map<String, Object> newValues = new HashMap<>();
             newValues.put("name", response.name());
             newValues.put("color", response.color());
@@ -48,7 +54,7 @@ public class AuditedLabelUseCases {
                 newValues.put("projectId", request.projectId());
             }
 
-            auditLogService.createCreate(
+            auditInterceptor.auditCreate(
                     workspaceId,
                     createdByUserId,
                     AuditEntityType.LABEL,
@@ -73,19 +79,25 @@ public class AuditedLabelUseCases {
             Label label = labelPersistencePort.findById(labelId)
                     .orElseThrow(() -> new IllegalArgumentException("Label not found with id: " + labelId));
 
+            Long workspaceId = label.getWorkspace().getId();
+
+            boolean shouldAudit = auditInterceptor.shouldAudit(workspaceId);
+
             Map<String, Object> diff = new HashMap<>();
-            if (request.name() != null && !request.name().equals(label.getName())) {
-                diff.put("name", Map.of("old", label.getName(), "new", request.name()));
-            }
-            if (request.color() != null && !request.color().equals(label.getColor())) {
-                diff.put("color", Map.of("old", label.getColor(), "new", request.color()));
+            if (shouldAudit) {
+                if (request.name() != null && !request.name().equals(label.getName())) {
+                    diff.put("name", Map.of("old", label.getName(), "new", request.name()));
+                }
+                if (request.color() != null && !request.color().equals(label.getColor())) {
+                    diff.put("color", Map.of("old", label.getColor(), "new", request.color()));
+                }
             }
 
             LabelResponse response = delegate.updateLabel(labelId, request, currentUserId);
 
-            if (!diff.isEmpty()) {
-                auditLogService.createUpdate(
-                        label.getWorkspace().getId(),
+            if (shouldAudit && !diff.isEmpty()) {
+                auditInterceptor.auditUpdate(
+                        workspaceId,
                         currentUserId,
                         AuditEntityType.LABEL,
                         labelId,
@@ -112,13 +124,15 @@ public class AuditedLabelUseCases {
 
             Long workspaceId = label.getWorkspace().getId();
 
-            auditLogService.createDelete(
-                    workspaceId,
-                    currentUserId,
-                    AuditEntityType.LABEL,
-                    labelId,
-                    Map.of("name", label.getName(), "color", label.getColor())
-            );
+            if (auditInterceptor.shouldAudit(workspaceId)) {
+                auditInterceptor.auditDelete(
+                        workspaceId,
+                        currentUserId,
+                        AuditEntityType.LABEL,
+                        labelId,
+                        Map.of("name", label.getName(), "color", label.getColor())
+                );
+            }
 
             delegate.deleteLabel(labelId, currentUserId);
         }

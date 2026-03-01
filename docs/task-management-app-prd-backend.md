@@ -5,6 +5,11 @@
 **Date:** February 27, 2026  
 **Status:** Draft
 
+**Related Documents:**
+- [Feature Flag & Plan-Based Access Control PRD](./feature-flag-prd.md) - Feature gating and plan limits
+- [Clean Architecture](./clean-architecture.md) - Project structure and coding patterns
+- [API Checkpoint](./api-checkpoint.md) - Implementation status tracking
+
 ---
 
 ## 1. Overview
@@ -161,6 +166,19 @@ is_read, created_at
 id, workspace_id, actor_id, action,
 entity_type, entity_id, diff (JSON), created_at
 ```
+
+**Audit Log Implementation Notes:**
+- **Architecture**: Decorator Pattern with Direct Service Calls (not Event-driven)
+- **Rationale**: Clean separation between business logic and audit concerns
+  - Use cases contain 100% pure business logic (no audit code)
+  - Decorators (`@Primary`) wrap use cases and handle audit logging
+  - `AuditLogService` uses `REQUIRES_NEW` transaction for reliability
+- **Tracked Entities**: Workspace, Project, Task, Comment, Label
+- **Actions Tracked**: CREATE, UPDATE, DELETE, STATUS_CHANGE (for tasks)
+- **Diff Format**: 
+  - CREATE: `{ "field": "value" }`
+  - UPDATE: `{ "field": { "old": "x", "new": "y" } }`
+  - DELETE: `{ "field": "value" }` (snapshot of deleted entity)
 
 ---
 

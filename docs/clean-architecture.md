@@ -1,5 +1,9 @@
 # Clean Architecture – Spring Boot Project Structure
 
+**Related Documents:**
+- [Feature Flag Technical Documentation](./feature-flag-technical.md) - Feature flag implementation details
+- [Task Management App PRD](./task-management-app-prd-backend.md) - Product requirements
+
 ## Overview
 
 Clean Architecture (by Robert C. Martin) organizes code into concentric layers where **dependencies always point inward**. The inner layers know nothing about the outer layers.
