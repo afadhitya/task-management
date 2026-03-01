@@ -3,8 +3,8 @@ Redis Caching Implementation
 | Phase | Status | Description |
 |-------|--------|-------------|
 | Phase 1 | [x] | Replace Caffeine with Redis |
-| Phase 2 | [x] | Add new caches (users, workspaces, projects, labels, projectMembers) |
-| Phase 3 | [ ] | Implement cache invalidation |
+| Phase 2 | [~] | Add new caches (users, workspaces, projects, labels, projectMembers) - PAUSED |
+| Phase 3 | [~] | Implement cache invalidation - PAUSED |
 
 ### Phase 1: Replace Caffeine with Redis
 
@@ -16,23 +16,29 @@ Redis Caching Implementation
 | [x] | Update CacheConfig | Replace CaffeineCacheManager with RedisCacheManager |
 | [x] | Migrate existing caches | Move workspaceFeatures and workspaceLimits to Redis |
 
-### Phase 2: Add New Caches
+### Phase 2: Add New Caches (PAUSED)
 
 | Status | Cache | Description | TTL |
 |--------|-------|-------------|-----|
-| [ ] | users | User lookups by ID | 10 min |
-| [ ] | workspaces | Workspace metadata | 10 min |
-| [ ] | projects | Project metadata | 10 min |
-| [ ] | labels | Label lookups | 10 min |
-| [ ] | projectMembers | Project member lists | 5 min |
+| [~] | users | User lookups by ID | 10 min |
+| [~] | workspaces | Workspace metadata | 10 min |
+| [~] | projects | Project metadata | 10 min |
+| [~] | labels | Label lookups | 10 min |
+| [~] | projectMembers | Project member lists | 5 min |
 
-### Phase 3: Implement Cache Invalidation
+Note: DTO caching implemented at use case level. Needs DTO serialization fixes.
+
+### Phase 3: Implement Cache Invalidation (PAUSED)
 
 | Status | Component | Description |
 |--------|-----------|-------------|
-| [ ] | User invalidation | Evict user cache on user update/delete |
-| [ ] | Workspace invalidation | Evict workspace cache on CRUD operations |
-| [ ] | Project invalidation | Evict project cache on CRUD operations |
-| [ ] | Label invalidation | Evict label cache on CRUD operations |
-| [ ] | ProjectMember invalidation | Evict cache on member add/remove/role change |
-| [ ] | Feature/Limit invalidation | Evict cache on plan configuration change |
+| [~] | User invalidation | Evict user cache on user update/delete |
+| [~] | Workspace invalidation | Evict workspace cache on CRUD operations |
+| [~] | Project invalidation | Evict project cache on CRUD operations |
+| [~] | Label invalidation | Evict label cache on CRUD operations |
+| [~] | ProjectMember invalidation | Evict cache on member add/remove/role change |
+| [x] | Feature/Limit invalidation | Evict cache on plan configuration change |
+
+---
+
+See `docs/redis-caching-checkpoint-paused.md` for detailed status and next steps.
