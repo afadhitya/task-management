@@ -3,6 +3,8 @@
 **Related Documents:**
 - [Feature Flag Technical Documentation](./feature-flag-technical.md) - Feature flag implementation details
 - [Task Management App PRD](./task-management-app-prd-backend.md) - Product requirements
+- [Global Error Handler PRD](./global-error-handler-prd.md) - Unified error handling requirements
+- [Global Error Handler Technical](./global-error-handler-technical.md) - Error handler implementation
 
 ## Overview
 

@@ -9,6 +9,8 @@
 - [Feature Flag & Plan-Based Access Control PRD](./feature-flag-prd.md) - Feature gating and plan limits
 - [Clean Architecture](./clean-architecture.md) - Project structure and coding patterns
 - [API Checkpoint](./api-checkpoint.md) - Implementation status tracking
+- [Global Error Handler PRD](./global-error-handler-prd.md) - Unified error handling system
+- [Global Error Handler Technical](./global-error-handler-technical.md) - Error handler implementation details
 
 ---
 

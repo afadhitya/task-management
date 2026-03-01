@@ -144,6 +144,21 @@ Each API should be marked as `done` once implemented and verified.
 
 ---
 
+## 12. Global Error Handler
+
+| Status | Component | Description |
+|--------|-----------|-------------|
+| [ ] | ErrorResponse DTO | Standardized error response structure |
+| [ ] | GlobalExceptionHandler | Centralized exception handling |
+| [ ] | Exception Updates | Add getters to existing exceptions |
+| [ ] | Unit Tests | Handler test coverage |
+
+**Related Documents:**
+- [Global Error Handler PRD](./global-error-handler-prd.md) - Product requirements
+- [Global Error Handler Technical](./global-error-handler-technical.md) - Implementation details
+
+---
+
 ## Implementation Notes
 
 ### Endpoint Paths
@@ -184,8 +199,9 @@ The UserController may be refactored or removed in favor of auth-based user mana
 | Search | 1 | 0 | 1 |
 | Audit Logs | 1 | 0 | 1 |
 | Health Check | 1 | 1 | 0 |
-| **Total** | **52** | **35** | **17** |
+| Global Error Handler | 4 | 0 | 4 |
+| **Total** | **56** | **35** | **21** |
 
 ---
 
-*Last updated: 2026-02-27*
+*Last updated: 2026-03-01*
