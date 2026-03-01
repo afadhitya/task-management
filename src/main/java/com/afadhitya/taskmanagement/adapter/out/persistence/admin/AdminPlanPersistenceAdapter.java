@@ -1,6 +1,8 @@
 package com.afadhitya.taskmanagement.adapter.out.persistence.admin;
 
-import com.afadhitya.taskmanagement.adapter.out.feature.*;
+import com.afadhitya.taskmanagement.adapter.out.persistence.PlanConfigurationRepository;
+import com.afadhitya.taskmanagement.adapter.out.persistence.PlanFeatureRepository;
+import com.afadhitya.taskmanagement.adapter.out.persistence.PlanLimitRepository;
 import com.afadhitya.taskmanagement.application.port.out.admin.AdminPlanPersistencePort;
 import com.afadhitya.taskmanagement.domain.feature.PlanConfigurationEntity;
 import com.afadhitya.taskmanagement.domain.feature.PlanFeatureEntity;

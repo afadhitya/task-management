@@ -1,7 +1,7 @@
 package com.afadhitya.taskmanagement.application.usecase.entitlement;
 
 import com.afadhitya.taskmanagement.domain.feature.PlanConfigurationEntity;
-import com.afadhitya.taskmanagement.adapter.out.feature.PlanConfigurationRepository;
+import com.afadhitya.taskmanagement.adapter.out.persistence.PlanConfigurationRepository;
 import com.afadhitya.taskmanagement.adapter.out.persistence.ProjectRepository;
 import com.afadhitya.taskmanagement.adapter.out.persistence.WorkspaceMemberRepository;
 import com.afadhitya.taskmanagement.adapter.out.persistence.WorkspaceRepository;

@@ -1,5 +1,6 @@
 package com.afadhitya.taskmanagement.adapter.out.persistence.auditlog;
 
+import com.afadhitya.taskmanagement.adapter.out.persistence.AuditLogRepository;
 import com.afadhitya.taskmanagement.application.port.out.auditlog.AuditLogPersistencePort;
 import com.afadhitya.taskmanagement.domain.entity.AuditLog;
 import lombok.RequiredArgsConstructor;

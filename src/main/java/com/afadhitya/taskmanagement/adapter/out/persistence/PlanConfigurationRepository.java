@@ -1,4 +1,4 @@
-package com.afadhitya.taskmanagement.adapter.out.feature;
+package com.afadhitya.taskmanagement.adapter.out.persistence;
 
 import com.afadhitya.taskmanagement.domain.feature.PlanConfigurationEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,5 +1,6 @@
-package com.afadhitya.taskmanagement.adapter.out.feature;
+package com.afadhitya.taskmanagement.adapter.out.persistence.feature;
 
+import com.afadhitya.taskmanagement.adapter.out.persistence.PlanConfigurationRepository;
 import com.afadhitya.taskmanagement.adapter.out.persistence.WorkspaceRepository;
 import com.afadhitya.taskmanagement.application.port.out.feature.FeatureTogglePort;
 import com.afadhitya.taskmanagement.domain.feature.Feature;

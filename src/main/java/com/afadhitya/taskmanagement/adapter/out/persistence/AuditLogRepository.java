@@ -1,4 +1,4 @@
-package com.afadhitya.taskmanagement.adapter.out.persistence.auditlog;
+package com.afadhitya.taskmanagement.adapter.out.persistence;
 
 import com.afadhitya.taskmanagement.domain.entity.AuditLog;
 import org.springframework.data.domain.Page;
