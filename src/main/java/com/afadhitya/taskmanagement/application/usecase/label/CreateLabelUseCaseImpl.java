@@ -16,6 +16,7 @@ import com.afadhitya.taskmanagement.domain.entity.User;
 import com.afadhitya.taskmanagement.domain.entity.Workspace;
 import com.afadhitya.taskmanagement.domain.enums.WorkspaceRole;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,7 @@ public class CreateLabelUseCaseImpl implements CreateLabelUseCase {
     private final LabelMapper labelMapper;
 
     @Override
+    @CacheEvict(value = "labels", allEntries = true)
     public LabelResponse createLabel(Long workspaceId, CreateLabelRequest request, Long createdByUserId) {
         User createdBy = userPersistencePort.findById(createdByUserId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + createdByUserId));

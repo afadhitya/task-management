@@ -7,6 +7,7 @@ import com.afadhitya.taskmanagement.application.port.in.project.UpdateProjectUse
 import com.afadhitya.taskmanagement.application.port.out.project.ProjectPersistencePort;
 import com.afadhitya.taskmanagement.domain.entity.Project;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ public class UpdateProjectUseCaseImpl implements UpdateProjectUseCase {
     private final ProjectMapper projectMapper;
 
     @Override
+    @CacheEvict(value = "projects", key = "#id")
     public ProjectResponse updateProject(Long id, UpdateProjectRequest request) {
         Project project = projectPersistencePort.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + id));

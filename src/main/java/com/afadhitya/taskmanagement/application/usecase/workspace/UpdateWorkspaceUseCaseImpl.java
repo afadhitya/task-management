@@ -7,6 +7,7 @@ import com.afadhitya.taskmanagement.application.port.in.workspace.UpdateWorkspac
 import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspacePersistencePort;
 import com.afadhitya.taskmanagement.domain.entity.Workspace;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ public class UpdateWorkspaceUseCaseImpl implements UpdateWorkspaceUseCase {
     private final WorkspaceMapper workspaceMapper;
 
     @Override
+    @CacheEvict(value = "workspaces", key = "#id")
     public WorkspaceResponse updateWorkspace(Long id, UpdateWorkspaceRequest request, Long currentUserId) {
         Workspace workspace = workspacePersistencePort.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Workspace not found with id: " + id));

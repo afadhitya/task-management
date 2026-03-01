@@ -4,6 +4,7 @@ import com.afadhitya.taskmanagement.application.port.in.workspace.DeleteWorkspac
 import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspacePersistencePort;
 import com.afadhitya.taskmanagement.domain.entity.Workspace;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,7 @@ public class DeleteWorkspaceByIdUseCaseImpl implements DeleteWorkspaceByIdUseCas
     private final WorkspacePersistencePort workspacePersistencePort;
 
     @Override
+    @CacheEvict(value = "workspaces", key = "#id")
     public void deleteWorkspace(Long id, Long currentUserId) {
         Workspace workspace = workspacePersistencePort.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Workspace not found with id: " + id));

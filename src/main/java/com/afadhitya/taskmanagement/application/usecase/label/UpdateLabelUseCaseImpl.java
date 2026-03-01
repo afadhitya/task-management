@@ -7,6 +7,7 @@ import com.afadhitya.taskmanagement.application.port.in.label.UpdateLabelUseCase
 import com.afadhitya.taskmanagement.application.port.out.label.LabelPersistencePort;
 import com.afadhitya.taskmanagement.domain.entity.Label;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ public class UpdateLabelUseCaseImpl implements UpdateLabelUseCase {
     private final LabelMapper labelMapper;
 
     @Override
+    @CacheEvict(value = "labels", allEntries = true)
     public LabelResponse updateLabel(Long labelId, UpdateLabelRequest request, Long currentUserId) {
         Label label = labelPersistencePort.findById(labelId)
                 .orElseThrow(() -> new IllegalArgumentException("Label not found with id: " + labelId));

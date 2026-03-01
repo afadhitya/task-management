@@ -12,6 +12,7 @@ import com.afadhitya.taskmanagement.domain.entity.ProjectMember;
 import com.afadhitya.taskmanagement.domain.enums.ProjectPermission;
 import com.afadhitya.taskmanagement.domain.enums.WorkspaceRole;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ public class UpdateProjectMemberRoleUseCaseImpl implements UpdateProjectMemberRo
     private final ProjectMemberMapper projectMemberMapper;
 
     @Override
+    @CacheEvict(value = "projectMembers", key = "#projectId")
     public ProjectMemberResponse updateMemberRole(Long projectId, Long targetUserId, UpdateProjectMemberRoleRequest request, Long currentUserId) {
         Project project = projectPersistencePort.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + projectId));

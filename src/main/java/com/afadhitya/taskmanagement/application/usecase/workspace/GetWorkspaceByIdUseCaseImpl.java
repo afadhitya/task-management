@@ -6,6 +6,7 @@ import com.afadhitya.taskmanagement.application.port.in.workspace.GetWorkspaceBy
 import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspacePersistencePort;
 import com.afadhitya.taskmanagement.domain.entity.Workspace;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ public class GetWorkspaceByIdUseCaseImpl implements GetWorkspaceByIdUseCase {
     private final WorkspaceMapper workspaceMapper;
 
     @Override
+    @Cacheable(value = "workspaces", key = "#id")
     public WorkspaceResponse getWorkspaceById(Long id) {
         Workspace workspace = workspacePersistencePort.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Workspace not found with id: " + id));

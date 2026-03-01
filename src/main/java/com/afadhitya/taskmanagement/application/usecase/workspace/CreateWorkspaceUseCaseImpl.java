@@ -12,6 +12,7 @@ import com.afadhitya.taskmanagement.domain.entity.Workspace;
 import com.afadhitya.taskmanagement.domain.entity.WorkspaceMember;
 import com.afadhitya.taskmanagement.domain.enums.WorkspaceRole;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ public class CreateWorkspaceUseCaseImpl implements CreateWorkspaceUseCase {
     private final WorkspaceMapper workspaceMapper;
 
     @Override
+    @CacheEvict(value = "workspaces", key = "#result.id()")
     public WorkspaceResponse createWorkspace(CreateWorkspaceRequest request, Long ownerId) {
         if (workspacePersistencePort.existsBySlug(request.slug())) {
             throw new IllegalArgumentException("Slug already exists: " + request.slug());

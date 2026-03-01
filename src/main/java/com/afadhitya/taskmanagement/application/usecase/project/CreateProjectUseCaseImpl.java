@@ -14,6 +14,7 @@ import com.afadhitya.taskmanagement.domain.entity.User;
 import com.afadhitya.taskmanagement.domain.entity.Workspace;
 import com.afadhitya.taskmanagement.domain.enums.ProjectPermission;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,7 @@ public class CreateProjectUseCaseImpl implements CreateProjectUseCase {
     private final ProjectMapper projectMapper;
 
     @Override
+    @CacheEvict(value = "projects", key = "#result.id()")
     public ProjectResponse createProject(CreateProjectRequest request, Long createdByUserId) {
         Workspace workspace = workspacePersistencePort.findById(request.workspaceId())
                 .orElseThrow(() -> new IllegalArgumentException("Workspace not found with id: " + request.workspaceId()));

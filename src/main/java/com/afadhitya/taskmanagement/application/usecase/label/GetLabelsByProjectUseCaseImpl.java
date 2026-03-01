@@ -8,6 +8,7 @@ import com.afadhitya.taskmanagement.application.port.out.project.ProjectPersiste
 import com.afadhitya.taskmanagement.domain.entity.Label;
 import com.afadhitya.taskmanagement.domain.entity.Project;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,7 @@ public class GetLabelsByProjectUseCaseImpl implements GetLabelsByProjectUseCase 
     private final LabelMapper labelMapper;
 
     @Override
+    @Cacheable(value = "labels", key = "'project:' + #projectId")
     public List<LabelResponse> getLabelsByProject(Long projectId) {
         Project project = projectPersistencePort.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + projectId));
