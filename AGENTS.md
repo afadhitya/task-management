@@ -160,13 +160,6 @@ public class AuditedUpdateTaskUseCase implements UpdateTaskUseCase {
 
 **Location:** Place all audit decorators in `application/usecase/audit/` package.
 
-**Note on AuditContextHolder:** 
-`AuditContextHolder` (ThreadLocal) was considered but not used. Decorators fetch workspace/actor info directly from the database. This avoids:
-- ThreadLocal complexity and cleanup requirements
-- Controller modifications
-- Risk of context leaks
-
-The double DB read is acceptable for audit operations (relatively infrequent). 
 
 ### Task Checkpoint
 - Checked to the file /docs/api-checkpoint, the api that listed on the task checkpoint should be same with the defined in prd doc file 

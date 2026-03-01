@@ -39,22 +39,9 @@ src/
     │       │   ├── entity/                      # Core business entities (JPA annotated)
     │       │   │   ├── User.java
     │       │   │   ├── Workspace.java
-    │       │   │   ├── WorkspaceMember.java
-    │       │   │   ├── Project.java
-    │       │   │   ├── ProjectMember.java
-    │       │   │   ├── Task.java
-    │       │   │   ├── TaskLabel.java
-    │       │   │   ├── Label.java
-    │       │   │   ├── Comment.java
-    │       │   │   ├── Attachment.java
-    │       │   │   ├── Notification.java
-    │       │   │   └── AuditLog.java
     │       │   ├── enums/                       # Domain enums
     │       │   │   ├── PlanTier.java
     │       │   │   ├── WorkspaceRole.java
-    │       │   │   ├── ProjectPermission.java
-    │       │   │   ├── TaskStatus.java
-    │       │   │   └── TaskPriority.java
     │       │   └── exception/                   # Domain exceptions
     │       │       └── InvalidTokenException.java
     │       │
@@ -63,43 +50,23 @@ src/
     │       │   │   ├── auth/
     │       │   │   │   ├── RegisterUseCaseImpl.java
     │       │   │   │   ├── LoginUseCaseImpl.java
-    │       │   │   │   ├── LogoutUseCaseImpl.java
-    │       │   │   │   ├── RefreshTokenUseCaseImpl.java
-    │       │   │   │   ├── ForgotPasswordUseCaseImpl.java
-    │       │   │   │   ├── ResetPasswordUseCaseImpl.java
-    │       │   │   │   └── GetCurrentUserUseCaseImpl.java
     │       │   │   ├── user/
     │       │   │   │   ├── CreateUserUseCaseImpl.java
     │       │   │   │   ├── GetUserByIdUseCaseImpl.java
-    │       │   │   │   ├── GetAllUsersUseCaseImpl.java
-    │       │   │   │   ├── UpdateUserUseCaseImpl.java
-    │       │   │   │   └── DeleteUserByIdUseCaseImpl.java
     │       │   │   └── workspace/
     │       │   │       ├── CreateWorkspaceUseCaseImpl.java
     │       │   │       ├── GetWorkspaceByIdUseCaseImpl.java
-    │       │   │       ├── UpdateWorkspaceUseCaseImpl.java
-    │       │   │       └── DeleteWorkspaceByIdUseCaseImpl.java
     │       │   ├── port/                        # Interfaces (boundaries)
     │       │   │   ├── in/                      # Driving ports (input)
     │       │   │   │   ├── auth/
     │       │   │   │   │   ├── RegisterUseCase.java
     │       │   │   │   │   ├── LoginUseCase.java
-    │       │   │   │   │   ├── LogoutUseCase.java
-    │       │   │   │   │   ├── RefreshTokenUseCase.java
-    │       │   │   │   │   ├── ForgotPasswordUseCase.java
-    │       │   │   │   │   ├── ResetPasswordUseCase.java
-    │       │   │   │   │   └── GetCurrentUserUseCase.java
     │       │   │   │   ├── user/
     │       │   │   │   │   ├── CreateUserUseCase.java
     │       │   │   │   │   ├── GetUserByIdUseCase.java
-    │       │   │   │   │   ├── GetAllUsersUseCase.java
-    │       │   │   │   │   ├── UpdateUserUseCase.java
-    │       │   │   │   │   └── DeleteUserByIdUseCase.java
     │       │   │   │   └── workspace/
     │       │   │   │       ├── CreateWorkspaceUseCase.java
     │       │   │   │       ├── GetWorkspaceByIdUseCase.java
-    │       │   │   │       ├── UpdateWorkspaceUseCase.java
-    │       │   │   │       └── DeleteWorkspaceByIdUseCase.java
     │       │   │   └── out/                     # Driven ports (output)
     │       │   │       ├── auth/
     │       │   │       │   ├── UserAuthPersistencePort.java
@@ -112,14 +79,6 @@ src/
     │       │   │   ├── request/
     │       │   │   │   ├── RegisterRequest.java
     │       │   │   │   ├── LoginRequest.java
-    │       │   │   │   ├── LogoutRequest.java
-    │       │   │   │   ├── RefreshTokenRequest.java
-    │       │   │   │   ├── ForgotPasswordRequest.java
-    │       │   │   │   ├── ResetPasswordRequest.java
-    │       │   │   │   ├── CreateUserRequest.java
-    │       │   │   │   ├── UpdateUserRequest.java
-    │       │   │   │   ├── CreateWorkspaceRequest.java
-    │       │   │   │   └── UpdateWorkspaceRequest.java
     │       │   │   └── response/
     │       │   │       ├── AuthResponse.java
     │       │   │       ├── UserResponse.java
@@ -313,10 +272,10 @@ spring-boot-starter-test
   - JWT authentication filter and service
   - OpenAPI/Swagger configuration
   - Method-level security enabled (`@EnableMethodSecurity`)
+  - Global exception handler
 - **Database**: Flyway migrations (V1, V2, V3)
 
 ### 📋 Pending Implementations
-- Global exception handler
 - Remaining use cases (Projects, Tasks, Comments, Labels, Attachments, Notifications)
 - Workspace member management
 - Search functionality
