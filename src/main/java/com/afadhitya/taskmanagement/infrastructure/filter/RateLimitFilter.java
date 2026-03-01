@@ -1,6 +1,5 @@
 package com.afadhitya.taskmanagement.infrastructure.filter;
 
-import com.afadhitya.taskmanagement.domain.exception.RateLimitExceededException;
 import com.afadhitya.taskmanagement.infrastructure.security.JwtService;
 import com.afadhitya.taskmanagement.infrastructure.service.BucketProvider;
 
@@ -49,10 +48,20 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
         if (!bucket.tryConsume(1)) {
             log.warn("Rate limit exceeded for identifier: {}, URI: {}", identifier, request.getRequestURI());
-            throw new RateLimitExceededException(60);
+            sendRateLimitResponse(response);
+            return;
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void sendRateLimitResponse(HttpServletResponse response) throws IOException {
+        response.setStatus(429);
+        response.setContentType("application/json");
+        response.setHeader("Retry-After", "60");
+        response.getWriter().write(
+            "{\"error\":\"RATE_LIMIT_EXCEEDED\",\"message\":\"Rate limit exceeded. Retry after 60 seconds.\"}"
+        );
     }
 
     private String extractIdentifier(HttpServletRequest request) {

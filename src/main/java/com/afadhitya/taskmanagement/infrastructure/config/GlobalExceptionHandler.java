@@ -3,7 +3,6 @@ package com.afadhitya.taskmanagement.infrastructure.config;
 import com.afadhitya.taskmanagement.application.dto.response.ErrorResponse;
 import com.afadhitya.taskmanagement.domain.exception.InvalidTokenException;
 import com.afadhitya.taskmanagement.domain.exception.PlanLimitExceededException;
-import com.afadhitya.taskmanagement.domain.exception.RateLimitExceededException;
 import com.afadhitya.taskmanagement.domain.exception.WorkspaceAccessDeniedException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -42,22 +41,6 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-    }
-
-    @ExceptionHandler(RateLimitExceededException.class)
-    public ResponseEntity<ErrorResponse> handleRateLimitExceeded(
-            RateLimitExceededException ex,
-            HttpServletRequest request) {
-
-        ErrorResponse response = ErrorResponse.builder()
-                .timestamp(Instant.now())
-                .status(429)
-                .error("RATE_LIMIT_EXCEEDED")
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
-                .build();
-
-        return ResponseEntity.status(429).body(response);
     }
 
     @ExceptionHandler(WorkspaceAccessDeniedException.class)
