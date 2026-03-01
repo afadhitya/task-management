@@ -1,6 +1,6 @@
 package com.afadhitya.taskmanagement.application.usecase.admin;
 
-import com.afadhitya.taskmanagement.adapter.out.feature.PlanConfigurationEntity;
+import com.afadhitya.taskmanagement.domain.feature.PlanConfigurationEntity;
 import com.afadhitya.taskmanagement.application.dto.response.admin.PlanSummaryResponse;
 import com.afadhitya.taskmanagement.application.port.in.admin.ListPlansUseCase;
 import com.afadhitya.taskmanagement.application.port.out.admin.AdminPlanPersistencePort;

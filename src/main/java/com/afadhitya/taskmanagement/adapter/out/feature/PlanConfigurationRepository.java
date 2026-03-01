@@ -1,7 +1,6 @@
 package com.afadhitya.taskmanagement.adapter.out.feature;
 
-import com.afadhitya.taskmanagement.domain.feature.Feature;
-import com.afadhitya.taskmanagement.domain.feature.LimitType;
+import com.afadhitya.taskmanagement.domain.feature.PlanConfigurationEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

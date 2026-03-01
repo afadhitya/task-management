@@ -1,4 +1,4 @@
-package com.afadhitya.taskmanagement.adapter.out.feature;
+package com.afadhitya.taskmanagement.domain.feature;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -1,7 +1,7 @@
 package com.afadhitya.taskmanagement.application.usecase.admin;
 
-import com.afadhitya.taskmanagement.adapter.out.feature.PlanConfigurationEntity;
-import com.afadhitya.taskmanagement.adapter.out.feature.PlanFeatureEntity;
+import com.afadhitya.taskmanagement.domain.feature.PlanConfigurationEntity;
+import com.afadhitya.taskmanagement.domain.feature.PlanFeatureEntity;
 import com.afadhitya.taskmanagement.application.dto.response.admin.PlanDetailResponse;
 import com.afadhitya.taskmanagement.application.dto.response.admin.PlanFeatureResponse;
 import com.afadhitya.taskmanagement.application.dto.response.admin.PlanLimitResponse;

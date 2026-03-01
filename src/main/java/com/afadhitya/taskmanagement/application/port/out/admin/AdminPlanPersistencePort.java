@@ -1,6 +1,7 @@
 package com.afadhitya.taskmanagement.application.port.out.admin;
 
-import com.afadhitya.taskmanagement.adapter.out.feature.*;
+import com.afadhitya.taskmanagement.domain.feature.PlanConfigurationEntity;
+import com.afadhitya.taskmanagement.domain.feature.PlanFeatureEntity;
 
 import java.util.List;
 import java.util.Optional;
