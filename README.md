@@ -57,6 +57,29 @@ This project follows **Clean Architecture** (Robert C. Martin) with 4 layers:
 └─────────────────────────────────────────────────────────┘
 ```
 
+### Feature Flag & Dispatcher System
+
+This project implements a **Feature Flag & Dispatcher Pattern** for:
+- Plan-based access control (Free, Team, Enterprise)
+- Zero-resource-waste for disabled features
+- Clean separation between business logic and cross-cutting concerns
+
+```
+Controller → UseCase Interface → @Primary Decorator → Pure Implementation
+                                         ↓
+                              FeatureDispatcher/Interceptor
+                                         ↓
+                              Feature Handlers (Audit, Limits, etc.)
+```
+
+**Key Components:**
+- **Feature Dispatcher**: Routes requests to handlers based on feature enablement
+- **Audit Decorators**: `AuditedProjectUseCases`, `AuditedTaskUseCases` - wrap use cases with audit logic
+- **Feature Interceptor**: `AuditFeatureInterceptor` - handles feature toggle checks
+- **Plan Entitlements**: Cached feature/limit checks per workspace
+
+See [`docs/feature-flag-technical.md`](docs/feature-flag-technical.md) for detailed implementation.
+
 ### Package Structure
 
 ```
