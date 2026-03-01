@@ -159,6 +159,11 @@ Each API should be marked as `done` once implemented and verified.
 
 ---
 
+**Related Documents:**
+- [Redis Caching Technical](./redis-caching-technical.md) - Technical implementation details
+
+---
+
 ## Implementation Notes
 
 ### Endpoint Paths
@@ -194,7 +199,8 @@ Current implementation uses inconsistent path prefixes:
 | Search | 1 | 1 | 0 |
 | Audit Logs | 1 | 1 | 0 |
 | Health Check | 1 | 1 | 0 |
-| **Total** | **54** | **47** | **7** |
+| Redis Caching | 3 | 0 | 3 |
+| **Total** | **57** | **47** | **10** |
 
 ---
 

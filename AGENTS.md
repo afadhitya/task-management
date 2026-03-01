@@ -14,11 +14,7 @@ This file contains guardrails and custom instructions for the AI assistant when 
 2. **`/docs/clean-architecture.md`** - Architecture Overview
    - Understand the project structure, layers, and coding patterns
 
-3. **`/docs/api-checkpoint.md`** - API Implementation Status
-   - Check which APIs are pending, in progress, or done
-   - Update status when completing APIs
-
-4. **`/AGENTS.md`** - This file
+3. **`/AGENTS.md`** - This file
    - Review guardrails and conventions
 
 **⚡ IMPORTANT:** Do NOT scan the entire codebase initially. Start with the documentation above, then only explore specific code files as needed for the task at hand.
