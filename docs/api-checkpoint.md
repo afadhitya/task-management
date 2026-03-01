@@ -144,6 +144,20 @@ Each API should be marked as `done` once implemented and verified.
 
 ---
 
+## 12. Global Error Handler
+
+| Status | Component | Description |
+|--------|-----------|-------------|
+| [x] | ErrorResponse DTO | Standardized error response structure |
+| [x] | GlobalExceptionHandler | Centralized exception handling |
+| [x] | Exception Updates | Add getters to existing exceptions |
+
+**Related Documents:**
+- [Global Error Handler PRD](./global-error-handler-prd.md) - Product requirements
+- [Global Error Handler Technical](./global-error-handler-technical.md) - Implementation details
+
+---
+
 ## Implementation Notes
 
 ### Endpoint Paths
@@ -171,21 +185,22 @@ The UserController may be refactored or removed in favor of auth-based user mana
 
 ## Summary
 
-| Category | Total | Done | Pending |
-|----------|-------|------|---------|
-| Authentication | 7 | 7 | 0 |
-| Workspaces | 8 | 4 | 4 |
-| Projects | 9 | 9 | 0 |
-| Tasks | 8 | 8 | 0 |
-| Comments | 4 | 4 | 0 |
-| Labels | 6 | 2 | 4 |
-| Attachments | 3 | 0 | 3 |
-| Notifications | 4 | 0 | 4 |
-| Search | 1 | 0 | 1 |
-| Audit Logs | 1 | 0 | 1 |
-| Health Check | 1 | 1 | 0 |
-| **Total** | **52** | **35** | **17** |
+| Category | Total  | Done | Pending |
+|----------|--------|------|---------|
+| Authentication | 7      | 7 | 0       |
+| Workspaces | 8      | 4 | 4       |
+| Projects | 9      | 9 | 0       |
+| Tasks | 8      | 8 | 0       |
+| Comments | 4      | 4 | 0       |
+| Labels | 6      | 2 | 4       |
+| Attachments | 3      | 0 | 3       |
+| Notifications | 4      | 0 | 4       |
+| Search | 1      | 0 | 1       |
+| Audit Logs | 1      | 0 | 1       |
+| Health Check | 1      | 1 | 0       |
+| Global Error Handler | 3      | 3 | 0       |
+| **Total** | **56** | **38** | **18**  |
 
 ---
 
-*Last updated: 2026-02-27*
+*Last updated: 2026-03-01*
