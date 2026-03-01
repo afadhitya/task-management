@@ -6,6 +6,8 @@ import com.afadhitya.taskmanagement.adapter.out.persistence.WorkspaceRepository;
 import com.afadhitya.taskmanagement.application.port.out.workspace.WorkspacePersistencePort;
 import com.afadhitya.taskmanagement.domain.entity.Workspace;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -20,11 +22,13 @@ public class WorkspacePersistenceAdapter implements WorkspacePersistencePort {
     private final WorkspaceMemberRepository workspaceMemberRepository;
 
     @Override
+    @CacheEvict(value = "workspaces", key = "#workspace.id")
     public Workspace save(Workspace workspace) {
         return workspaceRepository.save(workspace);
     }
 
     @Override
+    @Cacheable(value = "workspaces", key = "#id")
     public Optional<Workspace> findById(Long id) {
         return workspaceRepository.findById(id);
     }
@@ -45,6 +49,7 @@ public class WorkspacePersistenceAdapter implements WorkspacePersistencePort {
     }
 
     @Override
+    @CacheEvict(value = "workspaces", key = "#id")
     public void deleteById(Long id) {
         workspaceRepository.deleteById(id);
     }

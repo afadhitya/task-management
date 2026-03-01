@@ -4,6 +4,8 @@ import com.afadhitya.taskmanagement.adapter.out.persistence.ProjectRepository;
 import com.afadhitya.taskmanagement.application.port.out.project.ProjectPersistencePort;
 import com.afadhitya.taskmanagement.domain.entity.Project;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,11 +18,13 @@ public class ProjectPersistenceAdapter implements ProjectPersistencePort {
     private final ProjectRepository projectRepository;
 
     @Override
+    @CacheEvict(value = "projects", key = "#project.id")
     public Project save(Project project) {
         return projectRepository.save(project);
     }
 
     @Override
+    @Cacheable(value = "projects", key = "#id")
     public Optional<Project> findById(Long id) {
         return projectRepository.findById(id);
     }
@@ -36,6 +40,7 @@ public class ProjectPersistenceAdapter implements ProjectPersistencePort {
     }
 
     @Override
+    @CacheEvict(value = "projects", key = "#id")
     public void deleteById(Long id) {
         projectRepository.deleteById(id);
     }

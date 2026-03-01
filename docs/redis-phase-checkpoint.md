@@ -3,7 +3,7 @@ Redis Caching Implementation
 | Phase | Status | Description |
 |-------|--------|-------------|
 | Phase 1 | [x] | Replace Caffeine with Redis |
-| Phase 2 | [ ] | Add new caches (users, workspaces, projects, labels, projectMembers) |
+| Phase 2 | [x] | Add new caches (users, workspaces, projects, labels, projectMembers) |
 | Phase 3 | [ ] | Implement cache invalidation |
 
 ### Phase 1: Replace Caffeine with Redis

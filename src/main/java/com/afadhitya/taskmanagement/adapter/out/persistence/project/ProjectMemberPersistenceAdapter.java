@@ -5,6 +5,8 @@ import com.afadhitya.taskmanagement.application.port.out.project.ProjectMemberPe
 import com.afadhitya.taskmanagement.domain.entity.ProjectMember;
 import com.afadhitya.taskmanagement.domain.enums.ProjectPermission;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -17,6 +19,7 @@ public class ProjectMemberPersistenceAdapter implements ProjectMemberPersistence
     private final ProjectMemberRepository projectMemberRepository;
 
     @Override
+    @CacheEvict(value = "projectMembers", key = "#projectMember.project.id")
     public ProjectMember save(ProjectMember projectMember) {
         return projectMemberRepository.save(projectMember);
     }
@@ -27,6 +30,7 @@ public class ProjectMemberPersistenceAdapter implements ProjectMemberPersistence
     }
 
     @Override
+    @Cacheable(value = "projectMembers", key = "#projectId")
     public List<ProjectMember> findByProjectId(Long projectId) {
         return projectMemberRepository.findByProjectId(projectId);
     }
@@ -37,6 +41,7 @@ public class ProjectMemberPersistenceAdapter implements ProjectMemberPersistence
     }
 
     @Override
+    @CacheEvict(value = "projectMembers", key = "#projectId")
     public void deleteByProjectIdAndUserId(Long projectId, Long userId) {
         projectMemberRepository.deleteByProjectIdAndUserId(projectId, userId);
     }
